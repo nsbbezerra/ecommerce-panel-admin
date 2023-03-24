@@ -21,7 +21,7 @@ export default function InputText({
       <PrimeInputText
         {...rest}
         id={name}
-        className={fullWidth ? "w-full py-2" : "py-2"}
+        className={fullWidth ? "w-full" : ""}
       />
       <label htmlFor={name}>{label}</label>
     </span>

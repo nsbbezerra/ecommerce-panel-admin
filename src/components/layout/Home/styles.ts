@@ -108,7 +108,7 @@ export const MenuItem = styled.button<MenuItemProps>`
     display: ${(props) => (props.isOpen ? "block" : "none")};
     overflow: hidden;
     font-weight: bold;
-    transition: all 0.2s;
+    transition: all 0.4s;
   }
 `;
 

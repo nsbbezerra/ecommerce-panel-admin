@@ -7,5 +7,11 @@ interface Props {
 type DefaultProps = ButtonProps & Props;
 
 export default function Button({ fullWidth = false, ...rest }: DefaultProps) {
-  return <PrimeButton {...rest} className={fullWidth ? "w-full" : "w-fit"} />;
+  return (
+    <PrimeButton
+      {...rest}
+      className={fullWidth ? "w-full" : "w-fit"}
+      style={{ height: !rest.label ? "" : "44px" }}
+    />
+  );
 }

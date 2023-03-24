@@ -19,7 +19,7 @@ export default function Password({
         inputId={name}
         {...rest}
         className={fullWidth ? "w-full" : ""}
-        inputClassName={fullWidth ? "w-full py-2" : ""}
+        inputClassName={fullWidth ? "w-full" : ""}
       />
       <label htmlFor={name}>{label}</label>
     </span>
