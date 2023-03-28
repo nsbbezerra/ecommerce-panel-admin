@@ -9,6 +9,7 @@ import Password from "../../components/layout/Password";
 import Button from "../../components/layout/Button";
 import { useNavigate } from "react-router-dom";
 import Checkbox from "../../components/layout/Checkbox";
+import { AiOutlineLogin } from "react-icons/ai";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -22,26 +23,18 @@ export default function LoginPage() {
           <div className="inputs-container">
             <InputText label="Empresa" fullWidth name="company_id" autoFocus />
             <InputText label="Usuário" fullWidth name="user" />
-            <Password
-              label="Senha"
-              fullWidth
-              name="password"
-              toggleMask
-              promptLabel="Insira uma senha"
-              weakLabel="Senha fraca"
-              mediumLabel="Senha razoável"
-              strongLabel="Senha forte"
-            />
+            <Password label="Senha" fullWidth name="password" />
 
-            <Checkbox label="Mantenha-me conectado" checked={true} />
+            <Checkbox label="Mantenha-me conectado" isChecked />
 
             <Button
-              label="Login"
+              variant="contained"
+              startIcon={<AiOutlineLogin />}
               size="large"
-              icon="pi pi-sign-in"
-              fullWidth
               onClick={() => navigate("/dashboard")}
-            />
+            >
+              LOGIN
+            </Button>
 
             <AppDescription className="text-sm">
               © NK Systems - 2023

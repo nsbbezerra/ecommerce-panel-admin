@@ -1,11 +1,21 @@
+import {
+  FormControl,
+  InputLabel,
+  InputAdornment,
+  IconButton,
+  FilledInput,
+  FilledInputProps,
+} from "@mui/material";
 import { Password as PrimePassword, PasswordProps } from "primereact/password";
+import { useState } from "react";
+import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 
 interface Props {
   label: string;
   fullWidth?: boolean;
 }
 
-type DefaultProps = PasswordProps & Props;
+type DefaultProps = FilledInputProps & Props;
 
 export default function Password({
   label,
@@ -13,15 +23,21 @@ export default function Password({
   name,
   ...rest
 }: DefaultProps) {
+  const [showPass, setShowPass] = useState<boolean>(false);
   return (
-    <span className="p-float-label w-full block">
-      <PrimePassword
-        inputId={name}
+    <FormControl variant="filled" fullWidth size="small">
+      <InputLabel>{label}</InputLabel>
+      <FilledInput
         {...rest}
-        className={fullWidth ? "w-full" : ""}
-        inputClassName={fullWidth ? "w-full" : ""}
+        type={showPass ? "text" : "password"}
+        endAdornment={
+          <InputAdornment position="end">
+            <IconButton onClick={() => setShowPass(!showPass)} size="small">
+              {showPass ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+            </IconButton>
+          </InputAdornment>
+        }
       />
-      <label htmlFor={name}>{label}</label>
-    </span>
+    </FormControl>
   );
 }

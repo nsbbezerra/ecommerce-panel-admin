@@ -1,5 +1,5 @@
-import { InputSwitch, InputSwitchProps } from "primereact/inputswitch";
+import MuiSwitch, { SwitchProps } from "@mui/material/Switch";
 
-export default function Switch({ ...rest }: InputSwitchProps) {
-  return <InputSwitch {...rest} />;
+export default function Switch({ ...rest }: SwitchProps) {
+  return <MuiSwitch {...rest} />;
 }

@@ -7,12 +7,24 @@ import {
   MenuItem,
   SideBar,
 } from "./styles";
-import { Button } from "primereact/button";
 import { useContext, useEffect, useState } from "react";
 import Avatar from "../Avatar";
 import Tooltip from "../Tooltip";
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
 import BooleanEventsContext from "../../../context/booleanEvents";
+import IconButton from "../IconButton";
+import { FiChevronRight, FiChevronLeft } from "react-icons/fi";
+import { blue } from "@mui/material/colors";
+import {
+  AiOutlineHome,
+  AiOutlineLineChart,
+  AiOutlineShoppingCart,
+  AiOutlineTag,
+  AiOutlineTags,
+  AiOutlineTool,
+  AiOutlineUser,
+} from "react-icons/ai";
+import { TbFileInvoice } from "react-icons/tb";
 
 export default function Home() {
   const { is, setIs } = useContext(BooleanEventsContext);
@@ -28,110 +40,165 @@ export default function Home() {
   return (
     <HomeContainer>
       <SideBar isOpen={is.isSiderOpen}>
-        <Button
-          icon={`pi ${is.isSiderOpen ? "pi-chevron-left" : "pi-chevron-right"}`}
-          aria-label="Filter"
-          severity="info"
-          rounded
-          raised
-          size="small"
+        <IconButton
           style={{
+            background: blue["500"],
+            color: "#FFF",
             position: "absolute",
-            top: "10px",
-            right: "-17px",
+            top: "14px",
+            right: "-13px",
           }}
+          size="small"
           onClick={() => setIs({ isSiderOpen: !is.isSiderOpen })}
-        />
+        >
+          {is.isSiderOpen ? <FiChevronLeft /> : <FiChevronRight />}
+        </IconButton>
 
         <AvatarContainer>
           <Avatar
             className="avatar shadow-7"
-            image="https://img.freepik.com/vetores-gratis/conceito-do-logotipo-da-letra-k-para-sua-marca-real_1017-33266.jpg?w=2000"
-            shape="circle"
-            size={is.isSiderOpen ? "xlarge" : "normal"}
+            src="https://img.freepik.com/vetores-gratis/conceito-do-logotipo-da-letra-k-para-sua-marca-real_1017-33266.jpg?w=2000"
+            sx={{
+              width: is.isSiderOpen ? "100px" : "60%",
+              height: is.isSiderOpen ? "100px" : "60%",
+            }}
           />
         </AvatarContainer>
-        <CompanyName isOpen={is.isSiderOpen}>NK Gráfica Online</CompanyName>
-        <Tooltip target={is.isSiderOpen ? "" : ".menu-item"} position="right" />
         <Menu>
-          <MenuItem
-            isActive={itemActive === "/dashboard"}
-            isOpen={is.isSiderOpen}
-            className="menu-item"
-            data-pr-tooltip="INÍCIO"
-            onClick={() => navigate("/dashboard")}
+          <Tooltip
+            title="Início"
+            placement="right"
+            disableHoverListener={is.isSiderOpen}
+            arrow
           >
-            <i className="pi pi-home menu-icon"></i>
-            <span className="menu-text">INÍCIO</span>
-          </MenuItem>
-          <MenuItem
-            isActive={itemActive === "/dashboard/clientes"}
-            isOpen={is.isSiderOpen}
-            className="menu-item"
-            data-pr-tooltip="CLIENTES"
-            onClick={() => navigate("/dashboard/clientes")}
+            <MenuItem
+              isActive={itemActive === "/dashboard"}
+              isOpen={is.isSiderOpen}
+              className="menu-item"
+              data-pr-tooltip="INÍCIO"
+              onClick={() => navigate("/dashboard")}
+            >
+              <AiOutlineHome className="menu-icon" fontSize={16} />
+              <span className="menu-text">INÍCIO</span>
+            </MenuItem>
+          </Tooltip>
+          <Tooltip
+            title="Clientes"
+            placement="right"
+            disableHoverListener={is.isSiderOpen}
+            arrow
           >
-            <i className="pi pi-users menu-icon"></i>
-            <span className="menu-text">CLIENTES</span>
-          </MenuItem>
-          <MenuItem
-            isActive={
-              itemActive === "/dashboard/categorias" ||
-              itemActive === "/dashboard/categorias/criar"
-            }
-            isOpen={is.isSiderOpen}
-            className="menu-item"
-            data-pr-tooltip="CATEGORIAS"
-            onClick={() => navigate("/dashboard/categorias")}
+            <MenuItem
+              isActive={itemActive === "/dashboard/clientes"}
+              isOpen={is.isSiderOpen}
+              className="menu-item"
+              data-pr-tooltip="CLIENTES"
+              onClick={() => navigate("/dashboard/clientes")}
+            >
+              <AiOutlineUser className="menu-icon" fontSize={16} />
+              <span className="menu-text">CLIENTES</span>
+            </MenuItem>
+          </Tooltip>
+          <Tooltip
+            title="Categorias"
+            placement="right"
+            disableHoverListener={is.isSiderOpen}
+            arrow
           >
-            <i className="pi pi-tag menu-icon"></i>
-            <span className="menu-text">CATEGORIAS</span>
-          </MenuItem>
-          <MenuItem
-            isActive={false}
-            isOpen={is.isSiderOpen}
-            className="menu-item"
-            data-pr-tooltip="PRODUTOS"
+            <MenuItem
+              isActive={
+                itemActive === "/dashboard/categorias" ||
+                itemActive === "/dashboard/categorias/criar"
+              }
+              isOpen={is.isSiderOpen}
+              className="menu-item"
+              data-pr-tooltip="CATEGORIAS"
+              onClick={() => navigate("/dashboard/categorias")}
+            >
+              <AiOutlineTag className="menu-icon" fontSize={16} />
+              <span className="menu-text">CATEGORIAS</span>
+            </MenuItem>
+          </Tooltip>
+          <Tooltip
+            title="Produtos"
+            placement="right"
+            disableHoverListener={is.isSiderOpen}
+            arrow
           >
-            <i className="pi pi-tags menu-icon"></i>
-            <span className="menu-text">PRODUTOS</span>
-          </MenuItem>
-          <MenuItem
-            isActive={false}
-            isOpen={is.isSiderOpen}
-            className="menu-item"
-            data-pr-tooltip="VENDAS"
+            <MenuItem
+              isActive={false}
+              isOpen={is.isSiderOpen}
+              className="menu-item"
+              data-pr-tooltip="PRODUTOS"
+            >
+              <AiOutlineTags className="menu-icon" fontSize={16} />
+              <span className="menu-text">PRODUTOS</span>
+            </MenuItem>
+          </Tooltip>
+          <Tooltip
+            title="Vendas"
+            placement="right"
+            disableHoverListener={is.isSiderOpen}
+            arrow
           >
-            <i className="pi pi-shopping-cart menu-icon"></i>
-            <span className="menu-text">VENDAS</span>
-          </MenuItem>
-          <MenuItem
-            isActive={false}
-            isOpen={is.isSiderOpen}
-            className="menu-item"
-            data-pr-tooltip="FINANCEIRO"
+            <MenuItem
+              isActive={false}
+              isOpen={is.isSiderOpen}
+              className="menu-item"
+              data-pr-tooltip="VENDAS"
+            >
+              <AiOutlineShoppingCart className="menu-icon" fontSize={16} />
+              <span className="menu-text">VENDAS</span>
+            </MenuItem>
+          </Tooltip>
+          <Tooltip
+            title="Financeiro"
+            placement="right"
+            disableHoverListener={is.isSiderOpen}
+            arrow
           >
-            <i className="pi pi-chart-line menu-icon"></i>
-            <span className="menu-text">FINANCEIRO</span>
-          </MenuItem>
-          <MenuItem
-            isActive={false}
-            isOpen={is.isSiderOpen}
-            className="menu-item"
-            data-pr-tooltip="FISCAL"
+            <MenuItem
+              isActive={false}
+              isOpen={is.isSiderOpen}
+              className="menu-item"
+              data-pr-tooltip="FINANCEIRO"
+            >
+              <AiOutlineLineChart className="menu-icon" fontSize={16} />
+              <span className="menu-text">FINANCEIRO</span>
+            </MenuItem>
+          </Tooltip>
+          <Tooltip
+            title="Fiscal"
+            placement="right"
+            disableHoverListener={is.isSiderOpen}
+            arrow
           >
-            <i className="pi pi-file-export menu-icon"></i>
-            <span className="menu-text">FISCAL</span>
-          </MenuItem>
-          <MenuItem
-            isActive={false}
-            isOpen={is.isSiderOpen}
-            className="menu-item"
-            data-pr-tooltip="CONFIGURAÇÕES"
+            <MenuItem
+              isActive={false}
+              isOpen={is.isSiderOpen}
+              className="menu-item"
+              data-pr-tooltip="FISCAL"
+            >
+              <TbFileInvoice className="menu-icon" fontSize={16} />
+              <span className="menu-text">FISCAL</span>
+            </MenuItem>
+          </Tooltip>
+          <Tooltip
+            title="Configurações"
+            placement="right"
+            disableHoverListener={is.isSiderOpen}
+            arrow
           >
-            <i className="pi pi-cog menu-icon"></i>
-            <span className="menu-text">CONFIGURAÇÕES</span>
-          </MenuItem>
+            <MenuItem
+              isActive={false}
+              isOpen={is.isSiderOpen}
+              className="menu-item"
+              data-pr-tooltip="CONFIGURAÇÕES"
+            >
+              <AiOutlineTool className="menu-icon" fontSize={16} />
+              <span className="menu-text">CONFIGURAÇÕES</span>
+            </MenuItem>
+          </Tooltip>
         </Menu>
       </SideBar>
       <AppContent>

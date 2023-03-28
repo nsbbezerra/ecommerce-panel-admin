@@ -1,4 +1,5 @@
-import styled from "styled-components";
+import styled from "@emotion/styled";
+import { grey, blue, lightBlue } from "@mui/material/colors";
 
 interface SideBarProps {
   isOpen: boolean;
@@ -16,11 +17,11 @@ export const HomeContainer = styled.div`
   display: flex;
   align-items: flex-start;
   justify-content: stretch;
-  background-color: var(--surface-100);
+  background-color: ${grey["100"]};
 `;
 
 export const SideBar = styled.div<SideBarProps>`
-  background-color: var(--primary-900);
+  background-color: ${lightBlue["900"]};
   height: 100%;
   width: ${(props) => (props.isOpen ? "230px" : "70px")};
   box-shadow: rgba(0, 0, 0, 0.1) 5px 4px 9px;
@@ -47,12 +48,12 @@ export const AvatarContainer = styled.div`
   .avatar {
     border-radius: 100%;
     transition: all 0.2s;
-    border: 2px solid var(--surface-0);
+    border: 2px solid ${grey["50"]};
   }
 `;
 
 export const CompanyName = styled.span<SideBarProps>`
-  color: var(--surface-0);
+  color: ${grey["50"]};
   font-weight: bold;
   text-align: center;
   transition: all 0.2s;
@@ -77,19 +78,19 @@ export const MenuItem = styled.button<MenuItemProps>`
   align-items: center;
   overflow: hidden;
   width: 100%;
-  color: var(--surface-0);
+  color: ${grey["50"]};
   cursor: pointer;
   transition: all 0.2s;
   border-left-width: 4px;
   border-left-style: solid;
   border-left-color: ${(props) =>
-    props.isActive ? "var(--blue-500)" : "transparent"};
+    props.isActive ? `${blue["500"]}` : "transparent"};
   padding: 12px 0px;
 
   &:hover {
     background-color: ${(props) =>
       props.isActive ? "" : "rgba(255, 255, 255, 0.1)"};
-    border-left-color: ${(props) => (props.isActive ? "" : "var(--blue-500)")};
+    border-left-color: ${(props) => (props.isActive ? "" : `${blue["500"]}`)};
   }
 
   &:active {

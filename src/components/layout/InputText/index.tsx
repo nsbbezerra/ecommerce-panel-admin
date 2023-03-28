@@ -1,29 +1,7 @@
-import {
-  InputText as PrimeInputText,
-  InputTextProps,
-} from "primereact/inputtext";
+import TextField, { TextFieldProps } from "@mui/material/TextField";
 
-interface Props {
-  label: string;
-  fullWidth?: boolean;
-}
+type DefaultPros = TextFieldProps;
 
-type DefaultPros = InputTextProps & Props;
-
-export default function InputText({
-  label,
-  name,
-  fullWidth = false,
-  ...rest
-}: DefaultPros) {
-  return (
-    <span className="p-float-label w-full">
-      <PrimeInputText
-        {...rest}
-        id={name}
-        className={fullWidth ? "w-full" : ""}
-      />
-      <label htmlFor={name}>{label}</label>
-    </span>
-  );
+export default function InputText({ ...rest }: DefaultPros) {
+  return <TextField {...rest} variant="filled" size="small" />;
 }

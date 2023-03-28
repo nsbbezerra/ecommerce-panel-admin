@@ -1,7 +1,12 @@
-import { Tooltip as PrimeTooltip, TooltipProps } from "primereact/tooltip";
+import MuiTooltip, { TooltipProps } from "@mui/material/Tooltip";
+import { ReactNode } from "react";
 
-type Props = TooltipProps;
+interface Props {
+  children?: ReactNode | ReactNode[];
+}
 
-export default function Tooltip({ ...rest }: Props) {
-  return <PrimeTooltip {...rest} />;
+type DefaultProps = TooltipProps & Props;
+
+export default function Tooltip({ children, ...rest }: DefaultProps) {
+  return <MuiTooltip {...rest}>{children}</MuiTooltip>;
 }

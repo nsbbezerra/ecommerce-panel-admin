@@ -1,17 +1,7 @@
-import { Button as PrimeButton, ButtonProps } from "primereact/button";
+import { LoadingButton, LoadingButtonProps } from "@mui/lab";
 
-interface Props {
-  fullWidth?: boolean;
-}
+type DefaultProps = LoadingButtonProps;
 
-type DefaultProps = ButtonProps & Props;
-
-export default function Button({ fullWidth = false, ...rest }: DefaultProps) {
-  return (
-    <PrimeButton
-      {...rest}
-      className={fullWidth ? "w-full" : "w-fit"}
-      style={{ height: !rest.label ? "" : "44px" }}
-    />
-  );
+export default function Button({ ...rest }: DefaultProps) {
+  return <LoadingButton {...rest} />;
 }

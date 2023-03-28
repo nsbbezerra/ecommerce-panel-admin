@@ -1,10 +1,10 @@
 import { LoadingContainer } from "./style";
-import { ProgressSpinner } from "primereact/progressspinner";
+import CircularProgress from "@mui/material/CircularProgress";
 
 export default function Loading() {
   return (
     <LoadingContainer>
-      <ProgressSpinner style={{ width: "60px", height: "60px" }} />
+      <CircularProgress style={{ width: "60px", height: "60px" }} />
       <span>Carregando...</span>
     </LoadingContainer>
   );

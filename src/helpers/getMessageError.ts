@@ -1,3 +1,4 @@
+import { blue } from "@mui/material/colors";
 import Swal from "sweetalert2";
 
 interface Props {
@@ -21,7 +22,7 @@ export default function getErrorMessage({ error }: Props) {
   return Swal.fire({
     title: "Erro",
     text: handleMessage(),
-    confirmButtonColor: "var(--primary-color)",
+    confirmButtonColor: blue["500"],
     icon: "error",
   });
 }

@@ -1,18 +1,19 @@
-import { Checkbox as PrimeCheckbox, CheckboxProps } from "primereact/checkbox";
+import { FormControlLabel } from "@mui/material";
+import MuiCheckbox from "@mui/material/Checkbox";
+import { ChangeEvent } from "react";
 
 interface Props {
   label: string;
+  isChecked: boolean;
+  onChange?: (event: ChangeEvent<HTMLInputElement>, checked: boolean) => void;
 }
 
-type DefaultProps = CheckboxProps & Props;
-
-export default function Checkbox({ label, name, ...rest }: DefaultProps) {
+export default function Checkbox({ label, isChecked, onChange }: Props) {
   return (
-    <div className="flex align-items-center">
-      <PrimeCheckbox inputId={name} {...rest} />
-      <label htmlFor={name} className="ml-2">
-        {label}
-      </label>
-    </div>
+    <FormControlLabel
+      control={<MuiCheckbox defaultChecked={isChecked} onChange={onChange} />}
+      label={label}
+      style={{ userSelect: "none" }}
+    />
   );
 }

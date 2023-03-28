@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled from "@emotion/styled";
 
 export const Header = styled.div`
   width: 100%;
@@ -26,9 +26,20 @@ export const Header = styled.div`
     gap: 10px;
   }
 
+  .account-info {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+    min-width: 220px;
+  }
+
   @media (min-width: 624px) {
     .menu-button {
       display: none;
+    }
+    .account-info {
+      display: flex;
     }
   }
 `;

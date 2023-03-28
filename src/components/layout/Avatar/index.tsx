@@ -1,7 +1,12 @@
-import { Avatar as PrimeAvatar, AvatarProps } from "primereact/avatar";
+import MuiAvatar, { AvatarProps } from "@mui/material/Avatar";
+import { ReactNode } from "react";
 
-type Props = AvatarProps;
+interface Props {
+  children?: ReactNode;
+}
 
-export default function Avatar({ ...rest }: Props) {
-  return <PrimeAvatar {...rest} />;
+type DefaultProps = AvatarProps & Props;
+
+export default function Avatar({ children, ...rest }: DefaultProps) {
+  return <MuiAvatar {...rest}>{children}</MuiAvatar>;
 }
