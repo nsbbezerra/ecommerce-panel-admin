@@ -53,7 +53,9 @@ export default function ClientsPage() {
           gap={2}
           alignItems="center"
         >
-          <ResultsText>10 Resultados</ResultsText>
+          <ResultsText>
+            {clients.length} {clients.length > 1 ? "Resultados" : "Resultado"}
+          </ResultsText>
           <SeachContainer>
             <InputText label="Digite para buscar" fullWidth />
           </SeachContainer>

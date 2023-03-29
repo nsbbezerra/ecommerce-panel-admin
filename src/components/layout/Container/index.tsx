@@ -6,6 +6,6 @@ interface Props {
   children: ReactNode | ReactNode[];
 }
 
-export default function Container({ size = "2xl", children }: Props) {
+export default function Container({ size = "xl", children }: Props) {
   return <AppContainer size={size}>{children}</AppContainer>;
 }

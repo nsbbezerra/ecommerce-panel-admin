@@ -5,14 +5,24 @@ import Container from "../../components/layout/Container";
 import DefaultContainer from "../../components/layout/DefaultContainer";
 import { CategoriesEntity } from "../../services/entities/categories";
 import { useQuery } from "react-query";
-import { api } from "../../configs/api";
+import { api, apiUrl } from "../../configs/api";
 import { configs } from "../../configs";
 import getErrorMessage from "../../helpers/getMessageError";
 import Loading from "../../components/layout/Loading";
 import { useNavigate } from "react-router-dom";
-import { AiOutlineEdit, AiOutlinePicture, AiOutlinePlus } from "react-icons/ai";
+import {
+  AiOutlineClose,
+  AiOutlineEdit,
+  AiOutlinePicture,
+  AiOutlinePlus,
+  AiOutlineSave,
+} from "react-icons/ai";
 import {
   Box,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   ListItemIcon,
   ListItemText,
   Menu,
@@ -21,7 +31,6 @@ import {
   TableBody,
   TableCell,
   TableContainer,
-  TableFooter,
   TableHead,
   TableRow,
 } from "@mui/material";
@@ -31,20 +40,48 @@ import Switch from "../../components/layout/Switch";
 import Avatar from "../../components/layout/Avatar";
 import IconButton from "../../components/layout/IconButton";
 import { FiChevronDown } from "react-icons/fi";
+import getSuccessMessage from "../../helpers/getMessageSuccess";
+import Swal from "sweetalert2";
+import { blue } from "@mui/material/colors";
+import Upload from "../../components/layout/Upload";
+
+interface Props {
+  categoryId: string;
+  categoryName: string;
+  thumbnailId: string;
+}
 
 export default function CategoriesPage() {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
-  const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
 
   const navigate = useNavigate();
   const [categories, setCategories] = useState<CategoriesEntity[]>([]);
-  const [categoryId, setCategoryId] = useState<string>("");
+  const [category, setCategory] = useState<Props>({
+    categoryId: "",
+    categoryName: "",
+    thumbnailId: "",
+  });
+  const [editMode, setEditMode] = useState<"edit" | "image">("edit");
+  const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const handleClick = (event: MouseEvent<HTMLButtonElement>, id: string) => {
+    const result = categories.find((obj) => obj.id === id);
+    console.log(result);
+    setAnchorEl(event.currentTarget);
+    setCategory({
+      ...category,
+      categoryId: id,
+      categoryName: result?.name || "",
+      thumbnailId: result?.thumbnail_id || "none",
+    });
+  };
+  const handleClose = (mode: "edit" | "image") => {
+    setEditMode(mode);
+    setAnchorEl(null);
+    setDrawerOpen(true);
+  };
 
   const { isLoading, refetch } = useQuery(
     "categories",
@@ -59,6 +96,62 @@ export default function CategoriesPage() {
       },
     }
   );
+
+  function handleActive(id: string, active: boolean) {
+    api
+      .put(`/categories/update`, {
+        category: {
+          id,
+          active,
+        },
+      })
+      .then((response) => {
+        getSuccessMessage({ message: response.data.message });
+        refetch();
+      })
+      .catch((error) => getErrorMessage({ error }));
+  }
+
+  function handleEdit() {
+    if (!category.categoryName.length) {
+      Swal.fire({
+        title: "Atenção",
+        text: "O nome é obrigatório",
+        icon: "warning",
+        confirmButtonColor: blue["500"],
+      });
+      return;
+    }
+    setLoading(true);
+    api
+      .put(`/categories/update`, {
+        category: {
+          id: category.categoryId,
+          name: category.categoryName,
+          slug: category.categoryName
+            .normalize("NFD")
+            .replaceAll(/[^\w\s]/gi, "")
+            .replaceAll(" ", "-")
+            .toLowerCase(),
+        },
+      })
+      .then((response) => {
+        getSuccessMessage({ message: response.data.message });
+        refetch();
+        setLoading(false);
+        setDrawerOpen(false);
+      })
+      .catch((error) => {
+        setDrawerOpen(false);
+        getErrorMessage({ error });
+        setLoading(false);
+      });
+  }
+
+  function handleFinishChangeImage() {
+    setDrawerOpen(false);
+    refetch();
+  }
 
   return (
     <Fragment>
@@ -113,7 +206,12 @@ export default function CategoriesPage() {
                   {categories.map((category) => (
                     <TableRow key={category.id} hover>
                       <TableCell align="center">
-                        <Switch checked />
+                        <Switch
+                          checked={category.active}
+                          onChange={(e) =>
+                            handleActive(category.id, e.target.checked)
+                          }
+                        />
                       </TableCell>
                       <TableCell align="center">
                         <Avatar src={category.thumbnail as string} />
@@ -126,7 +224,12 @@ export default function CategoriesPage() {
                           aria-controls={open ? "basic-menu" : undefined}
                           aria-haspopup="true"
                           aria-expanded={open ? "true" : undefined}
-                          onClick={handleClick}
+                          onClick={(e) =>
+                            handleClick(
+                              e as MouseEvent<HTMLButtonElement>,
+                              category.id
+                            )
+                          }
                           size="small"
                           color="primary"
                         >
@@ -151,13 +254,13 @@ export default function CategoriesPage() {
                     }}
                     elevation={3}
                   >
-                    <MenuItem onClick={handleClose}>
+                    <MenuItem onClick={() => handleClose("edit")}>
                       <ListItemIcon>
                         <AiOutlineEdit />
                       </ListItemIcon>
                       <ListItemText>Editar</ListItemText>
                     </MenuItem>
-                    <MenuItem onClick={handleClose}>
+                    <MenuItem onClick={() => handleClose("image")}>
                       <ListItemIcon>
                         <AiOutlinePicture />
                       </ListItemIcon>
@@ -165,20 +268,72 @@ export default function CategoriesPage() {
                     </MenuItem>
                   </Menu>
                 </TableBody>
-                <TableFooter>
-                  <TableRow>
-                    <TableCell colSpan={5}>
-                      <Box display={"flex"} justifyContent="center">
-                        <Button>Mostrar mais</Button>
-                      </Box>
-                    </TableCell>
-                  </TableRow>
-                </TableFooter>
               </Table>
             </TableContainer>
           )}
         </DefaultContainer>
       </Container>
+
+      <Dialog
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>
+          {editMode === "edit" ? "Editar" : "Alterar Imagem"}
+        </DialogTitle>
+        <DialogContent>
+          {editMode === "edit" ? (
+            <InputText
+              autoFocus
+              fullWidth
+              label="Nome"
+              value={category.categoryName}
+              onChange={(e) =>
+                setCategory({ ...category, categoryName: e.target.value })
+              }
+            />
+          ) : (
+            <Upload
+              url={`${apiUrl}/thumbnail/update/category/${category.categoryId}/${category.thumbnailId}`}
+              name="thumbnail"
+              onFinish={handleFinishChangeImage}
+            />
+          )}
+        </DialogContent>
+        <DialogActions style={{ padding: "0px 24px 20px 0px" }}>
+          {editMode === "edit" ? (
+            <>
+              <Button
+                onClick={() => setDrawerOpen(false)}
+                color="error"
+                startIcon={<AiOutlineClose />}
+                variant="outlined"
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={() => handleEdit()}
+                startIcon={<AiOutlineSave />}
+                variant="contained"
+                loading={loading}
+              >
+                Salvar
+              </Button>
+            </>
+          ) : (
+            <Button
+              onClick={() => setDrawerOpen(false)}
+              color="error"
+              startIcon={<AiOutlineClose />}
+              variant="outlined"
+            >
+              Cancelar
+            </Button>
+          )}
+        </DialogActions>
+      </Dialog>
     </Fragment>
   );
 }
