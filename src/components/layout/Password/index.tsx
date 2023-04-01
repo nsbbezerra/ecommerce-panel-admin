@@ -6,7 +6,6 @@ import {
   FilledInput,
   FilledInputProps,
 } from "@mui/material";
-import { Password as PrimePassword, PasswordProps } from "primereact/password";
 import { useState } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 
@@ -19,6 +18,8 @@ type DefaultProps = FilledInputProps & Props;
 
 export default function Password({
   label,
+  value,
+  onChange,
   fullWidth = false,
   name,
   ...rest
@@ -29,6 +30,8 @@ export default function Password({
       <InputLabel>{label}</InputLabel>
       <FilledInput
         {...rest}
+        onChange={onChange}
+        value={value}
         type={showPass ? "text" : "password"}
         endAdornment={
           <InputAdornment position="end">

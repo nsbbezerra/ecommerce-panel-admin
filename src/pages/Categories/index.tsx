@@ -1,11 +1,11 @@
-import { Fragment, MouseEvent, useState } from "react";
+import { Fragment, useState } from "react";
 import AppBar from "../../components/layout/AppBar";
 import Button from "../../components/layout/Button";
 import Container from "../../components/layout/Container";
 import DefaultContainer from "../../components/layout/DefaultContainer";
 import { CategoriesEntity } from "../../services/entities/categories";
 import { useQuery } from "react-query";
-import { api, apiUrl } from "../../configs/api";
+import { api } from "../../configs/api";
 import { configs } from "../../configs";
 import getErrorMessage from "../../helpers/getMessageError";
 import Loading from "../../components/layout/Loading";
@@ -23,10 +23,7 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  ListItemIcon,
-  ListItemText,
-  Menu,
-  MenuItem,
+  Stack,
   Table,
   TableBody,
   TableCell,
@@ -39,49 +36,51 @@ import InputText from "../../components/layout/InputText";
 import Switch from "../../components/layout/Switch";
 import Avatar from "../../components/layout/Avatar";
 import IconButton from "../../components/layout/IconButton";
-import { FiChevronDown } from "react-icons/fi";
 import getSuccessMessage from "../../helpers/getMessageSuccess";
 import Swal from "sweetalert2";
 import { blue } from "@mui/material/colors";
 import Upload from "../../components/layout/Upload";
+import Tooltip from "../../components/layout/Tooltip";
 
 interface Props {
   categoryId: string;
   categoryName: string;
   thumbnailId: string;
+  thumbnail: string;
 }
 
 export default function CategoriesPage() {
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
-
   const navigate = useNavigate();
   const [categories, setCategories] = useState<CategoriesEntity[]>([]);
   const [category, setCategory] = useState<Props>({
     categoryId: "",
     categoryName: "",
     thumbnailId: "",
+    thumbnail: "",
   });
   const [editMode, setEditMode] = useState<"edit" | "image">("edit");
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const [search, setSearch] = useState<string>("");
 
-  const handleClick = (event: MouseEvent<HTMLButtonElement>, id: string) => {
+  const handleClick = (mode: "edit" | "image", id: string) => {
+    setEditMode(mode);
     const result = categories.find((obj) => obj.id === id);
-    console.log(result);
-    setAnchorEl(event.currentTarget);
     setCategory({
       ...category,
       categoryId: id,
       categoryName: result?.name || "",
-      thumbnailId: result?.thumbnail_id || "none",
+      thumbnailId: result?.thumbnail_id || "",
+      thumbnail: result?.thumbnail || "",
     });
-  };
-  const handleClose = (mode: "edit" | "image") => {
-    setEditMode(mode);
-    setAnchorEl(null);
     setDrawerOpen(true);
   };
+
+  const filteredCategories = search.length
+    ? categories.filter((obj) =>
+        obj.name.toLowerCase().includes(search.toLowerCase())
+      )
+    : categories;
 
   const { isLoading, refetch } = useQuery(
     "categories",
@@ -148,6 +147,12 @@ export default function CategoriesPage() {
       });
   }
 
+  function handleModalClose() {
+    setEditMode("edit");
+    setDrawerOpen(false);
+    refetch();
+  }
+
   function handleFinishChangeImage() {
     setDrawerOpen(false);
     refetch();
@@ -175,7 +180,12 @@ export default function CategoriesPage() {
           </Button>
 
           <SeachContainer>
-            <InputText label="Digite para buscar" fullWidth />
+            <InputText
+              label="Digite para buscar"
+              fullWidth
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
           </SeachContainer>
         </Box>
       </Container>
@@ -203,7 +213,7 @@ export default function CategoriesPage() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {categories.map((category) => (
+                  {filteredCategories.map((category) => (
                     <TableRow key={category.id} hover>
                       <TableCell align="center">
                         <Switch
@@ -219,54 +229,33 @@ export default function CategoriesPage() {
                       <TableCell>{category.name}</TableCell>
                       <TableCell>{category.slug}</TableCell>
                       <TableCell align="center">
-                        <IconButton
-                          id="basic-button"
-                          aria-controls={open ? "basic-menu" : undefined}
-                          aria-haspopup="true"
-                          aria-expanded={open ? "true" : undefined}
-                          onClick={(e) =>
-                            handleClick(
-                              e as MouseEvent<HTMLButtonElement>,
-                              category.id
-                            )
-                          }
-                          size="small"
-                          color="primary"
-                        >
-                          <FiChevronDown />
-                        </IconButton>
+                        <Stack spacing={1} direction="row">
+                          <Tooltip title="Editar" arrow>
+                            <IconButton
+                              id="basic-button"
+                              aria-haspopup="true"
+                              onClick={() => handleClick("edit", category.id)}
+                              size="small"
+                              color="primary"
+                            >
+                              <AiOutlineEdit />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title="Alterar Imagem" arrow>
+                            <IconButton
+                              id="basic-button"
+                              aria-haspopup="true"
+                              onClick={() => handleClick("image", category.id)}
+                              size="small"
+                              color="primary"
+                            >
+                              <AiOutlinePicture />
+                            </IconButton>
+                          </Tooltip>
+                        </Stack>
                       </TableCell>
                     </TableRow>
                   ))}
-                  <Menu
-                    id="basic-menu"
-                    anchorEl={anchorEl}
-                    open={open}
-                    onClose={handleClose}
-                    MenuListProps={{
-                      "aria-labelledby": "basic-button",
-                      dense: true,
-                    }}
-                    anchorOrigin={{ horizontal: "right", vertical: "top" }}
-                    transformOrigin={{
-                      vertical: "top",
-                      horizontal: "right",
-                    }}
-                    elevation={3}
-                  >
-                    <MenuItem onClick={() => handleClose("edit")}>
-                      <ListItemIcon>
-                        <AiOutlineEdit />
-                      </ListItemIcon>
-                      <ListItemText>Editar</ListItemText>
-                    </MenuItem>
-                    <MenuItem onClick={() => handleClose("image")}>
-                      <ListItemIcon>
-                        <AiOutlinePicture />
-                      </ListItemIcon>
-                      <ListItemText>Alterar Imagem</ListItemText>
-                    </MenuItem>
-                  </Menu>
                 </TableBody>
               </Table>
             </TableContainer>
@@ -276,7 +265,7 @@ export default function CategoriesPage() {
 
       <Dialog
         open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
+        onClose={() => handleModalClose()}
         fullWidth
         maxWidth="sm"
       >
@@ -296,9 +285,12 @@ export default function CategoriesPage() {
             />
           ) : (
             <Upload
-              url={`${apiUrl}/thumbnail/update/category/${category.categoryId}/${category.thumbnailId}`}
               name="thumbnail"
               onFinish={handleFinishChangeImage}
+              old={category.thumbnail}
+              oldId={category.thumbnailId}
+              id={category.categoryId}
+              to="category"
             />
           )}
         </DialogContent>
@@ -306,7 +298,7 @@ export default function CategoriesPage() {
           {editMode === "edit" ? (
             <>
               <Button
-                onClick={() => setDrawerOpen(false)}
+                onClick={() => handleModalClose()}
                 color="error"
                 startIcon={<AiOutlineClose />}
                 variant="outlined"
@@ -324,7 +316,7 @@ export default function CategoriesPage() {
             </>
           ) : (
             <Button
-              onClick={() => setDrawerOpen(false)}
+              onClick={() => handleModalClose()}
               color="error"
               startIcon={<AiOutlineClose />}
               variant="outlined"

@@ -42,10 +42,12 @@ export const UploadDescription = styled.span`
 export const UploadImageContainer = styled.div`
   padding: 20px;
   width: 100%;
+  height: 500px;
   display: flex;
   align-items: center;
   gap: 20px;
   flex-wrap: wrap;
+  position: relative;
 `;
 
 export const UploadImage = styled.img`

@@ -8,7 +8,6 @@ import nk from "../../assets/nk.svg";
 import Password from "../../components/layout/Password";
 import Button from "../../components/layout/Button";
 import { useNavigate } from "react-router-dom";
-import Checkbox from "../../components/layout/Checkbox";
 import { AiOutlineLogin } from "react-icons/ai";
 
 export default function LoginPage() {
@@ -21,11 +20,8 @@ export default function LoginPage() {
           <Image src={nk} alt="Image" width="100" />
 
           <div className="inputs-container">
-            <InputText label="Empresa" fullWidth name="company_id" autoFocus />
-            <InputText label="Usuário" fullWidth name="user" />
+            <InputText label="Usuário" fullWidth name="user" autoFocus />
             <Password label="Senha" fullWidth name="password" />
-
-            <Checkbox label="Mantenha-me conectado" isChecked />
 
             <Button
               variant="contained"

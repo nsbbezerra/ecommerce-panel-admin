@@ -25,6 +25,7 @@ import {
   AiOutlineUser,
 } from "react-icons/ai";
 import { TbFileInvoice } from "react-icons/tb";
+import { HiOutlineCollection } from "react-icons/hi";
 
 export default function Home() {
   const { is, setIs } = useContext(BooleanEventsContext);
@@ -117,6 +118,26 @@ export default function Home() {
             >
               <AiOutlineTag className="menu-icon" fontSize={16} />
               <span className="menu-text">CATEGORIAS</span>
+            </MenuItem>
+          </Tooltip>
+          <Tooltip
+            title="Sub-categorias"
+            placement="right"
+            disableHoverListener={is.isSiderOpen}
+            arrow
+          >
+            <MenuItem
+              isActive={
+                itemActive === "/dashboard/sub-categorias" ||
+                itemActive === "/dashboard/sub-categorias/criar"
+              }
+              isOpen={is.isSiderOpen}
+              className="menu-item"
+              data-pr-tooltip="SUB-CATEGORIAS"
+              onClick={() => navigate("/dashboard/sub-categorias")}
+            >
+              <HiOutlineCollection className="menu-icon" fontSize={16} />
+              <span className="menu-text">SUB-CATEGORIAS</span>
             </MenuItem>
           </Tooltip>
           <Tooltip

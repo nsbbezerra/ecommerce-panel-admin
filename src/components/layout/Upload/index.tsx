@@ -23,16 +23,22 @@ import getErrorMessage from "../../../helpers/getMessageError";
 
 interface Props {
   disabled?: boolean;
-  url: string;
   name: string;
+  to: "category" | "product";
+  id: string;
   onFinish?: () => void;
+  old?: string;
+  oldId?: string;
 }
 
 export default function Upload({
+  id,
+  to,
   disabled = false,
-  url,
   name,
   onFinish,
+  old,
+  oldId,
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -42,12 +48,12 @@ export default function Upload({
   );
   const [imageSize, setImageSize] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isDeleteLoading, setIsDeleteLoading] = useState<boolean>(false);
+  const [statusForm, setStatusForm] = useState<"new" | "remove">("new");
 
   const preview = useMemo(() => {
     return thumbnail ? URL.createObjectURL(thumbnail) : undefined;
   }, [thumbnail]);
-
-  const [progress, setProgress] = useState<number>(0);
 
   function removeThumbnail() {
     URL.revokeObjectURL(thumbnail as any);
@@ -87,16 +93,8 @@ export default function Upload({
     const data = new FormData();
     data.append(name, thumbnail as Blob);
     api
-      .post(url, data, {
-        onUploadProgress: (progressEvent) => {
-          const total: number = Math.round(
-            (progressEvent.loaded * 100) / Number(progressEvent.total)
-          );
-          setProgress(total);
-        },
-      })
+      .post(`/thumbnail/update/${to}/${!id ? "none" : id}`, data)
       .then((response) => {
-        setProgress(0);
         setStatus("success");
         setIsLoading(false);
         Swal.fire({
@@ -113,7 +111,28 @@ export default function Upload({
       .catch((error) => {
         setIsLoading(false);
         getErrorMessage({ error });
-        setProgress(0);
+      });
+  }
+
+  function deleteThumbnail() {
+    setIsDeleteLoading(true);
+    api
+      .post(`/thumbnail/delete-thumbnail/${to}/${id}`, {
+        thumbnailId: oldId as string,
+      })
+      .then((response) => {
+        Swal.fire({
+          title: "Sucesso",
+          text: response.data.message,
+          icon: "success",
+          confirmButtonColor: blue["500"],
+        });
+        setStatusForm("new");
+        setIsDeleteLoading(false);
+      })
+      .catch((error) => {
+        setIsDeleteLoading(false);
+        getErrorMessage({ error });
       });
   }
 
@@ -132,6 +151,14 @@ export default function Upload({
       setImageSize(parseFloat(size as string) / 10);
     }
   }, [thumbnail]);
+
+  useEffect(() => {
+    if (!oldId || !oldId.length) {
+      setStatusForm("new");
+    } else {
+      setStatusForm("remove");
+    }
+  }, [oldId]);
 
   return (
     <UploadContainer disabled={disabled}>
@@ -152,60 +179,72 @@ export default function Upload({
               handleThumbnail(e.target.files);
             }}
           />
-          <Button
-            variant="contained"
-            startIcon={<BsImages />}
-            disabled={disabled}
-            onClick={() => inputRef.current && inputRef.current.click()}
-          >
-            Selecionar
-          </Button>
-          <Button
-            variant="contained"
-            startIcon={<BsCloudUpload />}
-            color="success"
-            disabled={disabled}
-            onClick={upload}
-            loading={isLoading}
-          >
-            Upload
-          </Button>
+          {statusForm === "new" ? (
+            <>
+              <Button
+                variant="contained"
+                startIcon={<BsImages />}
+                disabled={disabled}
+                onClick={() => inputRef.current && inputRef.current.click()}
+              >
+                Selecionar
+              </Button>
+
+              <Button
+                variant="contained"
+                startIcon={<BsCloudUpload />}
+                color="success"
+                disabled={disabled}
+                onClick={upload}
+                loading={isLoading}
+              >
+                Upload
+              </Button>
+            </>
+          ) : (
+            ""
+          )}
           <Button
             variant="contained"
             startIcon={<BsTrash />}
             color="error"
             disabled={disabled}
-            onClick={removeThumbnail}
+            onClick={statusForm === "new" ? removeThumbnail : deleteThumbnail}
+            loading={isDeleteLoading}
           >
             Remover
           </Button>
         </Box>
-        <Stack direction={"row"} spacing={1} alignItems="center">
-          <span style={{ fontSize: "13px", color: grey["600"] }}>
-            {!thumbnail ? "0B" : calcSize(thumbnail.size)} / 1MB
-          </span>{" "}
-          <LinearProgress
-            variant="determinate"
-            value={imageSize}
-            style={{
-              width: "100px",
-              height: 10,
-              borderRadius: "5px",
-              marginTop: "-2px",
-            }}
-            color={
-              disabled
-                ? "inherit"
-                : imageSize === 100 && status === "error"
-                ? "error"
-                : "primary"
-            }
-          />
-        </Stack>
+        {statusForm === "new" ? (
+          <Stack direction={"row"} spacing={1} alignItems="center">
+            <span style={{ fontSize: "13px", color: grey["600"] }}>
+              {!thumbnail ? "0B" : calcSize(thumbnail.size)} / 1MB
+            </span>{" "}
+            <LinearProgress
+              variant="determinate"
+              value={imageSize}
+              style={{
+                width: "100px",
+                height: 10,
+                borderRadius: "5px",
+                marginTop: "-2px",
+              }}
+              color={
+                disabled
+                  ? "inherit"
+                  : imageSize === 100 && status === "error"
+                  ? "error"
+                  : "primary"
+              }
+            />
+          </Stack>
+        ) : (
+          ""
+        )}
       </UploadButtonsContainer>
       <LinearProgress
         variant="determinate"
-        value={progress}
+        value={100}
         color={disabled ? "inherit" : "primary"}
       />
       {thumbnail ? (
@@ -226,10 +265,21 @@ export default function Upload({
           </DescriptionContainer>
         </UploadImageContainer>
       ) : (
-        <UploadImageDescription>
-          <BsImages color={grey["500"]} fontSize={45} />
-          <UploadDescription>Selecione uma imagem</UploadDescription>
-        </UploadImageDescription>
+        <>
+          {statusForm === "new" ? (
+            <UploadImageDescription>
+              <BsImages color={grey["500"]} fontSize={45} />
+              <UploadDescription>Selecione uma imagem</UploadDescription>
+            </UploadImageDescription>
+          ) : (
+            <UploadImageContainer>
+              <UploadImage src={old} />
+              <DescriptionContainer>
+                <ImageName>{old}</ImageName>
+              </DescriptionContainer>
+            </UploadImageContainer>
+          )}
+        </>
       )}
     </UploadContainer>
   );

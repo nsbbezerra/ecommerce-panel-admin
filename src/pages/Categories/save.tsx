@@ -7,7 +7,7 @@ import DefaultContainer from "../../components/layout/DefaultContainer";
 import InputText from "../../components/layout/InputText";
 import { CategoriesDto } from "../../services/dto/categories";
 import Swal from "sweetalert2";
-import { api, apiUrl } from "../../configs/api";
+import { api } from "../../configs/api";
 import getErrorMessage from "../../helpers/getMessageError";
 import { FiChevronLeft } from "react-icons/fi";
 import { Box, Grid } from "@mui/material";
@@ -129,7 +129,8 @@ export default function SaveCategoryPage() {
               <Grid item xs={12}>
                 <Upload
                   name="thumbnail"
-                  url={`${apiUrl}/thumbnail/update/category/${categoryId}/none`}
+                  to="category"
+                  id={categoryId}
                   disabled={categoryId.length ? false : true}
                   onFinish={() => navigate("/dashboard/categorias")}
                 />
