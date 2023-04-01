@@ -301,7 +301,6 @@ export default function CategoriesPage() {
                 onClick={() => handleModalClose()}
                 color="error"
                 startIcon={<AiOutlineClose />}
-                variant="outlined"
               >
                 Cancelar
               </Button>
@@ -319,7 +318,6 @@ export default function CategoriesPage() {
               onClick={() => handleModalClose()}
               color="error"
               startIcon={<AiOutlineClose />}
-              variant="outlined"
             >
               Cancelar
             </Button>
