@@ -137,6 +137,7 @@ export default function ClientsPage() {
           justifyContent={"space-between"}
           gap={2}
           alignItems="center"
+          flexWrap={"wrap"}
         >
           <Button
             onClick={() => navigate("/dashboard/clientes/criar")}

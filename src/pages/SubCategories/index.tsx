@@ -199,6 +199,7 @@ export default function SubCategories() {
           justifyContent={"space-between"}
           alignItems="center"
           gap={2}
+          flexWrap={"wrap"}
         >
           <Button
             onClick={() => navigate("/dashboard/sub-categorias/criar")}

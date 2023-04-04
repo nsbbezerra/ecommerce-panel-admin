@@ -147,10 +147,14 @@ export default function Home() {
             arrow
           >
             <MenuItem
-              isActive={false}
+              isActive={
+                itemActive === "/dashboard/produtos" ||
+                itemActive === "/dashboard/produtos/criar"
+              }
               isOpen={is.isSiderOpen}
               className="menu-item"
               data-pr-tooltip="PRODUTOS"
+              onClick={() => navigate("/dashboard/produtos")}
             >
               <AiOutlineTags className="menu-icon" fontSize={16} />
               <span className="menu-text">PRODUTOS</span>

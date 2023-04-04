@@ -1,11 +1,11 @@
-import styled from "styled-components";
+import styled from "@emotion/styled";
 
 export const ContentContainer = styled.div`
   width: 100%;
   box-shadow: 0px 0px 9px rgba(0, 0, 0, 0.05);
-  background-color: var(--surface-0);
+  background-color: #fff;
   padding: 16px;
-  border-radius: var(--border-radius);
+  border-radius: 4px;
 `;
 
 export const DefaultContainer = styled.div`

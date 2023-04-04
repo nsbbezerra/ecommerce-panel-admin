@@ -169,6 +169,7 @@ export default function CategoriesPage() {
           justifyContent={"space-between"}
           alignItems="center"
           gap={2}
+          flexWrap={"wrap"}
         >
           <Button
             onClick={() => navigate("/dashboard/categorias/criar")}

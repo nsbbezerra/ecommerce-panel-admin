@@ -1,4 +1,5 @@
-import styled from "styled-components";
+import styled from "@emotion/styled";
+import { grey } from "@mui/material/colors";
 
 interface ContainerProps {
   image: string;
@@ -14,7 +15,7 @@ export const LoginContainer = styled.div<ContainerProps>`
   background-repeat: no-repeat;
   background-position: bottom;
   background-size: cover;
-  background-color: var(--surface-100);
+  background-color: ${grey["50"]};
   padding: 10px;
   position: relative;
 `;
@@ -22,9 +23,8 @@ export const LoginContainer = styled.div<ContainerProps>`
 export const LoginFormContainer = styled.div`
   width: 100%;
   box-shadow: rgba(0, 0, 0, 0.5) 0px 5px 15px 0px;
-  border-radius: var(--border-radius);
-  background-color: var(--surface-0);
-  backdrop-filter: blur(10px);
+  border-radius: 4px;
+  background-color: #fff;
   max-width: 320px;
   gap: 10px;
   display: flex;
@@ -33,18 +33,16 @@ export const LoginFormContainer = styled.div`
   align-items: center;
   padding: 20px;
 
-  .lock-icon {
-    font-size: 40px;
-    color: var(--primary-500);
-  }
   .inputs-container {
     width: 100%;
     display: flex;
     flex-direction: column;
     gap: 12px;
+    margin-top: 20px;
   }
 `;
 
 export const AppDescription = styled.span`
   text-align: center;
+  font-size: 14px;
 `;

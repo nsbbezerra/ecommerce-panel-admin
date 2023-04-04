@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled from "@emotion/styled";
 
 export const LoadingContainer = styled.div`
   padding: 10px 0px;

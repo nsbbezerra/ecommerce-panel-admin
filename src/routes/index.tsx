@@ -7,6 +7,8 @@ import ClientsPage from "../pages/Clientes";
 import SaveClient from "../pages/Clientes/save";
 import HomePage from "../pages/Home";
 import LoginPage from "../pages/Login";
+import ProductsPage from "../pages/Products";
+import SaveProduct from "../pages/Products/save";
 import SubCategories from "../pages/SubCategories";
 import SaveSubCategory from "../pages/SubCategories/save";
 
@@ -28,6 +30,10 @@ export default function AppRoutes() {
           <Route path="sub-categorias">
             <Route index element={<SubCategories />} />
             <Route path="criar" element={<SaveSubCategory />} />
+          </Route>
+          <Route path="produtos">
+            <Route index element={<ProductsPage />} />
+            <Route path="criar" element={<SaveProduct />} />
           </Route>
         </Route>
       </Route>

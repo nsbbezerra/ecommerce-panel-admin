@@ -1,7 +1,6 @@
 import { Fragment } from "react";
 import { AppDescription, LoginContainer, LoginFormContainer } from "./styles";
 import InputText from "../../components/layout/InputText";
-import Image from "../../components/layout/Image";
 
 import wave from "../../assets/wave.svg";
 import nk from "../../assets/nk.svg";
@@ -17,7 +16,7 @@ export default function LoginPage() {
     <Fragment>
       <LoginContainer image={wave}>
         <LoginFormContainer>
-          <Image src={nk} alt="Image" width="100" />
+          <img src={nk} alt="Image" width="100" />
 
           <div className="inputs-container">
             <InputText label="Usuário" fullWidth name="user" autoFocus />

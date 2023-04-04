@@ -6,8 +6,7 @@ export const Header = styled.div`
   justify-content: space-between;
   align-items: center;
   height: 60px;
-  background-color: var(--surface-0);
-  border-bottom: 1px solid var(--surface-border);
+  background-color: #fff;
   z-index: 10;
   padding: 0 40px;
   box-shadow: rgba(0, 0, 0, 0.05) 5px 4px 9px;
