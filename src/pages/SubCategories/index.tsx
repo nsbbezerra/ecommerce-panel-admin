@@ -243,7 +243,7 @@ export default function SubCategories() {
                 </TableHead>
                 <TableBody>
                   {filteredCollections.map((collection) => (
-                    <TableRow key={collection.id}>
+                    <TableRow key={collection.id} hover>
                       <TableCell>
                         <Switch
                           checked={collection.active}
@@ -321,6 +321,7 @@ export default function SubCategories() {
           <Button
             onClick={() => handleModalClose()}
             color="error"
+            size="large"
             startIcon={<AiOutlineClose />}
           >
             Cancelar
@@ -329,6 +330,7 @@ export default function SubCategories() {
             onClick={() => setEditCategory()}
             startIcon={<AiOutlineSave />}
             variant="contained"
+            size="large"
             loading={editLoading}
           >
             Salvar

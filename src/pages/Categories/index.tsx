@@ -302,6 +302,7 @@ export default function CategoriesPage() {
                 onClick={() => handleModalClose()}
                 color="error"
                 startIcon={<AiOutlineClose />}
+                size="large"
               >
                 Cancelar
               </Button>
@@ -310,6 +311,7 @@ export default function CategoriesPage() {
                 startIcon={<AiOutlineSave />}
                 variant="contained"
                 loading={loading}
+                size="large"
               >
                 Salvar
               </Button>
@@ -319,6 +321,7 @@ export default function CategoriesPage() {
               onClick={() => handleModalClose()}
               color="error"
               startIcon={<AiOutlineClose />}
+              size="large"
             >
               Cancelar
             </Button>
