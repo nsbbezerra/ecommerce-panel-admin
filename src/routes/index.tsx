@@ -11,6 +11,7 @@ import ProductsPage from "../pages/Products";
 import SaveProduct from "../pages/Products/save";
 import SubCategories from "../pages/SubCategories";
 import SaveSubCategory from "../pages/SubCategories/save";
+import PdvPage from "../pages/Pdv";
 
 export default function AppRoutes() {
   return (
@@ -26,14 +27,20 @@ export default function AppRoutes() {
           <Route path="categorias">
             <Route path="" element={<CategoriesPage />} />
             <Route path="criar" element={<SaveCategoryPage />} />
+            <Route path="editar/:category" element={<SaveCategoryPage />} />
           </Route>
           <Route path="sub-categorias">
             <Route index element={<SubCategories />} />
             <Route path="criar" element={<SaveSubCategory />} />
+            <Route path="editar/:collection" element={<SaveSubCategory />} />
           </Route>
           <Route path="produtos">
             <Route index element={<ProductsPage />} />
             <Route path="criar" element={<SaveProduct />} />
+            <Route path="editar/:product" element={<SaveProduct />} />
+          </Route>
+          <Route path="vendas">
+            <Route index element={<PdvPage />} />
           </Route>
         </Route>
       </Route>

@@ -47,14 +47,6 @@ export default function SubCategories() {
   >([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [search, setSearch] = useState<string>("");
-  const [categories, setCategories] = useState<CategoriesEntity[]>([]);
-  const [selectedCategory, setSelectedCategory] =
-    useState<CategoriesEntity | null>(null);
-  const [name, setName] = useState<string>("");
-  const [collectionId, setCollectionId] = useState<string>("");
-
-  const [dialog, setDialog] = useState<boolean>(false);
-  const [editLoading, setEditLoading] = useState<boolean>(false);
 
   const filteredCollections = search.length
     ? collections.filter((obj) =>
@@ -72,91 +64,6 @@ export default function SubCategories() {
       })
       .catch((error) => {
         setIsLoading(false);
-        getErrorMessage({ error });
-      });
-  }
-
-  function getActiviesCategories() {
-    api
-      .get("/categories/all-actives")
-      .then((response) => {
-        setCategories(response.data);
-      })
-      .catch((error) => getErrorMessage({ error }));
-  }
-
-  function handleModalClose() {
-    setDialog(false);
-    getAllCollections();
-  }
-
-  function handleEdit(id: string) {
-    const result = collections.find((obj) => obj.id === id);
-    if (result) {
-      const findCategory = categories.find(
-        (obj) => obj.id === result.category.id
-      );
-      if (findCategory) {
-        setSelectedCategory(findCategory);
-      } else {
-        setSelectedCategory(null);
-      }
-      setCollectionId(result.id);
-      setName(result?.name || "");
-      setDialog(true);
-    }
-  }
-
-  function setEditCategory() {
-    if (!selectedCategory) {
-      Swal.fire({
-        title: "Atenção",
-        text: "A categoria é obrigatória",
-        icon: "warning",
-        confirmButtonColor: blue["500"],
-      });
-      return;
-    }
-    if (!name.length) {
-      Swal.fire({
-        title: "Atenção",
-        text: "O nome é obrigatório",
-        icon: "warning",
-        confirmButtonColor: blue["500"],
-      });
-      return;
-    }
-    setEditLoading(true);
-
-    api
-      .put("/collections/update", {
-        collection: {
-          id: collectionId,
-          name,
-          slug: name
-            .normalize("NFD")
-            .replaceAll(/[^\w\s]/gi, "")
-            .replaceAll(" ", "-")
-            .toLowerCase(),
-          category_id: selectedCategory.id,
-        },
-      })
-      .then((response) => {
-        setEditLoading(false);
-        Swal.fire({
-          text: response.data.message,
-          title: "Sucesso",
-          icon: "success",
-          confirmButtonColor: blue["500"],
-        }).then((result) => {
-          if (result.isConfirmed) {
-            setDialog(false);
-            getAllCollections();
-          }
-        });
-      })
-      .catch((error) => {
-        setEditLoading(false);
         getErrorMessage({ error });
       });
   }
@@ -185,7 +92,6 @@ export default function SubCategories() {
 
   useEffect(() => {
     getAllCollections();
-    getActiviesCategories();
   }, []);
 
   return (
@@ -261,7 +167,11 @@ export default function SubCategories() {
                             <IconButton
                               size="small"
                               color="primary"
-                              onClick={() => handleEdit(collection.id)}
+                              onClick={() =>
+                                navigate(
+                                  `/dashboard/sub-categorias/editar/${collection.id}`
+                                )
+                              }
                             >
                               <AiOutlineEdit />
                             </IconButton>
@@ -276,67 +186,6 @@ export default function SubCategories() {
           )}
         </DefaultContainer>
       </Container>
-
-      <Dialog
-        open={dialog}
-        onClose={() => handleModalClose()}
-        fullWidth
-        maxWidth="md"
-      >
-        <DialogTitle>Editar</DialogTitle>
-        <DialogContent>
-          <Grid container spacing={2}>
-            <Grid item xs={5}>
-              <Autocomplete
-                freeSolo
-                id="categories"
-                getOptionLabel={(option: any) => option.name}
-                isOptionEqualToValue={(option, value) => option.id === value.id}
-                options={categories}
-                renderInput={(params) => (
-                  <InputText
-                    {...params}
-                    label="Categoria"
-                    fullWidth
-                    autoFocus
-                  />
-                )}
-                value={selectedCategory}
-                onChange={(_, newValue) =>
-                  setSelectedCategory(newValue as CategoriesEntity)
-                }
-              />
-            </Grid>
-            <Grid item xs={7}>
-              <InputText
-                label="Nome"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                fullWidth
-              />
-            </Grid>
-          </Grid>
-        </DialogContent>
-        <DialogActions style={{ padding: "0px 24px 20px 0px" }}>
-          <Button
-            onClick={() => handleModalClose()}
-            color="error"
-            size="large"
-            startIcon={<AiOutlineClose />}
-          >
-            Cancelar
-          </Button>
-          <Button
-            onClick={() => setEditCategory()}
-            startIcon={<AiOutlineSave />}
-            variant="contained"
-            size="large"
-            loading={editLoading}
-          >
-            Salvar
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Fragment>
   );
 }

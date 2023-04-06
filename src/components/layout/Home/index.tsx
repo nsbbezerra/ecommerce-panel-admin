@@ -107,10 +107,7 @@ export default function Home() {
             arrow
           >
             <MenuItem
-              isActive={
-                itemActive === "/dashboard/categorias" ||
-                itemActive === "/dashboard/categorias/criar"
-              }
+              isActive={itemActive.includes("/dashboard/categorias")}
               isOpen={is.isSiderOpen}
               className="menu-item"
               data-pr-tooltip="CATEGORIAS"
@@ -127,10 +124,7 @@ export default function Home() {
             arrow
           >
             <MenuItem
-              isActive={
-                itemActive === "/dashboard/sub-categorias" ||
-                itemActive === "/dashboard/sub-categorias/criar"
-              }
+              isActive={itemActive.includes("/dashboard/sub-categorias")}
               isOpen={is.isSiderOpen}
               className="menu-item"
               data-pr-tooltip="SUB-CATEGORIAS"
@@ -147,10 +141,7 @@ export default function Home() {
             arrow
           >
             <MenuItem
-              isActive={
-                itemActive === "/dashboard/produtos" ||
-                itemActive === "/dashboard/produtos/criar"
-              }
+              isActive={itemActive.includes("/dashboard/produtos")}
               isOpen={is.isSiderOpen}
               className="menu-item"
               data-pr-tooltip="PRODUTOS"
@@ -167,10 +158,11 @@ export default function Home() {
             arrow
           >
             <MenuItem
-              isActive={false}
+              isActive={itemActive.includes("/dashboard/vendas")}
               isOpen={is.isSiderOpen}
               className="menu-item"
               data-pr-tooltip="VENDAS"
+              onClick={() => navigate("/dashboard/vendas")}
             >
               <AiOutlineShoppingCart className="menu-icon" fontSize={16} />
               <span className="menu-text">VENDAS</span>

@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import { Fragment, useEffect, useState } from "react";
 import { FiChevronLeft } from "react-icons/fi";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import AppBar from "../../components/layout/AppBar";
 import Button from "../../components/layout/Button";
 import Container from "../../components/layout/Container";
@@ -43,11 +43,12 @@ interface FormTypeProps {
 }
 
 export default function SaveProduct() {
-  const navigate = useNavigate();
   const editor = useEditor({
     extensions: [StarterKit],
     content: "Insira seu texto aqui",
   });
+  const { product } = useParams();
+  const navigate = useNavigate();
 
   const [formType, setFormType] = useState<FormTypeProps>({ type: "add" });
   const [categories, setCategories] = useState<CategoriesEntity[]>([]);
@@ -271,7 +272,10 @@ export default function SaveProduct() {
             active: productForm.active,
             short_description: productForm.short_description,
             description: editor?.getHTML(),
-            price: productForm.price,
+            price: productForm.price
+              .toString()
+              .replace(".", "")
+              .replace(",", "."),
             shipping_info: {
               width: productForm.shipping_info.width,
               lenght: productForm.shipping_info.lenght,
@@ -316,8 +320,101 @@ export default function SaveProduct() {
           setIsLoading(false);
           getErrorMessage({ error });
         });
+    } else {
+      setIsLoading(true);
+      api
+        .put("/products/update", {
+          product: {
+            id: product,
+            name: productForm.name,
+            slug: productForm.name
+              .normalize("NFD")
+              .replaceAll(/[^\w\s]/gi, "")
+              .replaceAll(" ", "-")
+              .toLowerCase(),
+            active: productForm.active,
+            short_description: productForm.short_description,
+            description: editor?.getHTML(),
+            price: productForm.price
+              .toString()
+              .replace(".", "")
+              .replace(",", "."),
+            shipping_info: {
+              width: productForm.shipping_info.width,
+              lenght: productForm.shipping_info.lenght,
+              height: productForm.shipping_info.height,
+              weight: productForm.shipping_info.weight,
+            },
+            freight_priority: productForm.freight_priority,
+            category_id: productForm.category_id,
+            collection_id: productForm.collection_id,
+            stock_type: productForm.stock_type,
+            stock: productForm.stock,
+          },
+          productOptions: productsOptions.map((prodOpt) => {
+            return {
+              headline: prodOpt.headline,
+              content: prodOpt.content,
+              stock: prodOpt.stock,
+            };
+          }),
+        })
+        .then((response) => {
+          Swal.fire({
+            title: "Sucesso!",
+            text: response.data.message,
+            icon: "success",
+            confirmButtonColor: blue["500"],
+          }).then((result) => {
+            if (result.isConfirmed) {
+              navigate("/dashboard/produtos");
+            }
+          });
+          setIsLoading(false);
+        })
+        .catch((error) => {
+          setIsLoading(false);
+          getErrorMessage({ error });
+        });
     }
   }
+
+  function getProductById(id: string) {
+    api
+      .get(`/products/get-by-id/${id}`)
+      .then((response) => {
+        setSelectedCategory(response.data.category);
+        setSelectedCollection(response.data.collection);
+        setProductsOptions(response.data.ProductOptions);
+        setProductForm({
+          active: response.data.active || "",
+          category_id: response.data.category.id || "",
+          collection_id: response.data.collection.id || "",
+          freight_priority: response.data.freight_priority,
+          name: response.data.name || "",
+          price:
+            parseFloat(response.data.price).toLocaleString("pt-br", {
+              minimumFractionDigits: 2,
+            }) || "0.00",
+          shipping_info: response.data.shipping_info,
+          short_description: response.data.short_description || "",
+          slug: response.data.slug || "",
+          stock_type: response.data.stock_type,
+          stock: response.data.stock || 0,
+        });
+        editor?.commands.setContent(response.data.description);
+      })
+      .catch((error) => getErrorMessage({ error }));
+  }
+
+  useEffect(() => {
+    if (product) {
+      setFormType({ type: "edit" });
+      if (editor) {
+        getProductById(product);
+      }
+    }
+  }, [product, editor]);
 
   useEffect(() => {
     getActiviesCategories();
@@ -326,7 +423,9 @@ export default function SaveProduct() {
 
   return (
     <Fragment>
-      <AppBar title="Novo produto" />
+      <AppBar
+        title={`${formType.type === "add" ? "Novo" : "Editar"} produto`}
+      />
 
       <Container>
         <Box p={"20px"} display="flex" mb={-2}>
@@ -347,14 +446,11 @@ export default function SaveProduct() {
                 getOptionLabel={(option: any) => option.name}
                 isOptionEqualToValue={(option, value) => option.id === value.id}
                 options={categories}
+                disabled={formType.type === "edit"}
                 renderInput={(params) => (
-                  <InputText
-                    {...params}
-                    label="Categoria"
-                    fullWidth
-                    autoFocus
-                  />
+                  <InputText {...params} label="Categoria" fullWidth />
                 )}
+                value={selectedCategory}
                 onChange={(_, newValue) =>
                   handleChangeCategory(newValue as CategoriesEntity)
                 }
@@ -367,9 +463,11 @@ export default function SaveProduct() {
                 getOptionLabel={(option: any) => option.name}
                 isOptionEqualToValue={(option, value) => option.id === value.id}
                 options={filteredCollections}
+                disabled={formType.type === "edit"}
                 renderInput={(params) => (
                   <InputText {...params} label="Sub-categoria" fullWidth />
                 )}
+                value={selectedCollection}
                 onChange={(_, newValue) =>
                   handleChangeCollection(newValue as CollectionsEntity)
                 }
@@ -379,6 +477,7 @@ export default function SaveProduct() {
               <InputText
                 label="Nome"
                 fullWidth
+                autoFocus
                 value={productForm.name}
                 onChange={(e) =>
                   setProductForm({ ...productForm, name: e.target.value })
@@ -402,7 +501,6 @@ export default function SaveProduct() {
               <InputText
                 label="Descrição curta"
                 multiline
-                maxRows={3}
                 fullWidth
                 rows={3}
                 value={productForm.short_description}
@@ -525,6 +623,8 @@ export default function SaveProduct() {
                             onClick={() =>
                               removeProductOptions(prodOpt.id, "add")
                             }
+                            size="small"
+                            color="error"
                           >
                             <FaTrash />
                           </IconButton>
@@ -640,15 +740,17 @@ export default function SaveProduct() {
               </Grid>
             </Grid>
 
-            <Grid item xs={12}>
-              <Upload
-                name="thumbnail"
-                to="product"
-                id={productId}
-                disabled={productId.length === 0}
-                onFinish={() => navigate("/dashboard/produtos")}
-              />
-            </Grid>
+            {formType.type === "add" && (
+              <Grid item xs={12}>
+                <Upload
+                  name="thumbnail"
+                  to="product"
+                  id={productId}
+                  disabled={productId.length === 0}
+                  onFinish={() => navigate("/dashboard/produtos")}
+                />
+              </Grid>
+            )}
 
             <Grid item xs={12}>
               <Grid container spacing={2} justifyContent="flex-end">

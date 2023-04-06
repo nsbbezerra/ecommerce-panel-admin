@@ -1,12 +1,10 @@
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import AppBar from "../../components/layout/AppBar";
 import Button from "../../components/layout/Button";
 import Container from "../../components/layout/Container";
 import DefaultContainer from "../../components/layout/DefaultContainer";
 import { CategoriesEntity } from "../../services/entities/categories";
-import { useQuery } from "react-query";
 import { api } from "../../configs/api";
-import { configs } from "../../configs";
 import getErrorMessage from "../../helpers/getMessageError";
 import Loading from "../../components/layout/Loading";
 import { useNavigate } from "react-router-dom";
@@ -15,12 +13,10 @@ import {
   AiOutlineEdit,
   AiOutlinePicture,
   AiOutlinePlus,
-  AiOutlineSave,
 } from "react-icons/ai";
 import {
   Box,
   Dialog,
-  DialogActions,
   DialogContent,
   DialogTitle,
   Stack,
@@ -30,6 +26,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Typography,
 } from "@mui/material";
 import { SeachContainer } from "../Clientes/styles";
 import InputText from "../../components/layout/InputText";
@@ -37,8 +34,6 @@ import Switch from "../../components/layout/Switch";
 import Avatar from "../../components/layout/Avatar";
 import IconButton from "../../components/layout/IconButton";
 import getSuccessMessage from "../../helpers/getMessageSuccess";
-import Swal from "sweetalert2";
-import { blue } from "@mui/material/colors";
 import Upload from "../../components/layout/Upload";
 import Tooltip from "../../components/layout/Tooltip";
 
@@ -58,13 +53,12 @@ export default function CategoriesPage() {
     thumbnailId: "",
     thumbnail: "",
   });
-  const [editMode, setEditMode] = useState<"edit" | "image">("edit");
-  const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [search, setSearch] = useState<string>("");
 
-  const handleClick = (mode: "edit" | "image", id: string) => {
-    setEditMode(mode);
+  const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
+  const [search, setSearch] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const handleClick = (id: string) => {
     const result = categories.find((obj) => obj.id === id);
     setCategory({
       ...category,
@@ -82,19 +76,19 @@ export default function CategoriesPage() {
       )
     : categories;
 
-  const { isLoading, refetch } = useQuery(
-    "categories",
-    async () => {
-      return await api.get("/categories/get-all");
-    },
-    {
-      refetchInterval: configs.refetch,
-      onError: (error) => getErrorMessage({ error }),
-      onSuccess(response) {
+  function getAllCategories() {
+    setIsLoading(true);
+    api
+      .get("/categories/get-all")
+      .then((response) => {
+        setIsLoading(false);
         setCategories(response.data);
-      },
-    }
-  );
+      })
+      .catch((error) => {
+        setIsLoading(false);
+        getErrorMessage({ error });
+      });
+  }
 
   function handleActive(id: string, active: boolean) {
     api
@@ -106,57 +100,19 @@ export default function CategoriesPage() {
       })
       .then((response) => {
         getSuccessMessage({ message: response.data.message });
-        refetch();
+        getAllCategories();
       })
       .catch((error) => getErrorMessage({ error }));
   }
 
-  function handleEdit() {
-    if (!category.categoryName.length) {
-      Swal.fire({
-        title: "Atenção",
-        text: "O nome é obrigatório",
-        icon: "warning",
-        confirmButtonColor: blue["500"],
-      });
-      return;
-    }
-    setLoading(true);
-    api
-      .put(`/categories/update`, {
-        category: {
-          id: category.categoryId,
-          name: category.categoryName,
-          slug: category.categoryName
-            .normalize("NFD")
-            .replaceAll(/[^\w\s]/gi, "")
-            .replaceAll(" ", "-")
-            .toLowerCase(),
-        },
-      })
-      .then((response) => {
-        getSuccessMessage({ message: response.data.message });
-        refetch();
-        setLoading(false);
-        setDrawerOpen(false);
-      })
-      .catch((error) => {
-        setDrawerOpen(false);
-        getErrorMessage({ error });
-        setLoading(false);
-      });
-  }
-
-  function handleModalClose() {
-    setEditMode("edit");
-    setDrawerOpen(false);
-    refetch();
-  }
-
   function handleFinishChangeImage() {
     setDrawerOpen(false);
-    refetch();
+    getAllCategories();
   }
+
+  useEffect(() => {
+    getAllCategories();
+  }, []);
 
   return (
     <Fragment>
@@ -235,7 +191,11 @@ export default function CategoriesPage() {
                             <IconButton
                               id="basic-button"
                               aria-haspopup="true"
-                              onClick={() => handleClick("edit", category.id)}
+                              onClick={() =>
+                                navigate(
+                                  `/dashboard/categorias/editar/${category.id}`
+                                )
+                              }
                               size="small"
                               color="primary"
                             >
@@ -246,7 +206,7 @@ export default function CategoriesPage() {
                             <IconButton
                               id="basic-button"
                               aria-haspopup="true"
-                              onClick={() => handleClick("image", category.id)}
+                              onClick={() => handleClick(category.id)}
                               size="small"
                               color="primary"
                             >
@@ -266,67 +226,33 @@ export default function CategoriesPage() {
 
       <Dialog
         open={drawerOpen}
-        onClose={() => handleModalClose()}
+        onClose={() => setDrawerOpen(false)}
         fullWidth
         maxWidth="sm"
       >
         <DialogTitle>
-          {editMode === "edit" ? "Editar" : "Alterar Imagem"}
+          <Box
+            display={"flex"}
+            width={"100%"}
+            justifyContent={"space-between"}
+            alignItems={"center"}
+          >
+            <Typography variant="h6">Alterar Imagem</Typography>
+            <IconButton size="small" onClick={() => setDrawerOpen(false)}>
+              <AiOutlineClose />
+            </IconButton>
+          </Box>
         </DialogTitle>
         <DialogContent>
-          {editMode === "edit" ? (
-            <InputText
-              autoFocus
-              fullWidth
-              label="Nome"
-              value={category.categoryName}
-              onChange={(e) =>
-                setCategory({ ...category, categoryName: e.target.value })
-              }
-            />
-          ) : (
-            <Upload
-              name="thumbnail"
-              onFinish={handleFinishChangeImage}
-              old={category.thumbnail}
-              oldId={category.thumbnailId}
-              id={category.categoryId}
-              to="category"
-            />
-          )}
+          <Upload
+            name="thumbnail"
+            onFinish={handleFinishChangeImage}
+            old={category.thumbnail}
+            oldId={category.thumbnailId}
+            id={category.categoryId}
+            to="category"
+          />
         </DialogContent>
-        <DialogActions style={{ padding: "0px 24px 20px 0px" }}>
-          {editMode === "edit" ? (
-            <>
-              <Button
-                onClick={() => handleModalClose()}
-                color="error"
-                startIcon={<AiOutlineClose />}
-                size="large"
-              >
-                Cancelar
-              </Button>
-              <Button
-                onClick={() => handleEdit()}
-                startIcon={<AiOutlineSave />}
-                variant="contained"
-                loading={loading}
-                size="large"
-              >
-                Salvar
-              </Button>
-            </>
-          ) : (
-            <Button
-              onClick={() => handleModalClose()}
-              color="error"
-              startIcon={<AiOutlineClose />}
-              size="large"
-            >
-              Cancelar
-            </Button>
-          )}
-        </DialogActions>
       </Dialog>
     </Fragment>
   );

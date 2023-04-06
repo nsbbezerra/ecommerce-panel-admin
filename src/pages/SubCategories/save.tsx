@@ -3,7 +3,7 @@ import { blue } from "@mui/material/colors";
 import { FormEvent, Fragment, useEffect, useState } from "react";
 import { AiOutlineSave } from "react-icons/ai";
 import { FiChevronLeft } from "react-icons/fi";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import AppBar from "../../components/layout/AppBar";
 import Button from "../../components/layout/Button";
@@ -14,9 +14,15 @@ import { api } from "../../configs/api";
 import getErrorMessage from "../../helpers/getMessageError";
 import { CategoriesEntity } from "../../services/entities/categories";
 
+interface TypeFormProps {
+  type: "add" | "edit";
+}
+
 export default function SaveSubCategory() {
   const navigate = useNavigate();
+  const { collection } = useParams();
 
+  const [typeForm, setTypeForm] = useState<TypeFormProps>({ type: "add" });
   const [categories, setCategories] = useState<CategoriesEntity[]>([]);
   const [selectedCategory, setSelectedCategory] =
     useState<CategoriesEntity | null>(null);
@@ -52,46 +58,100 @@ export default function SaveSubCategory() {
       });
       return;
     }
-    setIsLoading(true);
-    api
-      .post("/collections/save", {
-        collection: {
-          name,
-          slug: name
-            .normalize("NFD")
-            .replaceAll(/[^\w\s]/gi, "")
-            .replaceAll(" ", "-")
-            .toLowerCase(),
-          active: true,
-          category_id: selectedCategory.id,
-        },
-      })
-      .then((response) => {
-        setIsLoading(false);
-        Swal.fire({
-          title: "Sucesso",
-          text: response.data.message,
-          icon: "success",
-          confirmButtonColor: blue["500"],
-        }).then((result) => {
-          if (result.isConfirmed) {
-            navigate("/dashboard/sub-categorias");
-          }
+    if (typeForm.type === "add") {
+      setIsLoading(true);
+      api
+        .post("/collections/save", {
+          collection: {
+            name,
+            slug: name
+              .normalize("NFD")
+              .replaceAll(/[^\w\s]/gi, "")
+              .replaceAll(" ", "-")
+              .toLowerCase(),
+            active: true,
+            category_id: selectedCategory.id,
+          },
+        })
+        .then((response) => {
+          setIsLoading(false);
+          Swal.fire({
+            title: "Sucesso",
+            text: response.data.message,
+            icon: "success",
+            confirmButtonColor: blue["500"],
+          }).then((result) => {
+            if (result.isConfirmed) {
+              navigate("/dashboard/sub-categorias");
+            }
+          });
+        })
+        .catch((error) => {
+          setIsLoading(false);
+          getErrorMessage({ error });
         });
+    } else {
+      setIsLoading(true);
+      api
+        .put("/collections/update", {
+          collection: {
+            id: collection,
+            name,
+            slug: name
+              .normalize("NFD")
+              .replaceAll(/[^\w\s]/gi, "")
+              .replaceAll(" ", "-")
+              .toLowerCase(),
+            category_id: selectedCategory.id,
+          },
+        })
+        .then((response) => {
+          setIsLoading(false);
+          Swal.fire({
+            text: response.data.message,
+            title: "Sucesso",
+            icon: "success",
+            confirmButtonColor: blue["500"],
+          }).then((result) => {
+            if (result.isConfirmed) {
+              navigate("/dashboard/sub-categorias");
+            }
+          });
+        })
+        .catch((error) => {
+          setIsLoading(false);
+          getErrorMessage({ error });
+        });
+    }
+  }
+
+  function getCollectionById(id: string) {
+    api
+      .get(`/collections/get-by-id/${id}`)
+      .then((response) => {
+        console.log(response.data);
+        setName(response.data.name);
+        setSelectedCategory(response.data.category);
       })
-      .catch((error) => {
-        setIsLoading(false);
-        getErrorMessage({ error });
-      });
+      .catch((error) => getErrorMessage({ error }));
   }
 
   useEffect(() => {
     getActiviesCategories();
   }, []);
 
+  useEffect(() => {
+    if (collection) {
+      setTypeForm({ type: "edit" });
+      getCollectionById(collection);
+    }
+  }, [collection]);
+
   return (
     <Fragment>
-      <AppBar title="Nova Sub-categoria" />
+      <AppBar
+        title={`${typeForm.type === "add" ? "Nova" : "Editar"} Sub-categoria`}
+      />
       <Container>
         <Box
           padding={"20px"}
@@ -134,6 +194,7 @@ export default function SaveSubCategory() {
                       autoFocus
                     />
                   )}
+                  value={selectedCategory}
                   onChange={(_, newValue) =>
                     setSelectedCategory(newValue as CategoriesEntity)
                   }

@@ -1,4 +1,4 @@
-import { Box, Chip, Stack } from "@mui/material";
+import { Box, Chip, Divider, Stack } from "@mui/material";
 import {
   DescriptionContainer,
   ImageDate,
@@ -242,11 +242,7 @@ export default function Upload({
           ""
         )}
       </UploadButtonsContainer>
-      <LinearProgress
-        variant="determinate"
-        value={100}
-        color={disabled ? "inherit" : "primary"}
-      />
+      <Divider sx={{ borderColor: blue["500"] }} />
       {thumbnail ? (
         <UploadImageContainer>
           <UploadImage src={preview} />
