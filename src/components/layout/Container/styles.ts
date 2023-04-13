@@ -13,4 +13,6 @@ export const Container = styled.div<Props>`
     (props.size === "md" && "768px") ||
     (props.size === "sm" && "640px")};
   margin: 0 auto;
+  padding: 0px 20px;
+  position: relative;
 `;

@@ -117,4 +117,17 @@ export const AppContent = styled.div`
   width: 100%;
   max-height: 100%;
   overflow-y: auto;
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: #ffffff;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: ${grey["400"]};
+    border-radius: 4px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: ${grey["500"]};
+  }
 `;

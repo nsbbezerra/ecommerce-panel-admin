@@ -64,6 +64,7 @@ export default function SaveProduct() {
   const [productForm, setProductForm] = useState<ProductsDto>({
     active: true,
     freight_priority: "NORMAL",
+    code: "",
     category_id: "",
     collection_id: "",
     name: "",
@@ -327,6 +328,7 @@ export default function SaveProduct() {
           product: {
             id: product,
             name: productForm.name,
+            code: productForm.code,
             slug: productForm.name
               .normalize("NFD")
               .replaceAll(/[^\w\s]/gi, "")
@@ -391,6 +393,7 @@ export default function SaveProduct() {
           category_id: response.data.category.id || "",
           collection_id: response.data.collection.id || "",
           freight_priority: response.data.freight_priority,
+          code: response.data.code || "",
           name: response.data.name || "",
           price:
             parseFloat(response.data.price).toLocaleString("pt-br", {
@@ -473,7 +476,7 @@ export default function SaveProduct() {
                 }
               />
             </Grid>
-            <Grid item xs={12} sm={7} md={9}>
+            <Grid item xs={12} md={6}>
               <InputText
                 label="Nome"
                 fullWidth
@@ -484,7 +487,20 @@ export default function SaveProduct() {
                 }
               />
             </Grid>
-            <Grid item xs={12} sm={5} md={3}>
+            <Grid item xs={12} sm={6} md={3}>
+              <InputText
+                label="Código"
+                fullWidth
+                value={productForm.code}
+                onChange={(e) =>
+                  setProductForm({
+                    ...productForm,
+                    code: e.target.value,
+                  })
+                }
+              />
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
               <InputText
                 label="Preço (R$)"
                 fullWidth

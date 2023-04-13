@@ -26,6 +26,7 @@ import {
 } from "react-icons/ai";
 import { TbFileInvoice } from "react-icons/tb";
 import { HiOutlineCollection } from "react-icons/hi";
+import { Scrollbars } from "react-custom-scrollbars-2";
 
 export default function Home() {
   const { is, setIs } = useContext(BooleanEventsContext);
@@ -57,7 +58,7 @@ export default function Home() {
 
         <AvatarContainer>
           <Avatar
-            className="avatar shadow-7"
+            className="avatar"
             src="https://img.freepik.com/vetores-gratis/conceito-do-logotipo-da-letra-k-para-sua-marca-real_1017-33266.jpg?w=2000"
             sx={{
               width: is.isSiderOpen ? "100px" : "60%",
@@ -218,9 +219,11 @@ export default function Home() {
           </Tooltip>
         </Menu>
       </SideBar>
-      <AppContent>
-        <Outlet />
-      </AppContent>
+      <Scrollbars>
+        <AppContent>
+          <Outlet />
+        </AppContent>
+      </Scrollbars>
     </HomeContainer>
   );
 }

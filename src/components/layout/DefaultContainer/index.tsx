@@ -14,7 +14,7 @@ export default function DefaultContainer({
   disabledPadding = false,
 }: Props) {
   return (
-    <StyledDefaultContainer disabledPadding>
+    <StyledDefaultContainer disabledPadding={disabledPadding}>
       <ContentContainer>{children}</ContentContainer>
     </StyledDefaultContainer>
   );
