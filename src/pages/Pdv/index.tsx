@@ -1,4 +1,4 @@
-import { Fragment, MouseEvent, useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import AppBar from "../../components/layout/AppBar";
 import Container from "../../components/layout/Container";
 import DefaultContainer from "../../components/layout/DefaultContainer";
@@ -7,11 +7,11 @@ import {
   Box,
   ButtonGroup,
   Chip,
-  Divider,
+  Dialog,
+  DialogContent,
+  DialogTitle,
   Grid,
   InputAdornment,
-  Popover,
-  Stack,
   Table,
   TableBody,
   TableCell,
@@ -20,14 +20,7 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import {
-  AiOutlineMinus,
-  AiOutlinePicture,
-  AiOutlinePlus,
-  AiOutlineSave,
-  AiOutlineShoppingCart,
-  AiOutlineTags,
-} from "react-icons/ai";
+import { AiOutlineMinus, AiOutlinePlus, AiOutlineSave } from "react-icons/ai";
 import InputText from "../../components/layout/InputText";
 import IconButton from "../../components/layout/IconButton";
 import { BsTrash } from "react-icons/bs";
@@ -37,97 +30,57 @@ import { GetAllClientsEntity } from "../../services/entities/clients";
 import { ProductsWithRelationshipEntity } from "../../services/entities/products";
 import { api } from "../../configs/api";
 import getErrorMessage from "../../helpers/getMessageError";
-import Loading from "../../components/layout/Loading";
 import formatCurrency from "../../helpers/formatCurrency";
-import { CardImage, ProductCard, ProductsGrid } from "./styles";
 import { blue, grey, red } from "@mui/material/colors";
 import Button from "../../components/layout/Button";
 import { OrderItemsDto } from "../../services/dto/products";
 import { ProductOptionsEntity } from "../../services/entities/productOptions";
 import Swal from "sweetalert2";
 import currencyMask from "../../helpers/currencyMask";
+import Avatar from "../../components/layout/Avatar";
+import { useNavigate } from "react-router-dom";
 
 export default function PdvPage() {
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-  const open = Boolean(anchorEl);
-  const id = open ? "simple-popover" : undefined;
-
-  const [search, setSearch] = useState<string>("");
+  const navigate = useNavigate();
+  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [clients, setClients] = useState<GetAllClientsEntity[]>([]);
-  const [initialProducts, setInitialProducts] = useState<
-    ProductsWithRelationshipEntity[]
-  >([]);
   const [products, setProducts] = useState<ProductsWithRelationshipEntity[]>(
     []
   );
   const [orderItems, setOrderItems] = useState<OrderItemsDto[]>([]);
   const [total, setTotal] = useState<number | string>(0);
-  const [discount, setDiscount] = useState<number>(0);
+  const [discount, setDiscount] = useState<number | string>(0);
   const [subTotal, setSubTotal] = useState<number | string>(0);
   const [selectedClient, setSelectedClient] =
     useState<GetAllClientsEntity | null>(null);
+  const [selectectProduct, setSelectedProduct] =
+    useState<ProductsWithRelationshipEntity | null>(null);
   const [productOptions, setProductOptions] = useState<ProductOptionsEntity[]>(
     []
   );
-
-  const handleClick = (
-    event: MouseEvent<HTMLButtonElement>,
-    options: ProductOptionsEntity[]
-  ) => {
-    setAnchorEl(event.currentTarget);
-    setProductOptions(options);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
+  const [quantity, setQuantity] = useState<string | number>(1);
 
   function getProducts() {
-    setIsLoading(true);
     api
       .get("/pdv/initial-data")
       .then((response) => {
-        setIsLoading(false);
         setClients(response.data.clients);
-        setInitialProducts(response.data.products);
         setProducts(response.data.products);
       })
       .catch((error) => {
-        setIsLoading(false);
         getErrorMessage({ error });
       });
   }
 
   function cancel() {
     setOrderItems([]);
-    setSearch("");
     getProducts();
+    localStorage.removeItem("order");
   }
 
-  function searchProducts(text: string) {
-    setSearch(text);
-    if (text.length > 1) {
-      api
-        .post("/pdv/search-products", {
-          name: text,
-        })
-        .then((response) => {
-          setProducts(response.data);
-        })
-        .catch((error) => {
-          getErrorMessage({ error });
-        });
-    }
-    if (text === "") {
-      setProducts(initialProducts);
-    }
-  }
-
-  function handleAddProduct(
-    product: ProductsWithRelationshipEntity,
-    option?: ProductOptionsEntity
-  ) {
+  function handleAddProduct(product: ProductsWithRelationshipEntity) {
+    setSelectedProduct(product);
     const filter = orderItems.find((obj) => obj.product_id === product.id);
 
     if (filter) {
@@ -137,23 +90,63 @@ export default function PdvPage() {
         icon: "warning",
         confirmButtonColor: blue["500"],
       });
+      setSelectedProduct(null);
       return;
     }
 
-    setOrderItems([
-      ...orderItems,
-      {
-        id: Math.random().toString(),
-        price: product.price,
-        product_id: product.id,
-        product_name: product.name,
-        product_options_id: option ? option.id : null,
-        product_options_label: option ? option.headline : "",
-        quantity: 1,
-        actual_stock: product.stock as number,
-        stock_type: product.stock_type || "",
-      },
-    ]);
+    if (product.stock_type !== "CUSTOM") {
+      setOrderItems([
+        ...orderItems,
+        {
+          id: product.id,
+          price: product.price,
+          product_id: product.id,
+          product_name: product.name,
+          product_options_id: null,
+          product_options_label: "",
+          quantity: quantity as number,
+          actual_stock: product.stock as number,
+          stock_type: product.stock_type || "",
+        },
+      ]);
+
+      setSelectedProduct(null);
+    } else {
+      setIsDialogOpen(true);
+      setProductOptions(product.ProductOptions);
+
+      setOrderItems([
+        ...orderItems,
+        {
+          id: product.id,
+          price: product.price,
+          product_id: product.id,
+          product_name: product.name,
+          product_options_id: null,
+          product_options_label: "",
+          quantity: quantity as number,
+          actual_stock: product.stock as number,
+          stock_type: product.stock_type || "",
+        },
+      ]);
+    }
+  }
+
+  function handleAddProductOptions(option: ProductOptionsEntity) {
+    const updated = orderItems.map((item) => {
+      if (item.id === option.product_id) {
+        return {
+          ...item,
+          product_options_id: option.id,
+          product_options_label: option.headline,
+          actual_stock: option.stock as number,
+        };
+      }
+      return item;
+    });
+    setOrderItems(updated);
+    setSelectedProduct(null);
+    setIsDialogOpen(false);
   }
 
   function removeProduct(id: string) {
@@ -170,6 +163,7 @@ export default function PdvPage() {
       if (result.isConfirmed) {
         const results = orderItems.filter((obj) => obj.id !== id);
         setOrderItems(results);
+        localStorage.setItem("order", JSON.stringify(results));
       }
     });
   }
@@ -186,7 +180,8 @@ export default function PdvPage() {
           });
         } else if (
           item.stock_type !== "OFF" &&
-          item.quantity >= item.actual_stock
+          item.quantity >= item.actual_stock &&
+          mode === "add"
         ) {
           Swal.fire({
             title: "Atenção",
@@ -206,12 +201,96 @@ export default function PdvPage() {
     setOrderItems(updated);
   }
 
-  function handleSubTotal(value: string) {
-    setSubTotal(currencyMask(value));
+  function addDiscount(value: string) {
+    if (Number(value) < 0) {
+      Swal.fire({
+        title: "Atenção",
+        text: "O valor do desconto não pode ser menor que 0",
+        icon: "warning",
+        confirmButtonColor: blue["500"],
+      });
+      return;
+    }
+    setDiscount(value);
+    const parsedValue = parseFloat(
+      total.toString().replace(".", "").replace(",", ".")
+    );
+    const dicounted = Number(value) / 100;
+    const calcDiscount = parsedValue - parsedValue * dicounted;
+    setSubTotal(
+      formatCurrency(calcDiscount.toFixed(2), "withoutSign") as string
+    );
+  }
+
+  function createOrder() {
+    if (!selectedClient) {
+      Swal.fire({
+        title: "Atenção",
+        text: "Por favor selecione um cliente!",
+        icon: "warning",
+        confirmButtonColor: blue["500"],
+      });
+      return;
+    }
+    if (!orderItems) {
+      Swal.fire({
+        title: "Atenção",
+        text: "Por favor adicione pelo menos um produto!",
+        icon: "warning",
+        confirmButtonColor: blue["500"],
+      });
+      return;
+    }
+    setIsLoading(true);
+
+    api
+      .post("/orders/create", {
+        order: {
+          total: parseFloat(
+            total.toString().replace(".", "").replace(",", ".")
+          ),
+          client_id: selectedClient.id,
+          discount: Number(discount),
+          sub_total: parseFloat(
+            subTotal.toString().replace(".", "").replace(",", ".")
+          ),
+        },
+        orderItems,
+      })
+      .then((response) => {
+        Swal.fire({
+          title: "Sucesso",
+          text: `${response.data.message}, deseja prosseguir para o pagamento?`,
+          icon: "success",
+          showDenyButton: true,
+          denyButtonText: "Não",
+          denyButtonColor: red["600"],
+          confirmButtonText: "Sim",
+          confirmButtonColor: blue["500"],
+        }).then((result) => {
+          setIsLoading(false);
+          if (result.isConfirmed) {
+            localStorage.removeItem("order");
+            navigate("/dashboard/vendas/checkout");
+          }
+        });
+      })
+      .catch((error) => {
+        setIsLoading(false);
+        getErrorMessage({ error });
+      });
   }
 
   useEffect(() => {
+    if (selectectProduct) {
+      handleAddProduct(selectectProduct);
+    }
+  }, [selectectProduct]);
+
+  useEffect(() => {
     getProducts();
+    const items = localStorage.getItem("order");
+    items && setOrderItems(JSON.parse(items));
   }, []);
 
   useEffect(() => {
@@ -221,6 +300,10 @@ export default function PdvPage() {
     );
     setTotal(currencyMask(formatCurrency(sum, "withoutSign") as string));
     setSubTotal(currencyMask(formatCurrency(sum, "withoutSign") as string));
+
+    if (orderItems.length) {
+      localStorage.setItem("order", JSON.stringify(orderItems));
+    }
   }, [orderItems]);
 
   return (
@@ -228,154 +311,53 @@ export default function PdvPage() {
       <AppBar title="Balcão de vendas" />
       <Box pb={"20px"}>
         <Container>
-          <Grid container spacing={2}>
-            <Grid item xs={12} mt={"20px"}>
-              <DefaultContainer disabledPadding>
-                <Box
-                  display={"flex"}
-                  justifyContent={"space-between"}
-                  alignItems={"center"}
-                  gap={1}
-                  flexWrap={"wrap"}
-                >
-                  <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                    <AiOutlineTags fontSize={18} />
-                    <Typography variant="subtitle1" fontWeight={"bold"}>
-                      PRODUTOS
-                    </Typography>
-                  </Stack>
-
-                  <InputText
-                    label="Busque por nome ou código"
-                    fullWidth
-                    sx={{ maxWidth: "400px" }}
-                    value={search}
-                    onChange={(e) => searchProducts(e.target.value)}
-                  />
-                </Box>
-                <Divider sx={{ my: 1 }} />
-                {isLoading ? (
-                  <Loading />
-                ) : (
-                  <ProductsGrid>
-                    {products.map((product) => (
-                      <ProductCard key={product.id}>
-                        {!product.thumbnail ? (
-                          <Box
-                            sx={{ aspectRatio: "16 / 9" }}
-                            display={"flex"}
-                            width={"100%"}
-                            justifyContent={"center"}
-                            alignItems={"center"}
-                            bgcolor={"#fff"}
-                            fontSize={"50px"}
-                            color={grey["800"]}
-                            borderBottom={`1px solid ${grey["300"]}`}
-                          >
-                            <AiOutlinePicture />
-                          </Box>
-                        ) : (
-                          <CardImage src={product.thumbnail} />
-                        )}
-                        <Box
-                          padding={"3px 10px"}
-                          flexDirection={"column"}
-                          display={"flex"}
-                          color={grey["800"]}
-                        >
-                          <Typography
-                            variant="caption"
-                            sx={{ mt: 1, fontSize: 10 }}
-                            textTransform={"uppercase"}
-                          >
-                            {product.name}
-                          </Typography>
-                          <Typography variant="body2" fontWeight={"bold"}>
-                            {formatCurrency(product.price)}
-                          </Typography>
-                        </Box>
-                        <Box
-                          borderTop={`1px solid ${grey["300"]}`}
-                          padding={0.5}
-                        >
-                          <Button
-                            size="small"
-                            startIcon={<AiOutlineShoppingCart />}
-                            variant="text"
-                            fullWidth
-                            aria-describedby={id}
-                            onClick={
-                              product.stock_type === "CUSTOM"
-                                ? (e) =>
-                                    handleClick(
-                                      e as MouseEvent<HTMLButtonElement>,
-                                      product.ProductOptions
-                                    )
-                                : () => handleAddProduct(product)
-                            }
-                          >
-                            Adiconar
-                          </Button>
-                        </Box>
-                      </ProductCard>
-                    ))}
-                  </ProductsGrid>
-                )}
-                <Popover
-                  id={id}
-                  open={open}
-                  anchorEl={anchorEl}
-                  onClose={handleClose}
-                  anchorOrigin={{
-                    vertical: "bottom",
-                    horizontal: "center",
-                  }}
-                  transformOrigin={{
-                    vertical: "top",
-                    horizontal: "center",
-                  }}
-                  PaperProps={{ style: { maxWidth: "200px" }, elevation: 3 }}
-                >
-                  <Box
-                    display={"flex"}
-                    gap={2}
-                    flexWrap={"wrap"}
-                    padding={"10px"}
-                  >
-                    {productOptions.map((option) => (
-                      <IconButton
-                        color="primary"
-                        disabled={Number(option.stock) <= 0}
-                        sx={{ flexShrink: 0 }}
-                        key={option.id}
-                        size="small"
-                      >
-                        {option.headline}
-                      </IconButton>
-                    ))}
-                  </Box>
-                </Popover>
-              </DefaultContainer>
-            </Grid>
-          </Grid>
-          <Grid container spacing={2} mt={1}>
+          <Grid container spacing={2} mt={1} minHeight={"50vh"}>
             <Grid item xs={12} lg={8}>
               <DefaultContainer disabledPadding>
-                <Box
-                  display={"flex"}
-                  justifyContent={"space-between"}
-                  alignItems={"center"}
-                  gap={1}
-                  flexWrap={"wrap"}
-                >
-                  <Stack direction={"row"} spacing={1} alignItems={"center"}>
-                    <AiOutlineTags fontSize={18} />
-                    <Typography variant="subtitle1" fontWeight={"bold"}>
-                      PRODUTOS SELECIONADOS
-                    </Typography>
-                  </Stack>
-                </Box>
-                <Divider sx={{ my: 1 }} />
+                <Grid container spacing={2}>
+                  <Grid item xs={4} sm={2}>
+                    <InputText
+                      type="number"
+                      label="Quantidade"
+                      fullWidth
+                      value={quantity}
+                      onChange={(e) => setQuantity(e.target.value)}
+                    />
+                  </Grid>
+                  <Grid item xs={8} sm={10}>
+                    <Autocomplete
+                      disablePortal
+                      id="products_name"
+                      options={products}
+                      renderInput={(params) => (
+                        <InputText
+                          {...params}
+                          label="Busque por nome ou código"
+                          fullWidth
+                        />
+                      )}
+                      getOptionLabel={(option) =>
+                        `${option.name} - ${option.code || ""}`
+                      }
+                      renderOption={(props, option) => (
+                        <Box component="li" {...props}>
+                          <Avatar
+                            sx={{ width: 24, height: 24, mr: 2 }}
+                            src={option.thumbnail || ""}
+                          />
+                          <Typography variant="body1">{option.name}</Typography>
+                        </Box>
+                      )}
+                      noOptionsText="Nenhum produto encontrado"
+                      value={selectectProduct}
+                      onChange={(_, newValue) =>
+                        setSelectedProduct(
+                          newValue as ProductsWithRelationshipEntity
+                        )
+                      }
+                    />
+                  </Grid>
+                </Grid>
                 {orderItems.length !== 0 ? (
                   <TableContainer>
                     <Table size="small">
@@ -390,7 +372,9 @@ export default function PdvPage() {
                           >
                             Qtd.
                           </TableCell>
-                          <TableCell sx={{ fontSize: "13px", width: "140px" }}>
+                          <TableCell
+                            sx={{ fontSize: "13px", minWidth: "280px" }}
+                          >
                             Produto
                           </TableCell>
                           <TableCell
@@ -525,6 +509,7 @@ export default function PdvPage() {
                     flexDirection={"column"}
                     padding={"20px"}
                     gap={"5px"}
+                    height={"100%"}
                   >
                     <FaBoxOpen fontSize={40} />
                     <Typography variant="body2" sx={{ userSelect: "none" }}>
@@ -535,111 +520,139 @@ export default function PdvPage() {
               </DefaultContainer>
             </Grid>
             <Grid item xs={12} lg={4}>
-              <DefaultContainer disabledPadding>
-                <Autocomplete
-                  disablePortal
-                  id="combo-box-demo"
-                  options={clients}
-                  getOptionLabel={(option) => option.name}
-                  isOptionEqualToValue={(option, value) =>
-                    option.id === value.id
-                  }
-                  renderInput={(params) => (
-                    <InputText
-                      {...params}
-                      label="Selecione o cliente"
-                      fullWidth
-                    />
-                  )}
-                  value={selectedClient}
-                  onChange={(_, newValue) => setSelectedClient(newValue)}
-                />
-                <Divider sx={{ my: 2 }} />
-                <Grid container spacing={1}>
-                  <Grid item xs={6}>
-                    <InputText
-                      label="Total"
-                      value={total}
-                      fullWidth
-                      InputProps={{
-                        readOnly: true,
-                        startAdornment: (
-                          <InputAdornment position="start">R$</InputAdornment>
-                        ),
-                      }}
-                    />
-                  </Grid>
-                  <Grid item xs={6}>
-                    <InputText
-                      label="Desconto"
-                      value={discount}
-                      fullWidth
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">%</InputAdornment>
-                        ),
-                      }}
-                    />
+              <Box position={"sticky"} top={"80px"}>
+                <DefaultContainer disabledPadding>
+                  <Autocomplete
+                    disablePortal
+                    id="combo-box-demo"
+                    options={clients}
+                    getOptionLabel={(option) => option.name}
+                    isOptionEqualToValue={(option, value) =>
+                      option.id === value.id
+                    }
+                    renderInput={(params) => (
+                      <InputText
+                        {...params}
+                        label="Selecione o cliente"
+                        fullWidth
+                      />
+                    )}
+                    value={selectedClient}
+                    onChange={(_, newValue) => setSelectedClient(newValue)}
+                  />
+                  <Grid container spacing={1} my={1}>
+                    <Grid item xs={6}>
+                      <InputText
+                        label="Total"
+                        value={total}
+                        fullWidth
+                        InputProps={{
+                          readOnly: true,
+                          startAdornment: (
+                            <InputAdornment position="start">R$</InputAdornment>
+                          ),
+                        }}
+                      />
+                    </Grid>
+                    <Grid item xs={6}>
+                      <InputText
+                        label="Desconto"
+                        value={discount}
+                        onChange={(e) => addDiscount(e.target.value)}
+                        fullWidth
+                        type="number"
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">%</InputAdornment>
+                          ),
+                        }}
+                      />
+                    </Grid>
+
+                    <Grid item xs={12}>
+                      <InputText
+                        label="Sub-total"
+                        value={subTotal}
+                        fullWidth
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">R$</InputAdornment>
+                          ),
+                          readOnly: true,
+                        }}
+                      />
+                    </Grid>
                   </Grid>
 
-                  <Grid item xs={12}>
-                    <InputText
-                      label="Sub-total"
-                      value={subTotal}
-                      onChange={(e) => handleSubTotal(e.target.value)}
-                      fullWidth
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">R$</InputAdornment>
-                        ),
-                      }}
-                    />
+                  <Grid container spacing={2} mt={1}>
+                    <Grid item xs={6} md={4} lg={6}>
+                      <LoadingButton
+                        color="error"
+                        variant="contained"
+                        fullWidth
+                        size="large"
+                        startIcon={<BsTrash />}
+                        onClick={cancel}
+                      >
+                        Cancelar
+                      </LoadingButton>
+                    </Grid>
+                    <Grid item xs={6} md={4} lg={6}>
+                      <LoadingButton
+                        fullWidth
+                        color="info"
+                        variant="contained"
+                        size="large"
+                        startIcon={<AiOutlineSave />}
+                      >
+                        Salvar
+                      </LoadingButton>
+                    </Grid>
+                    <Grid item xs={12} md={4} lg={12}>
+                      <LoadingButton
+                        fullWidth
+                        color="success"
+                        variant="contained"
+                        size="large"
+                        startIcon={<FaDollarSign />}
+                        loading={isLoading}
+                        onClick={createOrder}
+                      >
+                        Finalizar
+                      </LoadingButton>
+                    </Grid>
                   </Grid>
-                </Grid>
-
-                <Divider sx={{ my: 2 }} />
-
-                <Grid container spacing={2}>
-                  <Grid item xs={6} md={4} lg={6}>
-                    <LoadingButton
-                      color="error"
-                      variant="contained"
-                      fullWidth
-                      size="large"
-                      startIcon={<BsTrash />}
-                      onClick={cancel}
-                    >
-                      Cancelar
-                    </LoadingButton>
-                  </Grid>
-                  <Grid item xs={6} md={4} lg={6}>
-                    <LoadingButton
-                      fullWidth
-                      color="info"
-                      variant="contained"
-                      size="large"
-                      startIcon={<AiOutlineSave />}
-                    >
-                      Salvar
-                    </LoadingButton>
-                  </Grid>
-                  <Grid item xs={12} md={4} lg={12}>
-                    <LoadingButton
-                      fullWidth
-                      color="success"
-                      variant="contained"
-                      size="large"
-                      startIcon={<FaDollarSign />}
-                    >
-                      Pagamento
-                    </LoadingButton>
-                  </Grid>
-                </Grid>
-              </DefaultContainer>
+                </DefaultContainer>
+              </Box>
             </Grid>
           </Grid>
         </Container>
       </Box>
+
+      <Dialog
+        open={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title" fontSize={15}>
+          Selecione uma opção
+        </DialogTitle>
+        <DialogContent>
+          <Box display={"flex"} gap={2} flexWrap={"wrap"}>
+            {productOptions.map((opt) => (
+              <IconButton
+                key={opt.id}
+                disabled={Number(opt.stock) <= 0 ? true : false}
+                size="large"
+                onClick={() => handleAddProductOptions(opt)}
+              >
+                {opt.headline}
+              </IconButton>
+            ))}
+          </Box>
+        </DialogContent>
+      </Dialog>
     </Fragment>
   );
 }

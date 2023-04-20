@@ -31,6 +31,7 @@ export interface ProductsWithRelationshipEntity {
   name: string;
   slug: string;
   active: boolean;
+  code: string;
   short_description: string | null;
   thumbnail: string | null;
   thumbnail_id: string | null;

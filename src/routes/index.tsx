@@ -12,6 +12,7 @@ import SaveProduct from "../pages/Products/save";
 import SubCategories from "../pages/SubCategories";
 import SaveSubCategory from "../pages/SubCategories/save";
 import PdvPage from "../pages/Pdv";
+import Checkout from "../pages/Checkout";
 
 export default function AppRoutes() {
   return (
@@ -41,6 +42,7 @@ export default function AppRoutes() {
           </Route>
           <Route path="vendas">
             <Route index element={<PdvPage />} />
+            <Route path="checkout" element={<Checkout />} />
           </Route>
         </Route>
       </Route>
