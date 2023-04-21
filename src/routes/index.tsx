@@ -13,6 +13,7 @@ import SubCategories from "../pages/SubCategories";
 import SaveSubCategory from "../pages/SubCategories/save";
 import PdvPage from "../pages/Pdv";
 import Checkout from "../pages/Checkout";
+import Configurations from "../pages/Configurations";
 
 export default function AppRoutes() {
   return (
@@ -44,6 +45,7 @@ export default function AppRoutes() {
             <Route index element={<PdvPage />} />
             <Route path="checkout" element={<Checkout />} />
           </Route>
+          <Route path="configuracoes" element={<Configurations />} />
         </Route>
       </Route>
     </Routes>

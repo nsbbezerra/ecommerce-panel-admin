@@ -208,10 +208,11 @@ export default function Home() {
             arrow
           >
             <MenuItem
-              isActive={false}
+              isActive={itemActive.includes("/dashboard/configuracoes")}
               isOpen={is.isSiderOpen}
               className="menu-item"
               data-pr-tooltip="CONFIGURAÇÕES"
+              onClick={() => navigate("/dashboard/configuracoes")}
             >
               <AiOutlineTool className="menu-icon" fontSize={16} />
               <span className="menu-text">CONFIGURAÇÕES</span>

@@ -2,7 +2,7 @@ import { Fragment } from "react";
 import { AppDescription, LoginContainer, LoginFormContainer } from "./styles";
 import InputText from "../../components/layout/InputText";
 
-import wave from "../../assets/wave.svg";
+import bg from "../../assets/bg.jpg";
 import nk from "../../assets/nk.svg";
 import Password from "../../components/layout/Password";
 import Button from "../../components/layout/Button";
@@ -14,7 +14,7 @@ export default function LoginPage() {
 
   return (
     <Fragment>
-      <LoginContainer image={wave}>
+      <LoginContainer image={bg}>
         <LoginFormContainer>
           <img src={nk} alt="Image" width="100" />
 
