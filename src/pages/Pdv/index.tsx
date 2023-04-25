@@ -4,14 +4,19 @@ import Container from "../../components/layout/Container";
 import DefaultContainer from "../../components/layout/DefaultContainer";
 import {
   Autocomplete,
+  BottomNavigation,
+  BottomNavigationAction,
   Box,
   ButtonGroup,
   Chip,
+  CssBaseline,
   Dialog,
   DialogContent,
   DialogTitle,
   Grid,
   InputAdornment,
+  Paper,
+  Stack,
   Table,
   TableBody,
   TableCell,
@@ -20,7 +25,13 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { AiOutlineMinus, AiOutlinePlus, AiOutlineSave } from "react-icons/ai";
+import {
+  AiOutlineMinus,
+  AiOutlinePlus,
+  AiOutlineSave,
+  AiOutlineShopping,
+  AiOutlineShoppingCart,
+} from "react-icons/ai";
 import InputText from "../../components/layout/InputText";
 import IconButton from "../../components/layout/IconButton";
 import { BsTrash } from "react-icons/bs";
@@ -39,6 +50,7 @@ import Swal from "sweetalert2";
 import currencyMask from "../../helpers/currencyMask";
 import Avatar from "../../components/layout/Avatar";
 import { useNavigate } from "react-router-dom";
+import calcDiscount from "../../helpers/calcPercentage";
 
 export default function PdvPage() {
   const navigate = useNavigate();
@@ -76,6 +88,8 @@ export default function PdvPage() {
   function cancel() {
     setOrderItems([]);
     getProducts();
+    setQuantity(1);
+    setDiscount(0);
     localStorage.removeItem("order");
   }
 
@@ -99,7 +113,13 @@ export default function PdvPage() {
         ...orderItems,
         {
           id: product.id,
-          price: product.price,
+          price: product.promotional
+            ? calcDiscount(
+                product.price as number,
+                product.promo_rate,
+                "onlyNumber"
+              )
+            : product.price,
           product_id: product.id,
           product_name: product.name,
           product_options_id: null,
@@ -107,6 +127,7 @@ export default function PdvPage() {
           quantity: quantity as number,
           actual_stock: product.stock as number,
           stock_type: product.stock_type || "",
+          promo_rate: product.promotional ? product.promo_rate : null,
         },
       ]);
 
@@ -119,7 +140,13 @@ export default function PdvPage() {
         ...orderItems,
         {
           id: product.id,
-          price: product.price,
+          price: product.promotional
+            ? calcDiscount(
+                product.price as number,
+                product.promo_rate,
+                "onlyNumber"
+              )
+            : product.price,
           product_id: product.id,
           product_name: product.name,
           product_options_id: null,
@@ -127,6 +154,7 @@ export default function PdvPage() {
           quantity: quantity as number,
           actual_stock: product.stock as number,
           stock_type: product.stock_type || "",
+          promo_rate: product.promotional ? product.promo_rate : null,
         },
       ]);
     }
@@ -254,6 +282,14 @@ export default function PdvPage() {
           sub_total: parseFloat(
             subTotal.toString().replace(".", "").replace(",", ".")
           ),
+          month: new Intl.DateTimeFormat("pt-BR", {
+            month: "long",
+          }).format(new Date()),
+          year: new Intl.DateTimeFormat("pt-BR", {
+            year: "numeric",
+          })
+            .format(new Date())
+            .toString(),
         },
         orderItems,
       })
@@ -271,7 +307,7 @@ export default function PdvPage() {
           setIsLoading(false);
           if (result.isConfirmed) {
             localStorage.removeItem("order");
-            navigate("/dashboard/vendas/checkout");
+            navigate(`/dashboard/vendas/checkout/${response.data.id}`);
           }
         });
       })
@@ -307,15 +343,54 @@ export default function PdvPage() {
   }, [orderItems]);
 
   return (
-    <Fragment>
+    <Box paddingBottom={"60px"}>
+      <CssBaseline />
       <AppBar title="Balcão de vendas" />
-      <Box pb={"20px"}>
-        <Container>
-          <Grid container spacing={2} mt={1} minHeight={"50vh"}>
-            <Grid item xs={12} lg={8}>
+      <Box p={"20px"}>
+        <Container size="lg">
+          <Box
+            boxShadow={"0px 0px 9px rgba(0, 0, 0, 0.05)"}
+            borderRadius={"4px"}
+            overflow={"hidden"}
+          >
+            <BottomNavigation showLabels value={0}>
+              <BottomNavigationAction
+                label="Balcão"
+                icon={
+                  <AiOutlineShoppingCart
+                    fontSize={20}
+                    style={{ marginBottom: "5px" }}
+                  />
+                }
+                onClick={() => navigate("/dashboard/vendas")}
+              />
+              <BottomNavigationAction
+                label="Concluídas"
+                icon={
+                  <AiOutlineShopping
+                    fontSize={20}
+                    style={{ marginBottom: "5px" }}
+                  />
+                }
+                onClick={() => navigate("/dashboard/vendas/finalizadas")}
+              />
+              <BottomNavigationAction
+                label="Salvas"
+                icon={
+                  <AiOutlineSave
+                    fontSize={20}
+                    style={{ marginBottom: "5px" }}
+                  />
+                }
+                onClick={() => navigate("/dashboard/vendas/salvas")}
+              />
+            </BottomNavigation>
+          </Box>
+          <Grid container spacing={2} mt={1}>
+            <Grid item xs={12}>
               <DefaultContainer disabledPadding>
                 <Grid container spacing={2}>
-                  <Grid item xs={4} sm={2}>
+                  <Grid item xs={12} sm={3} md={2}>
                     <InputText
                       type="number"
                       label="Quantidade"
@@ -324,7 +399,7 @@ export default function PdvPage() {
                       onChange={(e) => setQuantity(e.target.value)}
                     />
                   </Grid>
-                  <Grid item xs={8} sm={10}>
+                  <Grid item xs={12} sm={9} md={10}>
                     <Autocomplete
                       disablePortal
                       id="products_name"
@@ -466,7 +541,25 @@ export default function PdvPage() {
                                 textAlign: "right",
                               }}
                             >
-                              {formatCurrency(orderItem.price)}
+                              {orderItem.promo_rate !== null ? (
+                                <Stack
+                                  direction={"row"}
+                                  alignItems={"center"}
+                                  spacing={1}
+                                  justifyContent={"flex-end"}
+                                >
+                                  <Chip
+                                    label={`-${orderItem.promo_rate}%`}
+                                    size="small"
+                                    color="error"
+                                  />
+                                  <Typography variant="body2" fontSize={"13px"}>
+                                    {formatCurrency(orderItem.price)}
+                                  </Typography>
+                                </Stack>
+                              ) : (
+                                formatCurrency(orderItem.price)
+                              )}
                             </TableCell>
                             <TableCell
                               sx={{
@@ -519,8 +612,8 @@ export default function PdvPage() {
                 )}
               </DefaultContainer>
             </Grid>
-            <Grid item xs={12} lg={4}>
-              <Box position={"sticky"} top={"80px"}>
+            <Grid item xs={12}>
+              <Box>
                 <DefaultContainer disabledPadding>
                   <Autocomplete
                     disablePortal
@@ -585,7 +678,7 @@ export default function PdvPage() {
                   </Grid>
 
                   <Grid container spacing={2} mt={1}>
-                    <Grid item xs={6} md={4} lg={6}>
+                    <Grid item xs={6} md={4} lg={4}>
                       <LoadingButton
                         color="error"
                         variant="contained"
@@ -597,7 +690,7 @@ export default function PdvPage() {
                         Cancelar
                       </LoadingButton>
                     </Grid>
-                    <Grid item xs={6} md={4} lg={6}>
+                    <Grid item xs={6} md={4} lg={4}>
                       <LoadingButton
                         fullWidth
                         color="info"
@@ -608,7 +701,7 @@ export default function PdvPage() {
                         Salvar
                       </LoadingButton>
                     </Grid>
-                    <Grid item xs={12} md={4} lg={12}>
+                    <Grid item xs={12} md={4} lg={4}>
                       <LoadingButton
                         fullWidth
                         color="success"
@@ -653,6 +746,6 @@ export default function PdvPage() {
           </Box>
         </DialogContent>
       </Dialog>
-    </Fragment>
+    </Box>
   );
 }

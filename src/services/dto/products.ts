@@ -31,6 +31,7 @@ export interface OrderItemsDto {
   quantity: number;
   price: string | number;
   actual_stock: number;
+  promo_rate: number | null;
   stock_type: string;
   created_at?: Date;
   product_id: string;

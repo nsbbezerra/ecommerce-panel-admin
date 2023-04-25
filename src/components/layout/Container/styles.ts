@@ -15,4 +15,8 @@ export const Container = styled.div<Props>`
   margin: 0 auto;
   padding: 0px 20px;
   position: relative;
+
+  @media (max-width: 620px) {
+    padding: 0px 0px;
+  }
 `;

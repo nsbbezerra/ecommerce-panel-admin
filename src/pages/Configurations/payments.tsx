@@ -1,5 +1,7 @@
 import {
   Box,
+  Chip,
+  Divider,
   FormControl,
   FormControlLabel,
   FormGroup,
@@ -74,6 +76,7 @@ export default function PaymentsConfigsPage() {
     api
       .get("/configurations")
       .then((response) => {
+        console.log(response.data);
         setIsLoading(false);
         const configuration: ConfigurationsEntity | null = response.data;
 
@@ -153,300 +156,281 @@ export default function PaymentsConfigsPage() {
   }, []);
 
   return (
-    <Fragment>
+    <DefaultContainer>
       {isLoading ? (
         <Loading />
       ) : (
         <>
-          <DefaultContainer>
-            <Box mb={1}>
-              <Typography fontWeight={500} color={grey["700"]}>
-                Pagamento Online
-              </Typography>
-            </Box>
-            <Fragment>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6} md={4}>
-                  <PaymentButton
-                    isActive={payment === "mp"}
-                    onClick={
-                      payment !== "mp" ? () => setPayment("mp") : () => {}
-                    }
-                  >
-                    <img draggable={false} src={Mp} />
+          <Divider sx={{ mb: 2 }}>
+            <Chip label="Pagamentos Online" />
+          </Divider>
+          <Fragment>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6} md={4}>
+                <PaymentButton
+                  isActive={payment === "mp"}
+                  onClick={payment !== "mp" ? () => setPayment("mp") : () => {}}
+                >
+                  <img draggable={false} src={Mp} />
 
-                    {payment === "mp" && (
-                      <div className="flag">
-                        <BsCheckCircle className="check-icon" />
-                      </div>
-                    )}
-                  </PaymentButton>
-                </Grid>
-                <Grid item xs={12} sm={6} md={4}>
-                  <PaymentButton
-                    isActive={payment === "stripe"}
-                    onClick={
-                      payment !== "stripe"
-                        ? () => setPayment("stripe")
-                        : () => {}
-                    }
-                  >
-                    <img draggable={false} src={Stripe} />
-                    {payment === "stripe" && (
-                      <div className="flag">
-                        <BsCheckCircle className="check-icon" />
-                      </div>
-                    )}
-                  </PaymentButton>
-                </Grid>
-                <Grid item xs={12} sm={6} md={4}>
-                  <PaymentButton
-                    isActive={payment === "cielo"}
-                    onClick={
-                      payment !== "cielo" ? () => setPayment("cielo") : () => {}
-                    }
-                  >
-                    <img draggable={false} src={Cielo} />
-                    {payment === "cielo" && (
-                      <div className="flag">
-                        <BsCheckCircle className="check-icon" />
-                      </div>
-                    )}
-                  </PaymentButton>
-                </Grid>
+                  {payment === "mp" && (
+                    <div className="flag">
+                      <BsCheckCircle className="check-icon" />
+                    </div>
+                  )}
+                </PaymentButton>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <PaymentButton
+                  isActive={payment === "stripe"}
+                  onClick={
+                    payment !== "stripe" ? () => setPayment("stripe") : () => {}
+                  }
+                >
+                  <img draggable={false} src={Stripe} />
+                  {payment === "stripe" && (
+                    <div className="flag">
+                      <BsCheckCircle className="check-icon" />
+                    </div>
+                  )}
+                </PaymentButton>
+              </Grid>
+              <Grid item xs={12} sm={6} md={4}>
+                <PaymentButton
+                  isActive={payment === "cielo"}
+                  onClick={
+                    payment !== "cielo" ? () => setPayment("cielo") : () => {}
+                  }
+                >
+                  <img draggable={false} src={Cielo} />
+                  {payment === "cielo" && (
+                    <div className="flag">
+                      <BsCheckCircle className="check-icon" />
+                    </div>
+                  )}
+                </PaymentButton>
+              </Grid>
 
-                <Grid item xs={12}>
-                  <Grid spacing={2} container justifyContent={"flex-end"}>
-                    <Grid item xs={12}>
-                      <Password
-                        label="Chave da API"
-                        value={paymentOnlineForm.api_key}
-                        onChange={(e) =>
-                          setPaymentOnlineForm({
-                            ...paymentOnlineForm,
-                            api_key: e.target.value,
-                          })
-                        }
-                      />
-                    </Grid>
-                    {payment && (
-                      <Grid item xs={12}>
-                        <Link
-                          href={
-                            (payment === "mp" &&
-                              "https://www.mercadopago.com.br/ajuda/custo-receber-pagamentos_220") ||
-                            (payment === "cielo" &&
-                              "https://www.cielo.com.br/e-commerce/") ||
-                            (payment === "stripe" &&
-                              "https://stripe.com/br/pricing#pricing-details") ||
-                            "#"
-                          }
-                          target="_blank"
-                          underline="hover"
-                        >
-                          Veja as taxas deste método de pagamento{" "}
-                          <FiExternalLink />
-                        </Link>
-                      </Grid>
-                    )}
+              <Grid item xs={12}>
+                <Grid spacing={2} container justifyContent={"flex-end"}>
+                  <Grid item xs={12}>
+                    <Password
+                      label="Chave da API"
+                      value={paymentOnlineForm.api_key}
+                      onChange={(e) =>
+                        setPaymentOnlineForm({
+                          ...paymentOnlineForm,
+                          api_key: e.target.value,
+                        })
+                      }
+                    />
                   </Grid>
+                  {payment && (
+                    <Grid item xs={12}>
+                      <Link
+                        href={
+                          (payment === "mp" &&
+                            "https://www.mercadopago.com.br/ajuda/custo-receber-pagamentos_220") ||
+                          (payment === "cielo" &&
+                            "https://www.cielo.com.br/e-commerce/") ||
+                          (payment === "stripe" &&
+                            "https://stripe.com/br/pricing#pricing-details") ||
+                          "#"
+                        }
+                        target="_blank"
+                        underline="hover"
+                      >
+                        Veja as taxas deste método de pagamento{" "}
+                        <FiExternalLink />
+                      </Link>
+                    </Grid>
+                  )}
                 </Grid>
               </Grid>
-            </Fragment>
-          </DefaultContainer>
+            </Grid>
+          </Fragment>
+          <Divider sx={{ my: 2 }}>
+            <Chip label="Pagamentos Local" />
+          </Divider>
 
-          <Box mt={-2}>
-            <DefaultContainer>
-              <Box mb={1}>
-                <Typography fontWeight={500} color={grey["700"]}>
-                  Pagamento Local
-                </Typography>
-              </Box>
-              <Grid container spacing={2} alignItems={"center"} mt={1}>
-                <Grid item xs={3}>
-                  <FormControl variant="filled" size="small" fullWidth>
-                    <InputLabel id="demo-simple-select-filled-label">
-                      Parcelamento
-                    </InputLabel>
-                    <Select
-                      labelId="demo-simple-select-filled-label"
-                      id="demo-simple-select-filled"
-                      value={paymentLocalForm.max_installments}
+          <Grid container spacing={2} alignItems={"center"} mt={1}>
+            <Grid item xs={12} sm={6} md={4} lg={3}>
+              <FormControl variant="filled" size="small" fullWidth>
+                <InputLabel id="demo-simple-select-filled-label">
+                  Parcelamento
+                </InputLabel>
+                <Select
+                  labelId="demo-simple-select-filled-label"
+                  id="demo-simple-select-filled"
+                  value={paymentLocalForm.max_installments}
+                  onChange={(e) =>
+                    setPaymentLocalForm({
+                      ...paymentLocalForm,
+                      max_installments: e.target.value,
+                    })
+                  }
+                >
+                  <MenuItem value="">
+                    <em>Selecione</em>
+                  </MenuItem>
+                  <MenuItem value={"1"}>1x</MenuItem>
+                  <MenuItem value={"2"}>2x</MenuItem>
+                  <MenuItem value={"3"}>3x</MenuItem>
+                  <MenuItem value={"4"}>4x</MenuItem>
+                  <MenuItem value={"5"}>5x</MenuItem>
+                  <MenuItem value={"6"}>6x</MenuItem>
+                  <MenuItem value={"7"}>7x</MenuItem>
+                  <MenuItem value={"8"}>8x</MenuItem>
+                  <MenuItem value={"9"}>9x</MenuItem>
+                  <MenuItem value={"10"}>10x</MenuItem>
+                  <MenuItem value={"11"}>11x</MenuItem>
+                  <MenuItem value={"12"}>12x</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} sm={6} md={4} lg={3}>
+              <FormGroup>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={paymentLocalForm.money}
                       onChange={(e) =>
                         setPaymentLocalForm({
                           ...paymentLocalForm,
-                          max_installments: e.target.value,
+                          money: e.target.checked,
                         })
                       }
-                    >
-                      <MenuItem value="">
-                        <em>Selecione</em>
-                      </MenuItem>
-                      <MenuItem value={"1"}>1x</MenuItem>
-                      <MenuItem value={"2"}>2x</MenuItem>
-                      <MenuItem value={"3"}>3x</MenuItem>
-                      <MenuItem value={"4"}>4x</MenuItem>
-                      <MenuItem value={"5"}>5x</MenuItem>
-                      <MenuItem value={"6"}>6x</MenuItem>
-                      <MenuItem value={"7"}>7x</MenuItem>
-                      <MenuItem value={"8"}>8x</MenuItem>
-                      <MenuItem value={"9"}>9x</MenuItem>
-                      <MenuItem value={"10"}>10x</MenuItem>
-                      <MenuItem value={"11"}>11x</MenuItem>
-                      <MenuItem value={"12"}>12x</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
-                <Grid item xs={3}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          checked={paymentLocalForm.money}
-                          onChange={(e) =>
-                            setPaymentLocalForm({
-                              ...paymentLocalForm,
-                              money: e.target.checked,
-                            })
-                          }
-                        />
-                      }
-                      label="Dinheiro"
                     />
-                  </FormGroup>
-                </Grid>
-                <Grid item xs={3}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          checked={paymentLocalForm.pix}
-                          onChange={(e) =>
-                            setPaymentLocalForm({
-                              ...paymentLocalForm,
-                              pix: e.target.checked,
-                            })
-                          }
-                        />
+                  }
+                  label="Dinheiro"
+                />
+              </FormGroup>
+            </Grid>
+            <Grid item xs={12} sm={6} md={4} lg={3}>
+              <FormGroup>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={paymentLocalForm.pix}
+                      onChange={(e) =>
+                        setPaymentLocalForm({
+                          ...paymentLocalForm,
+                          pix: e.target.checked,
+                        })
                       }
-                      label="PIX"
                     />
-                  </FormGroup>
-                </Grid>
-                <Grid item xs={3}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          checked={paymentLocalForm.credit_card}
-                          onChange={(e) =>
-                            setPaymentLocalForm({
-                              ...paymentLocalForm,
-                              credit_card: e.target.checked,
-                            })
-                          }
-                        />
+                  }
+                  label="PIX"
+                />
+              </FormGroup>
+            </Grid>
+            <Grid item xs={12} sm={6} md={4} lg={3}>
+              <FormGroup>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={paymentLocalForm.credit_card}
+                      onChange={(e) =>
+                        setPaymentLocalForm({
+                          ...paymentLocalForm,
+                          credit_card: e.target.checked,
+                        })
                       }
-                      label="Cartão de Crédito"
                     />
-                  </FormGroup>
-                </Grid>
-                <Grid item xs={3}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          checked={paymentLocalForm.debit_card}
-                          onChange={(e) =>
-                            setPaymentLocalForm({
-                              ...paymentLocalForm,
-                              debit_card: e.target.checked,
-                            })
-                          }
-                        />
+                  }
+                  label="Cartão de Crédito"
+                />
+              </FormGroup>
+            </Grid>
+            <Grid item xs={12} sm={6} md={4} lg={3}>
+              <FormGroup>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={paymentLocalForm.debit_card}
+                      onChange={(e) =>
+                        setPaymentLocalForm({
+                          ...paymentLocalForm,
+                          debit_card: e.target.checked,
+                        })
                       }
-                      label="Cartão de Débito"
                     />
-                  </FormGroup>
-                </Grid>
-                <Grid item xs={3}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          checked={paymentLocalForm.ticket}
-                          onChange={(e) =>
-                            setPaymentLocalForm({
-                              ...paymentLocalForm,
-                              ticket: e.target.checked,
-                            })
-                          }
-                        />
+                  }
+                  label="Cartão de Débito"
+                />
+              </FormGroup>
+            </Grid>
+            <Grid item xs={12} sm={6} md={4} lg={3}>
+              <FormGroup>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={paymentLocalForm.ticket}
+                      onChange={(e) =>
+                        setPaymentLocalForm({
+                          ...paymentLocalForm,
+                          ticket: e.target.checked,
+                        })
                       }
-                      label="Boleto"
                     />
-                  </FormGroup>
-                </Grid>
-                <Grid item xs={3}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          checked={paymentLocalForm.check}
-                          onChange={(e) =>
-                            setPaymentLocalForm({
-                              ...paymentLocalForm,
-                              check: e.target.checked,
-                            })
-                          }
-                        />
+                  }
+                  label="Boleto"
+                />
+              </FormGroup>
+            </Grid>
+            <Grid item xs={12} sm={6} md={4} lg={3}>
+              <FormGroup>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={paymentLocalForm.check}
+                      onChange={(e) =>
+                        setPaymentLocalForm({
+                          ...paymentLocalForm,
+                          check: e.target.checked,
+                        })
                       }
-                      label="Cheque"
                     />
-                  </FormGroup>
-                </Grid>
-                <Grid item xs={3}>
-                  <FormGroup>
-                    <FormControlLabel
-                      control={
-                        <Switch
-                          checked={paymentLocalForm.trade_note}
-                          onChange={(e) =>
-                            setPaymentLocalForm({
-                              ...paymentLocalForm,
-                              trade_note: e.target.checked,
-                            })
-                          }
-                        />
+                  }
+                  label="Cheque"
+                />
+              </FormGroup>
+            </Grid>
+            <Grid item xs={12} sm={6} md={4} lg={3}>
+              <FormGroup>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={paymentLocalForm.trade_note}
+                      onChange={(e) =>
+                        setPaymentLocalForm({
+                          ...paymentLocalForm,
+                          trade_note: e.target.checked,
+                        })
                       }
-                      label="Duplicata"
                     />
-                  </FormGroup>
-                </Grid>
-              </Grid>
-            </DefaultContainer>
-          </Box>
-
-          <Box mt={-2}>
-            <DefaultContainer>
-              <Grid container spacing={2} justifyContent={"flex-end"}>
-                <Grid item xs={12} sm={4}>
-                  <Button
-                    variant="contained"
-                    size="large"
-                    startIcon={<AiOutlineSave />}
-                    fullWidth
-                    loading={isSubmitLoading}
-                    onClick={saveConfiguration}
-                  >
-                    Salvar
-                  </Button>
-                </Grid>
-              </Grid>
-            </DefaultContainer>
-          </Box>
+                  }
+                  label="Duplicata"
+                />
+              </FormGroup>
+            </Grid>
+          </Grid>
+          <Grid container spacing={2} justifyContent={"flex-end"} mt={2}>
+            <Grid item xs={12} sm={4}>
+              <Button
+                variant="contained"
+                size="large"
+                startIcon={<AiOutlineSave />}
+                fullWidth
+                loading={isSubmitLoading}
+                onClick={saveConfiguration}
+              >
+                Salvar
+              </Button>
+            </Grid>
+          </Grid>
         </>
       )}
-    </Fragment>
+    </DefaultContainer>
   );
 }
