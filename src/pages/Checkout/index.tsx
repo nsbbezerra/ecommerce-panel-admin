@@ -34,7 +34,6 @@ import Mp from "../../assets/mp.svg";
 import Stripe from "../../assets/stripe.svg";
 import Cielo from "../../assets/cielo.svg";
 import { AiOutlineDollar } from "react-icons/ai";
-import InputText from "../../components/layout/InputText";
 
 interface LocalPaymentProps {
   max_installments: number | string;
@@ -60,6 +59,12 @@ export default function Checkout() {
   const [myOrder, setMyorder] = useState<GetOrderByIdEntity | null>(null);
 
   const [expanded, setExpanded] = useState<string | false>(false);
+
+  const [paymentLoading, setPaymentLoading] = useState<boolean>(false);
+
+  const [payForm, setPayForm] = useState<string>("");
+
+  const [installments, setInstallments] = useState<number | string>("");
 
   const handleChange =
     (panel: string) => (event: SyntheticEvent, isExpanded: boolean) => {
@@ -107,6 +112,23 @@ export default function Checkout() {
     } else {
       return `${address.street}, ${address.number}, ${address.district}, CEP: ${address.cep}, ${address.city} - ${address.state}`;
     }
+  }
+
+  function payOrderOnline() {
+    setPaymentLoading(true);
+    api
+      .post("/payments/online", {
+        gateway: configurations?.gateway || "",
+        orderId: order,
+      })
+      .then((response) => {
+        setPaymentLoading(false);
+        window.open(response.data.redirect, "_blank");
+      })
+      .catch((error) => {
+        setPaymentLoading(false);
+        getErrorMessage({ error });
+      });
   }
 
   useEffect(() => {
@@ -307,6 +329,8 @@ export default function Checkout() {
                             startIcon={<AiOutlineDollar />}
                             size="large"
                             variant="contained"
+                            loading={paymentLoading}
+                            onClick={payOrderOnline}
                           >
                             Pagar agora
                           </Button>
@@ -340,13 +364,39 @@ export default function Checkout() {
                               <Select
                                 labelId="demo-simple-select-label"
                                 id="demo-simple-select"
+                                value={payForm}
+                                onChange={(e) => setPayForm(e.target.value)}
                               >
                                 <MenuItem value="">
                                   <em>Selecione</em>
                                 </MenuItem>
-                                <MenuItem value={10}>Ten</MenuItem>
-                                <MenuItem value={20}>Twenty</MenuItem>
-                                <MenuItem value={30}>Thirty</MenuItem>
+                                {configurations?.payment_local?.check && (
+                                  <MenuItem value="check">Cheque</MenuItem>
+                                )}
+                                {configurations?.payment_local?.credit_card && (
+                                  <MenuItem value="credit_card">
+                                    Cartão de crédito
+                                  </MenuItem>
+                                )}
+                                {configurations?.payment_local?.debit_card && (
+                                  <MenuItem value="debit_card">
+                                    Cartão de débito
+                                  </MenuItem>
+                                )}
+                                {configurations?.payment_local?.money && (
+                                  <MenuItem value="money">Dinheiro</MenuItem>
+                                )}
+                                {configurations?.payment_local?.pix && (
+                                  <MenuItem value="pix">PIX</MenuItem>
+                                )}
+                                {configurations?.payment_local?.ticket && (
+                                  <MenuItem value="ticket">Boleto</MenuItem>
+                                )}
+                                {configurations?.payment_local?.trade_note && (
+                                  <MenuItem value="trade_note">
+                                    Duplicata
+                                  </MenuItem>
+                                )}
                               </Select>
                             </FormControl>
                           </Grid>
@@ -355,6 +405,13 @@ export default function Checkout() {
                               variant="filled"
                               fullWidth
                               size="small"
+                              disabled={
+                                payForm === "credit_card" ||
+                                payForm === "trade_note" ||
+                                payForm === "ticket"
+                                  ? false
+                                  : true
+                              }
                             >
                               <InputLabel id="demo-simple-select-label">
                                 Parcelas
@@ -366,9 +423,20 @@ export default function Checkout() {
                                 <MenuItem value="">
                                   <em>Selecione</em>
                                 </MenuItem>
-                                <MenuItem value={10}>Ten</MenuItem>
-                                <MenuItem value={20}>Twenty</MenuItem>
-                                <MenuItem value={30}>Thirty</MenuItem>
+                                {[
+                                  ...Array(
+                                    Number(
+                                      configurations?.payment_local
+                                        ?.max_installments
+                                    ) + 1 || 0
+                                  ).keys(),
+                                ].map((opt, index) => {
+                                  if (index > 0) {
+                                    return (
+                                      <MenuItem value={opt}>{opt}x</MenuItem>
+                                    );
+                                  }
+                                })}
                               </Select>
                             </FormControl>
                           </Grid>

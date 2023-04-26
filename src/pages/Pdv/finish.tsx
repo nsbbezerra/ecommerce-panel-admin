@@ -18,6 +18,7 @@ import AppBar from "../../components/layout/AppBar";
 import Container from "../../components/layout/Container";
 import { useNavigate } from "react-router-dom";
 import {
+  AiOutlineEdit,
   AiOutlineSave,
   AiOutlineSearch,
   AiOutlineShopping,
@@ -52,6 +53,7 @@ interface OrdersProps {
     | "FINISH";
   payment_status: "WAITING" | "PAID_OUT" | "REFUSED";
   sub_total: string | number;
+  created_at: Date | string;
 }
 
 export default function SalesFinished() {
@@ -208,7 +210,10 @@ export default function SalesFinished() {
                       <TableCell sx={{ maxWidth: "40px" }}>ID</TableCell>
                       <TableCell sx={{ minWidth: "250px" }}>Cliente</TableCell>
                       <TableCell sx={{ width: "130px" }}>Status</TableCell>
-                      <TableCell sx={{ width: "100px" }}>Pagamento</TableCell>
+                      <TableCell sx={{ width: "70px" }}>Pagamento</TableCell>
+                      <TableCell sx={{ width: "150px", textAlign: "right" }}>
+                        Data
+                      </TableCell>
                       <TableCell sx={{ width: "150px", textAlign: "right" }}>
                         Sub-Total
                       </TableCell>
@@ -242,34 +247,98 @@ export default function SalesFinished() {
                           {ord.client.name || ""}
                         </TableCell>
                         <TableCell sx={{ width: "130px" }}>
-                          {ord.order_status === "PAYMENT" && (
-                            <Chip
-                              label="Processando pagamento"
-                              color="warning"
-                            />
-                          )}
-                          {ord.order_status === "FINISH" && (
-                            <Chip label="Pedido finalizado" color="success" />
-                          )}
-                          {ord.order_status === "PACKING" && (
-                            <Chip label="Empacotando" color="info" />
-                          )}
-                          {ord.order_status === "PROCCESSING" && (
-                            <Chip label="Em preparação" color="secondary" />
-                          )}
-                          {ord.order_status === "SHIPPING" && (
-                            <Chip label="Em trânsito" color="success" />
-                          )}
+                          <Stack
+                            direction={"row"}
+                            spacing={1}
+                            alignItems={"center"}
+                          >
+                            <>
+                              {ord.order_status === "PAYMENT" && (
+                                <Chip
+                                  size="small"
+                                  label="Processando pagamento"
+                                  color="warning"
+                                />
+                              )}
+                              {ord.order_status === "FINISH" && (
+                                <Chip
+                                  size="small"
+                                  label="Pedido finalizado"
+                                  color="success"
+                                />
+                              )}
+                              {ord.order_status === "PACKING" && (
+                                <Chip
+                                  size="small"
+                                  label="Empacotando"
+                                  color="info"
+                                />
+                              )}
+                              {ord.order_status === "PROCCESSING" && (
+                                <Chip
+                                  size="small"
+                                  label="Em preparação"
+                                  color="secondary"
+                                />
+                              )}
+                              {ord.order_status === "SHIPPING" && (
+                                <Chip
+                                  size="small"
+                                  label="Em trânsito"
+                                  color="success"
+                                />
+                              )}
+                            </>
+                            <IconButton
+                              size="small"
+                              color="primary"
+                              sx={{ flexShrink: 0 }}
+                            >
+                              <AiOutlineEdit />
+                            </IconButton>
+                          </Stack>
                         </TableCell>
-                        <TableCell sx={{ width: "100px" }}>
-                          {ord.payment_status === "PAID_OUT" && (
-                            <Chip label="Confirmado" color="success" />
-                          )}
-                          {ord.payment_status === "REFUSED" && (
-                            <Chip label="Erro / Recusado" color="error" />
-                          )}
-                          {ord.payment_status === "WAITING" && (
-                            <Chip label="Processando" color="success" />
+                        <TableCell sx={{ width: "70px" }}>
+                          <Stack
+                            direction={"row"}
+                            spacing={1}
+                            alignItems={"center"}
+                          >
+                            <>
+                              {ord.payment_status === "PAID_OUT" && (
+                                <Chip
+                                  size="small"
+                                  label="Confirmado"
+                                  color="success"
+                                />
+                              )}
+                              {ord.payment_status === "REFUSED" && (
+                                <Chip
+                                  size="small"
+                                  label="Erro / Recusado"
+                                  color="error"
+                                />
+                              )}
+                              {ord.payment_status === "WAITING" && (
+                                <Chip
+                                  size="small"
+                                  label="Processando"
+                                  color="warning"
+                                />
+                              )}
+                            </>
+                            <IconButton
+                              size="small"
+                              color="primary"
+                              sx={{ flexShrink: 0 }}
+                            >
+                              <AiOutlineSearch />
+                            </IconButton>
+                          </Stack>
+                        </TableCell>
+                        <TableCell sx={{ width: "150px", textAlign: "right" }}>
+                          {new Intl.DateTimeFormat("pt-BR").format(
+                            new Date(ord.created_at)
                           )}
                         </TableCell>
                         <TableCell sx={{ width: "150px", textAlign: "right" }}>
