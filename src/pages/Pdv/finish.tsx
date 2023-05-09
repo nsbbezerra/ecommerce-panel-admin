@@ -18,6 +18,7 @@ import AppBar from "../../components/layout/AppBar";
 import Container from "../../components/layout/Container";
 import { useNavigate } from "react-router-dom";
 import {
+  AiOutlineDollarCircle,
   AiOutlineEdit,
   AiOutlineSave,
   AiOutlineSearch,
@@ -54,6 +55,8 @@ interface OrdersProps {
   payment_status: "WAITING" | "PAID_OUT" | "REFUSED";
   sub_total: string | number;
   created_at: Date | string;
+  payment_mode?: string | null;
+  order_from: "WEB" | "PDV";
 }
 
 export default function SalesFinished() {
@@ -207,7 +210,7 @@ export default function SalesFinished() {
                 <Table size="small">
                   <TableHead>
                     <TableRow>
-                      <TableCell sx={{ maxWidth: "40px" }}>ID</TableCell>
+                      <TableCell sx={{ maxWidth: "60px" }}>ID</TableCell>
                       <TableCell sx={{ minWidth: "250px" }}>Cliente</TableCell>
                       <TableCell sx={{ width: "130px" }}>Status</TableCell>
                       <TableCell sx={{ width: "70px" }}>Pagamento</TableCell>
@@ -217,15 +220,15 @@ export default function SalesFinished() {
                       <TableCell sx={{ width: "150px", textAlign: "right" }}>
                         Sub-Total
                       </TableCell>
-                      <TableCell sx={{ maxWidth: "70px", textAlign: "center" }}>
-                        Detalhes
-                      </TableCell>
+                      <TableCell
+                        sx={{ maxWidth: "10px", textAlign: "center" }}
+                      ></TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {orders.map((ord) => (
                       <TableRow key={ord.id} hover>
-                        <TableCell sx={{ maxWidth: "40px" }}>
+                        <TableCell sx={{ maxWidth: "60px" }}>
                           <Tooltip
                             title={ord.id}
                             arrow
@@ -255,6 +258,7 @@ export default function SalesFinished() {
                             <>
                               {ord.order_status === "PAYMENT" && (
                                 <Chip
+                                  variant="outlined"
                                   size="small"
                                   label="Processando pagamento"
                                   color="warning"
@@ -262,6 +266,7 @@ export default function SalesFinished() {
                               )}
                               {ord.order_status === "FINISH" && (
                                 <Chip
+                                  variant="outlined"
                                   size="small"
                                   label="Pedido finalizado"
                                   color="success"
@@ -269,6 +274,7 @@ export default function SalesFinished() {
                               )}
                               {ord.order_status === "PACKING" && (
                                 <Chip
+                                  variant="outlined"
                                   size="small"
                                   label="Empacotando"
                                   color="info"
@@ -276,6 +282,7 @@ export default function SalesFinished() {
                               )}
                               {ord.order_status === "PROCCESSING" && (
                                 <Chip
+                                  variant="outlined"
                                   size="small"
                                   label="Em preparação"
                                   color="secondary"
@@ -283,6 +290,7 @@ export default function SalesFinished() {
                               )}
                               {ord.order_status === "SHIPPING" && (
                                 <Chip
+                                  variant="outlined"
                                   size="small"
                                   label="Em trânsito"
                                   color="success"
@@ -304,36 +312,136 @@ export default function SalesFinished() {
                             spacing={1}
                             alignItems={"center"}
                           >
+                            <Chip
+                              variant="outlined"
+                              size="small"
+                              label={ord.payment_mode || ""}
+                            />
                             <>
                               {ord.payment_status === "PAID_OUT" && (
-                                <Chip
-                                  size="small"
-                                  label="Confirmado"
-                                  color="success"
-                                />
+                                <>
+                                  <Chip
+                                    variant="outlined"
+                                    size="small"
+                                    label={
+                                      !ord.payment_mode
+                                        ? "Nenhum"
+                                        : ord.payment_mode === "ONLINE"
+                                        ? "Confirmado"
+                                        : "Pago"
+                                    }
+                                    color="success"
+                                  />
+                                  {ord.payment_mode &&
+                                  ord.payment_mode === "ONLINE" ? (
+                                    <>
+                                      <Tooltip
+                                        title="Consultar pagamento"
+                                        arrow
+                                      >
+                                        <IconButton
+                                          size="small"
+                                          color="primary"
+                                          sx={{ flexShrink: 0 }}
+                                          onClick={() =>
+                                            navigate(
+                                              `/dashboard/vendas/checkout/${ord.id}`
+                                            )
+                                          }
+                                        >
+                                          <AiOutlineSearch />
+                                        </IconButton>
+                                      </Tooltip>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Tooltip title="Ver parcelas" arrow>
+                                        <IconButton
+                                          size="small"
+                                          color="primary"
+                                          sx={{ flexShrink: 0 }}
+                                          onClick={() =>
+                                            navigate(
+                                              `/dashboard/vendas/checkout/${ord.id}`
+                                            )
+                                          }
+                                        >
+                                          <AiOutlineSearch />
+                                        </IconButton>
+                                      </Tooltip>
+                                    </>
+                                  )}
+                                </>
                               )}
                               {ord.payment_status === "REFUSED" && (
-                                <Chip
-                                  size="small"
-                                  label="Erro / Recusado"
-                                  color="error"
-                                />
+                                <>
+                                  <Chip
+                                    variant="outlined"
+                                    size="small"
+                                    label="Erro / Recusado"
+                                    color="error"
+                                  />
+                                  <Tooltip title="Pagar novamente" arrow>
+                                    <IconButton
+                                      size="small"
+                                      color="primary"
+                                      sx={{ flexShrink: 0 }}
+                                      onClick={() =>
+                                        navigate(
+                                          `/dashboard/vendas/checkout/${ord.id}`
+                                        )
+                                      }
+                                    >
+                                      <AiOutlineDollarCircle />
+                                    </IconButton>
+                                  </Tooltip>
+                                </>
                               )}
                               {ord.payment_status === "WAITING" && (
-                                <Chip
-                                  size="small"
-                                  label="Processando"
-                                  color="warning"
-                                />
+                                <>
+                                  <Chip
+                                    variant="outlined"
+                                    size="small"
+                                    label={
+                                      !ord.payment_mode
+                                        ? "Nenhum"
+                                        : ord.payment_mode === "ONLINE"
+                                        ? "Processando"
+                                        : "Aguardando"
+                                    }
+                                    color="warning"
+                                  />
+                                  <Tooltip title="Consultar pagamento" arrow>
+                                    <IconButton
+                                      size="small"
+                                      color="primary"
+                                      sx={{ flexShrink: 0 }}
+                                    >
+                                      <AiOutlineSearch />
+                                    </IconButton>
+                                  </Tooltip>
+                                  {ord.payment_mode &&
+                                  ord.payment_mode === "ONLINE" ? (
+                                    <Tooltip title="Pagar novamente" arrow>
+                                      <IconButton
+                                        size="small"
+                                        color="primary"
+                                        sx={{ flexShrink: 0 }}
+                                        onClick={() =>
+                                          navigate(
+                                            `/dashboard/vendas/checkout/${ord.id}`
+                                          )
+                                        }
+                                      >
+                                        <AiOutlineDollarCircle />
+                                      </IconButton>
+                                    </Tooltip>
+                                  ) : (
+                                    ""
+                                  )}
+                                </>
                               )}
                             </>
-                            <IconButton
-                              size="small"
-                              color="primary"
-                              sx={{ flexShrink: 0 }}
-                            >
-                              <AiOutlineSearch />
-                            </IconButton>
                           </Stack>
                         </TableCell>
                         <TableCell sx={{ width: "150px", textAlign: "right" }}>

@@ -24,7 +24,7 @@ import {
   AiOutlineTool,
   AiOutlineUser,
 } from "react-icons/ai";
-import { TbFileInvoice } from "react-icons/tb";
+import { TbFileInvoice, TbNotebook } from "react-icons/tb";
 import { HiOutlineCollection } from "react-icons/hi";
 import { Scrollbars } from "react-custom-scrollbars-2";
 
@@ -150,6 +150,23 @@ export default function Home() {
             >
               <AiOutlineTags className="menu-icon" fontSize={16} />
               <span className="menu-text">PRODUTOS</span>
+            </MenuItem>
+          </Tooltip>
+          <Tooltip
+            title="Caixa"
+            placement="right"
+            disableHoverListener={is.isSiderOpen}
+            arrow
+          >
+            <MenuItem
+              isActive={itemActive.includes("/dashboard/caixa")}
+              isOpen={is.isSiderOpen}
+              className="menu-item"
+              data-pr-tooltip="VENDAS"
+              onClick={() => navigate("/dashboard/caixa")}
+            >
+              <TbNotebook className="menu-icon" fontSize={16} />
+              <span className="menu-text">CAIXA</span>
             </MenuItem>
           </Tooltip>
           <Tooltip

@@ -3,7 +3,6 @@ import AppBar from "../../components/layout/AppBar";
 import Container from "../../components/layout/Container";
 import DefaultContainer from "../../components/layout/DefaultContainer";
 import { GetAllClientsEntity } from "../../services/entities/clients";
-import { useQuery } from "react-query";
 import { configs } from "../../configs";
 import { api } from "../../configs/api";
 import getErrorMessage from "../../helpers/getMessageError";
@@ -184,13 +183,15 @@ export default function ClientsPage() {
                       <TableRow
                         hover
                         key={client.id}
-                        sx={{ "& > *": { borderBottom: "unset" } }}
+                        sx={{ "& > *": { borderBottom: "0" } }}
                       >
                         <TableCell>{client.name}</TableCell>
                         <TableCell>{client.document}</TableCell>
                         <TableCell>{client.phone}</TableCell>
                         <TableCell>{client.email}</TableCell>
-                        <TableCell align="center">
+                        <TableCell
+                          sx={{ textAlign: "center", borderBottom: 0 }}
+                        >
                           <IconButton
                             color="info"
                             size="small"
@@ -216,7 +217,7 @@ export default function ClientsPage() {
                             }
                             timeout="auto"
                             unmountOnExit
-                            style={{ padding: "10px 10px 10px 150px" }}
+                            style={{ padding: "10px 0px" }}
                           >
                             <Stack spacing={2}>
                               {addresses.length ? (

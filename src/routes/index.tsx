@@ -16,6 +16,10 @@ import Checkout from "../pages/Checkout";
 import Configurations from "../pages/Configurations";
 import SalesFinished from "../pages/Pdv/finish";
 import SalesSaved from "../pages/Pdv/saved";
+import FinishCheckout from "../pages/Checkout/finish";
+import Cashier from "../pages/Cashier";
+import OpenCashier from "../pages/Cashier/open";
+import CashierMoviment from "../pages/Cashier/moviment";
 
 export default function AppRoutes() {
   return (
@@ -43,10 +47,18 @@ export default function AppRoutes() {
             <Route path="criar" element={<SaveProduct />} />
             <Route path="editar/:product" element={<SaveProduct />} />
           </Route>
+          <Route path="caixa">
+            <Route index element={<Cashier />} />
+            <Route path="novo" element={<OpenCashier />} />
+            <Route path=":cashier" element={<CashierMoviment />} />
+          </Route>
           <Route path="vendas">
             <Route index element={<PdvPage />} />
             <Route path="checkout" element={<Checkout />}>
               <Route path=":order" element={<Checkout />} />
+            </Route>
+            <Route path="pagamento" element={<FinishCheckout />}>
+              <Route path=":status" element={<FinishCheckout />} />
             </Route>
             <Route path="finalizadas" element={<SalesFinished />} />
             <Route path="salvas" element={<SalesSaved />} />

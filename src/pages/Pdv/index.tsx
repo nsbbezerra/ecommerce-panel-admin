@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import AppBar from "../../components/layout/AppBar";
 import Container from "../../components/layout/Container";
 import DefaultContainer from "../../components/layout/DefaultContainer";
@@ -15,7 +15,6 @@ import {
   DialogTitle,
   Grid,
   InputAdornment,
-  Paper,
   Stack,
   Table,
   TableBody,
@@ -34,7 +33,6 @@ import {
 } from "react-icons/ai";
 import InputText from "../../components/layout/InputText";
 import IconButton from "../../components/layout/IconButton";
-import { BsTrash } from "react-icons/bs";
 import { LoadingButton } from "@mui/lab";
 import { FaBoxOpen, FaDollarSign } from "react-icons/fa";
 import { GetAllClientsEntity } from "../../services/entities/clients";
@@ -51,6 +49,7 @@ import currencyMask from "../../helpers/currencyMask";
 import Avatar from "../../components/layout/Avatar";
 import { useNavigate } from "react-router-dom";
 import calcDiscount from "../../helpers/calcPercentage";
+import { HiOutlineTrash } from "react-icons/hi";
 
 export default function PdvPage() {
   const navigate = useNavigate();
@@ -277,6 +276,7 @@ export default function PdvPage() {
           total: parseFloat(
             total.toString().replace(".", "").replace(",", ".")
           ),
+          order_from: "PDV",
           client_id: selectedClient.id,
           discount: Number(discount),
           sub_total: parseFloat(
@@ -347,7 +347,7 @@ export default function PdvPage() {
       <CssBaseline />
       <AppBar title="Balcão de vendas" />
       <Box p={"20px"}>
-        <Container size="lg">
+        <Container>
           <Box
             boxShadow={"0px 0px 9px rgba(0, 0, 0, 0.05)"}
             borderRadius={"4px"}
@@ -387,7 +387,7 @@ export default function PdvPage() {
             </BottomNavigation>
           </Box>
           <Grid container spacing={2} mt={1}>
-            <Grid item xs={12}>
+            <Grid item xs={12} md={7} lg={8}>
               <DefaultContainer disabledPadding>
                 <Grid container spacing={2}>
                   <Grid item xs={12} sm={3} md={2}>
@@ -585,7 +585,7 @@ export default function PdvPage() {
                                 color="error"
                                 onClick={() => removeProduct(orderItem.id)}
                               >
-                                <BsTrash />
+                                <HiOutlineTrash />
                               </IconButton>
                             </TableCell>
                           </TableRow>
@@ -612,7 +612,7 @@ export default function PdvPage() {
                 )}
               </DefaultContainer>
             </Grid>
-            <Grid item xs={12}>
+            <Grid item xs={12} md={5} lg={4}>
               <Box>
                 <DefaultContainer disabledPadding>
                   <Autocomplete
@@ -678,19 +678,19 @@ export default function PdvPage() {
                   </Grid>
 
                   <Grid container spacing={2} mt={1}>
-                    <Grid item xs={6} md={4} lg={4}>
+                    <Grid item xs={6}>
                       <LoadingButton
                         color="error"
                         variant="contained"
                         fullWidth
                         size="large"
-                        startIcon={<BsTrash />}
+                        startIcon={<HiOutlineTrash />}
                         onClick={cancel}
                       >
                         Cancelar
                       </LoadingButton>
                     </Grid>
-                    <Grid item xs={6} md={4} lg={4}>
+                    <Grid item xs={6}>
                       <LoadingButton
                         fullWidth
                         color="info"
@@ -701,7 +701,7 @@ export default function PdvPage() {
                         Salvar
                       </LoadingButton>
                     </Grid>
-                    <Grid item xs={12} md={4} lg={4}>
+                    <Grid item xs={12}>
                       <LoadingButton
                         fullWidth
                         color="success"

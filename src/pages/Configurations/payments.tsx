@@ -1,5 +1,4 @@
 import {
-  Box,
   Chip,
   Divider,
   FormControl,
@@ -11,7 +10,6 @@ import {
   MenuItem,
   Select,
   Switch,
-  Typography,
 } from "@mui/material";
 import { Fragment, useEffect, useState } from "react";
 import { BsCheckCircle } from "react-icons/bs";
@@ -22,7 +20,7 @@ import { AiOutlineSave } from "react-icons/ai";
 import Mp from "../../assets/mp.svg";
 import Stripe from "../../assets/stripe.svg";
 import Cielo from "../../assets/cielo.svg";
-import { blue, grey } from "@mui/material/colors";
+import { blue } from "@mui/material/colors";
 import { FiExternalLink } from "react-icons/fi";
 import { ConfigurationsEntity } from "../../services/entities/configurations";
 import { api } from "../../configs/api";
