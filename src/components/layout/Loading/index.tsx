@@ -4,7 +4,10 @@ import CircularProgress from "@mui/material/CircularProgress";
 export default function Loading() {
   return (
     <LoadingContainer>
-      <CircularProgress style={{ width: "60px", height: "60px" }} />
+      <CircularProgress
+        style={{ width: "40px", height: "40px" }}
+        color="inherit"
+      />
       <span>Carregando...</span>
     </LoadingContainer>
   );

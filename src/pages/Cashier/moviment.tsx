@@ -6,7 +6,10 @@ import {
   AccordionDetails,
   AccordionSummary,
   Box,
+  Card,
+  Chip,
   Collapse,
+  Divider,
   Drawer,
   FormControl,
   Grid,
@@ -24,6 +27,7 @@ import {
 } from "@mui/material";
 import {
   AiOutlineCheck,
+  AiOutlineEdit,
   AiOutlinePlus,
   AiOutlinePrinter,
   AiOutlineSave,
@@ -45,6 +49,9 @@ import getSuccessMessage from "../../helpers/getMessageSuccess";
 import getErrorMessage from "../../helpers/getMessageError";
 import currencyMask from "../../helpers/currencyMask";
 import formatCurrency from "../../helpers/formatCurrency";
+import handlePayForm from "../../helpers/handlePayForm";
+import { GetOrderByIdEntity } from "../../services/entities/orders";
+import Avatar from "../../components/layout/Avatar";
 
 interface OrdersProps {
   id: string;
@@ -61,6 +68,8 @@ interface OrdersProps {
   created_at: Date | string;
   payment_mode?: string | null;
   order_from: "WEB" | "PDV";
+  pay_form: string | null;
+  installments: number | null;
 }
 
 interface CashHandlingProps {
@@ -88,6 +97,7 @@ export default function CashierMoviment() {
 
   const [submitLoading, setSubmitLoading] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [detailsLoading, setDetailsLoading] = useState<boolean>(false);
 
   const [orders, setOrders] = useState<OrdersProps[]>([]);
 
@@ -97,6 +107,10 @@ export default function CashierMoviment() {
     movId: "",
     open: false,
   });
+
+  const [orderDetails, setOrderDetails] = useState<GetOrderByIdEntity | null>(
+    null
+  );
 
   function handleOpenDrawer(from: "deposit" | "withdraw") {
     from === "deposit" ? setMoviment("DEPOSIT") : setMoviment("WITHDRAW");
@@ -201,6 +215,120 @@ export default function CashierMoviment() {
     });
   }
 
+  function getOrders() {
+    setIsLoading(true);
+    api
+      .get("/cashier/orders")
+      .then((response) => {
+        setOrders(response.data);
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        setIsLoading(false);
+        getErrorMessage({ error });
+      });
+  }
+
+  function getOrderDetails(id: string) {
+    const isOpen =
+      openCollapse.movId === id && openCollapse.open ? false : true;
+
+    setOpenCollapse({
+      movId: id,
+      open: isOpen,
+    });
+    if (isOpen) {
+      setDetailsLoading(true);
+      api
+        .get(`/orders/get-by-id/${id}`)
+        .then((response) => {
+          setOrderDetails(response.data);
+          setDetailsLoading(false);
+        })
+        .catch((error) => {
+          getErrorMessage({ error });
+          setDetailsLoading(false);
+        });
+    } else {
+      setOrderDetails(null);
+    }
+  }
+
+  function setFinishOrder(id: string) {
+    Swal.fire({
+      title: "Confirmação",
+      text: `Deseja finalizar esta venda?`,
+      icon: "question",
+      showDenyButton: true,
+      denyButtonText: "Não",
+      denyButtonColor: red["600"],
+      confirmButtonText: "Sim",
+      confirmButtonColor: blue["500"],
+      showLoaderOnConfirm: true,
+    }).then((result) => {
+      setIsLoading(false);
+      if (result.isConfirmed) {
+        api
+          .post("/orders/finish-order", {
+            orderId: id,
+          })
+          .then((response) => {
+            getSuccessMessage({ message: response.data.message });
+            getOrders();
+          })
+          .catch((error) => getErrorMessage({ error }));
+      }
+    });
+  }
+
+  function calcTotalCashier(): number {
+    return (
+      calcMovimentValues(handleFindMoviments("deposit")) -
+      calcMovimentValues(handleFindMoviments("withdraw"))
+    );
+  }
+
+  function closeCashier() {
+    Swal.fire({
+      title: "Confirmação",
+      text: `Deseja fechar este caixa?`,
+      icon: "question",
+      showDenyButton: true,
+      denyButtonText: "Não",
+      denyButtonColor: red["600"],
+      confirmButtonText: "Sim",
+      confirmButtonColor: blue["500"],
+      showLoaderOnConfirm: true,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        api
+          .put("/cashier/close", {
+            cashierId: cashier,
+            closeValue: calcTotalCashier(),
+          })
+          .then((response) => {
+            Swal.fire({
+              title: "Sucesso",
+              text: response.data.message,
+              icon: "success",
+              confirmButtonColor: blue["500"],
+            }).then((results) => {
+              if (results.isConfirmed) {
+                navigate("/dashboard/caixa");
+              }
+            });
+          })
+          .catch((error) => {
+            getErrorMessage({ error });
+          });
+      }
+    });
+  }
+
+  useEffect(() => {
+    getOrders();
+  }, []);
+
   useEffect(() => {
     if (cashier) {
       getCashierMoviment();
@@ -236,7 +364,11 @@ export default function CashierMoviment() {
                 </Button>
 
                 <Stack direction={"row"} spacing={2}>
-                  <Button variant="contained" startIcon={<BsDoorClosed />}>
+                  <Button
+                    variant="contained"
+                    startIcon={<BsDoorClosed />}
+                    onClick={closeCashier}
+                  >
                     Fechar caixa
                   </Button>
                 </Stack>
@@ -254,6 +386,14 @@ export default function CashierMoviment() {
                         <TableRow>
                           <TableCell sx={{ minWidth: "240px" }}>
                             Cliente
+                          </TableCell>
+                          <TableCell
+                            sx={{
+                              width: "150px",
+                              minWidth: "150px",
+                            }}
+                          >
+                            Pagamento
                           </TableCell>
                           <TableCell
                             sx={{
@@ -288,57 +428,212 @@ export default function CashierMoviment() {
                       </TableHead>
 
                       <TableBody>
-                        <TableRow hover>
-                          <TableCell>Natanael dos Santos Bezerra</TableCell>
-                          <TableCell>00/00/0000</TableCell>
-                          <TableCell sx={{ textAlign: "right" }}>
-                            R$ 4000,00
-                          </TableCell>
-                          <TableCell sx={{ textAlign: "center" }}>
-                            <Stack direction={"row"} spacing={1}>
-                              <IconButton color="primary" size="small">
-                                <AiOutlinePrinter />
-                              </IconButton>
-                              <IconButton color="primary" size="small">
-                                <AiOutlineCheck />
-                              </IconButton>
-                              <IconButton color="error" size="small">
-                                <HiOutlineTrash />
-                              </IconButton>
-                            </Stack>
-                          </TableCell>
-                          <TableCell sx={{ textAlign: "center" }}>
-                            <IconButton color="primary" size="small">
-                              <FiChevronDown />
-                            </IconButton>
-                          </TableCell>
-                        </TableRow>
+                        {orders.map((order) => (
+                          <>
+                            <TableRow
+                              hover
+                              key={order.id}
+                              sx={{ "& > *": { borderBottom: "0" } }}
+                            >
+                              <TableCell>{order.client.name}</TableCell>
+                              <TableCell>
+                                <Stack direction={"row"} spacing={1}>
+                                  <Chip
+                                    size="small"
+                                    label={`${order.installments || 0}x`}
+                                  />
+                                  <Chip
+                                    size="small"
+                                    variant="outlined"
+                                    color="primary"
+                                    label={handlePayForm(order.pay_form || "")}
+                                  />
+                                </Stack>
+                              </TableCell>
+                              <TableCell>
+                                {formatDate(order.created_at as Date)}
+                              </TableCell>
+                              <TableCell sx={{ textAlign: "right" }}>
+                                {formatCurrency(order.sub_total)}
+                              </TableCell>
+                              <TableCell sx={{ textAlign: "center" }}>
+                                <Stack direction={"row"} spacing={1}>
+                                  <IconButton color="primary" size="small">
+                                    <AiOutlinePrinter />
+                                  </IconButton>
+                                  <IconButton color="primary" size="small">
+                                    <AiOutlineEdit />
+                                  </IconButton>
+                                  <IconButton
+                                    color="success"
+                                    size="small"
+                                    onClick={() => setFinishOrder(order.id)}
+                                  >
+                                    <AiOutlineCheck />
+                                  </IconButton>
+                                  <IconButton color="error" size="small">
+                                    <HiOutlineTrash />
+                                  </IconButton>
+                                </Stack>
+                              </TableCell>
+                              <TableCell sx={{ textAlign: "center" }}>
+                                <IconButton
+                                  size="small"
+                                  color="primary"
+                                  onClick={() => getOrderDetails(order.id)}
+                                >
+                                  {openCollapse.movId === order.id &&
+                                  openCollapse.open ? (
+                                    <FiChevronUp />
+                                  ) : (
+                                    <FiChevronDown />
+                                  )}
+                                </IconButton>
+                              </TableCell>
+                            </TableRow>
+                            <TableRow>
+                              <TableCell
+                                colSpan={6}
+                                style={{ paddingBottom: 0, paddingTop: 0 }}
+                              >
+                                <Collapse
+                                  in={
+                                    openCollapse.movId === order.id &&
+                                    openCollapse.open
+                                  }
+                                >
+                                  <Box py={2}>
+                                    {detailsLoading ? (
+                                      <Loading />
+                                    ) : (
+                                      <>
+                                        {!order ? (
+                                          <EmptyBox label="Nenhuma informação disponível" />
+                                        ) : (
+                                          <Card
+                                            variant="outlined"
+                                            sx={{ p: 1 }}
+                                          >
+                                            <Grid container spacing={1}>
+                                              <Grid item xs={12}>
+                                                <Stack>
+                                                  {orderDetails?.OrderItems.map(
+                                                    (items, index, array) => (
+                                                      <>
+                                                        <Box
+                                                          key={items.id}
+                                                          display={"flex"}
+                                                          justifyContent={
+                                                            "space-between"
+                                                          }
+                                                          alignItems={
+                                                            "flex-start"
+                                                          }
+                                                          gap={2}
+                                                        >
+                                                          <Stack
+                                                            direction={"row"}
+                                                            spacing={3}
+                                                          >
+                                                            <Avatar
+                                                              src={
+                                                                items.product
+                                                                  .thumbnail ||
+                                                                ""
+                                                              }
+                                                              sx={{
+                                                                width: 50,
+                                                                height: 50,
+                                                              }}
+                                                            />
+                                                            <Box
+                                                              display={"flex"}
+                                                              flexDirection={
+                                                                "column"
+                                                              }
+                                                            >
+                                                              <Typography>
+                                                                {items.product
+                                                                  .name || ""}
+                                                              </Typography>
+                                                              <Typography
+                                                                variant="caption"
+                                                                color={
+                                                                  "GrayText"
+                                                                }
+                                                              >
+                                                                Categoria:{" "}
+                                                                {items.product
+                                                                  .category
+                                                                  .name || ""}
+                                                              </Typography>
+                                                              <Typography
+                                                                variant="caption"
+                                                                color={
+                                                                  "GrayText"
+                                                                }
+                                                              >
+                                                                Sub-categoria:{" "}
+                                                                {items.product
+                                                                  .collection
+                                                                  .name || ""}
+                                                              </Typography>
+                                                              <Typography variant="caption">
+                                                                Quantidade:{" "}
+                                                                {items.quantity ||
+                                                                  ""}
+                                                              </Typography>
+                                                              {items.product_options && (
+                                                                <Chip
+                                                                  label={`Opção: ${
+                                                                    items
+                                                                      .product_options
+                                                                      ?.headline ||
+                                                                    ""
+                                                                  }`}
+                                                                  sx={{
+                                                                    width:
+                                                                      "min-content",
+                                                                  }}
+                                                                />
+                                                              )}
+                                                            </Box>
+                                                          </Stack>
+                                                          <Typography
+                                                            fontWeight={"500"}
+                                                            variant="body1"
+                                                          >
+                                                            {formatCurrency(
+                                                              items.price
+                                                            )}
+                                                          </Typography>
+                                                        </Box>
+                                                        {index + 1 !==
+                                                          array.length && (
+                                                          <Divider
+                                                            sx={{ my: 1 }}
+                                                          />
+                                                        )}
+                                                      </>
+                                                    )
+                                                  )}
+                                                </Stack>
+                                              </Grid>
+                                            </Grid>
+                                          </Card>
+                                        )}
+                                      </>
+                                    )}
+                                  </Box>
+                                </Collapse>
+                              </TableCell>
+                            </TableRow>
+                          </>
+                        ))}
                       </TableBody>
                     </Table>
                   </TableContainer>
                 )}
-              </DefaultContainer>
-            </Grid>
-
-            <Grid item xs={12}>
-              <DefaultContainer disabledPadding>
-                <Stack
-                  direction={"row"}
-                  justifyContent={"space-between"}
-                  flexWrap={"wrap"}
-                  gap={1}
-                  color={grey["700"]}
-                >
-                  <Typography variant="body1">
-                    TOTAL DAS MOVIMENTAÇÕES
-                  </Typography>
-                  <Typography variant="body1" fontWeight={"bold"}>
-                    {formatCurrency(
-                      calcMovimentValues(handleFindMoviments("deposit")) -
-                        calcMovimentValues(handleFindMoviments("withdraw"))
-                    )}
-                  </Typography>
-                </Stack>
               </DefaultContainer>
             </Grid>
 
@@ -604,6 +899,25 @@ export default function CashierMoviment() {
                   </Button>
                 </AccordionDetails>
               </Accordion>
+            </Grid>
+
+            <Grid item xs={12}>
+              <DefaultContainer disabledPadding>
+                <Stack
+                  direction={"row"}
+                  justifyContent={"space-between"}
+                  flexWrap={"wrap"}
+                  gap={1}
+                  color={grey["700"]}
+                >
+                  <Typography variant="body1">
+                    TOTAL DAS MOVIMENTAÇÕES
+                  </Typography>
+                  <Typography variant="body1" fontWeight={"bold"}>
+                    {formatCurrency(calcTotalCashier())}
+                  </Typography>
+                </Stack>
+              </DefaultContainer>
             </Grid>
           </Grid>
         )}

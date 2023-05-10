@@ -41,6 +41,7 @@ import formatCurrency from "../../helpers/formatCurrency";
 import IconButton from "../../components/layout/IconButton";
 import { FiChevronDown } from "react-icons/fi";
 import Tooltip from "../../components/layout/Tooltip";
+import EmptyBox from "../../components/layout/EmptyBox";
 
 interface OrdersProps {
   id: string;
@@ -206,135 +207,223 @@ export default function SalesFinished() {
             {isLoading ? (
               <Loading />
             ) : (
-              <TableContainer>
-                <Table size="small">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell sx={{ maxWidth: "60px" }}>ID</TableCell>
-                      <TableCell sx={{ minWidth: "250px" }}>Cliente</TableCell>
-                      <TableCell sx={{ width: "130px" }}>Status</TableCell>
-                      <TableCell sx={{ width: "70px" }}>Pagamento</TableCell>
-                      <TableCell sx={{ width: "150px", textAlign: "right" }}>
-                        Data
-                      </TableCell>
-                      <TableCell sx={{ width: "150px", textAlign: "right" }}>
-                        Sub-Total
-                      </TableCell>
-                      <TableCell
-                        sx={{ maxWidth: "10px", textAlign: "center" }}
-                      ></TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {orders.map((ord) => (
-                      <TableRow key={ord.id} hover>
-                        <TableCell sx={{ maxWidth: "60px" }}>
-                          <Tooltip
-                            title={ord.id}
-                            arrow
-                            sx={{ fontSize: "14px" }}
+              <>
+                {orders.length === 0 ? (
+                  <EmptyBox label="Nenhuma informação encontrada" />
+                ) : (
+                  <TableContainer>
+                    <Table size="small">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell sx={{ maxWidth: "60px" }}>ID</TableCell>
+                          <TableCell sx={{ minWidth: "250px" }}>
+                            Cliente
+                          </TableCell>
+                          <TableCell sx={{ width: "130px" }}>Status</TableCell>
+                          <TableCell sx={{ width: "70px" }}>
+                            Pagamento
+                          </TableCell>
+                          <TableCell
+                            sx={{ width: "150px", textAlign: "right" }}
                           >
-                            <Typography
-                              sx={{
-                                textOverflow: "ellipsis",
-                                whiteSpace: "nowrap",
-                                overflow: "hidden",
-                                cursor: "default",
-                              }}
-                            >
-                              {ord.id}
-                            </Typography>
-                          </Tooltip>
-                        </TableCell>
-                        <TableCell sx={{ minWidth: "250px" }}>
-                          {ord.client.name || ""}
-                        </TableCell>
-                        <TableCell sx={{ width: "130px" }}>
-                          <Stack
-                            direction={"row"}
-                            spacing={1}
-                            alignItems={"center"}
+                            Data
+                          </TableCell>
+                          <TableCell
+                            sx={{ width: "150px", textAlign: "right" }}
                           >
-                            <>
-                              {ord.order_status === "PAYMENT" && (
-                                <Chip
-                                  variant="outlined"
-                                  size="small"
-                                  label="Processando pagamento"
-                                  color="warning"
-                                />
-                              )}
-                              {ord.order_status === "FINISH" && (
-                                <Chip
-                                  variant="outlined"
-                                  size="small"
-                                  label="Pedido finalizado"
-                                  color="success"
-                                />
-                              )}
-                              {ord.order_status === "PACKING" && (
-                                <Chip
-                                  variant="outlined"
-                                  size="small"
-                                  label="Empacotando"
-                                  color="info"
-                                />
-                              )}
-                              {ord.order_status === "PROCCESSING" && (
-                                <Chip
-                                  variant="outlined"
-                                  size="small"
-                                  label="Em preparação"
-                                  color="secondary"
-                                />
-                              )}
-                              {ord.order_status === "SHIPPING" && (
-                                <Chip
-                                  variant="outlined"
-                                  size="small"
-                                  label="Em trânsito"
-                                  color="success"
-                                />
-                              )}
-                            </>
-                            <IconButton
-                              size="small"
-                              color="primary"
-                              sx={{ flexShrink: 0 }}
-                            >
-                              <AiOutlineEdit />
-                            </IconButton>
-                          </Stack>
-                        </TableCell>
-                        <TableCell sx={{ width: "70px" }}>
-                          <Stack
-                            direction={"row"}
-                            spacing={1}
-                            alignItems={"center"}
-                          >
-                            <Chip
-                              variant="outlined"
-                              size="small"
-                              label={ord.payment_mode || ""}
-                            />
-                            <>
-                              {ord.payment_status === "PAID_OUT" && (
+                            Sub-Total
+                          </TableCell>
+                          <TableCell
+                            sx={{ maxWidth: "10px", textAlign: "center" }}
+                          ></TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {orders.map((ord) => (
+                          <TableRow key={ord.id} hover>
+                            <TableCell sx={{ maxWidth: "60px" }}>
+                              <Tooltip
+                                title={ord.id}
+                                arrow
+                                sx={{ fontSize: "14px" }}
+                              >
+                                <Typography
+                                  sx={{
+                                    textOverflow: "ellipsis",
+                                    whiteSpace: "nowrap",
+                                    overflow: "hidden",
+                                    cursor: "default",
+                                  }}
+                                >
+                                  {ord.id}
+                                </Typography>
+                              </Tooltip>
+                            </TableCell>
+                            <TableCell sx={{ minWidth: "250px" }}>
+                              {ord.client.name || ""}
+                            </TableCell>
+                            <TableCell sx={{ width: "130px" }}>
+                              <Stack
+                                direction={"row"}
+                                spacing={1}
+                                alignItems={"center"}
+                              >
                                 <>
-                                  <Chip
-                                    variant="outlined"
-                                    size="small"
-                                    label={
-                                      !ord.payment_mode
-                                        ? "Nenhum"
-                                        : ord.payment_mode === "ONLINE"
-                                        ? "Confirmado"
-                                        : "Pago"
-                                    }
-                                    color="success"
-                                  />
-                                  {ord.payment_mode &&
-                                  ord.payment_mode === "ONLINE" ? (
+                                  {ord.order_status === "PAYMENT" && (
+                                    <Chip
+                                      variant="outlined"
+                                      size="small"
+                                      label="Processando pagamento"
+                                      color="warning"
+                                    />
+                                  )}
+                                  {ord.order_status === "FINISH" && (
+                                    <Chip
+                                      variant="outlined"
+                                      size="small"
+                                      label="Pedido finalizado"
+                                      color="success"
+                                    />
+                                  )}
+                                  {ord.order_status === "PACKING" && (
+                                    <Chip
+                                      variant="outlined"
+                                      size="small"
+                                      label="Empacotando"
+                                      color="info"
+                                    />
+                                  )}
+                                  {ord.order_status === "PROCCESSING" && (
+                                    <Chip
+                                      variant="outlined"
+                                      size="small"
+                                      label="Em preparação"
+                                      color="secondary"
+                                    />
+                                  )}
+                                  {ord.order_status === "SHIPPING" && (
+                                    <Chip
+                                      variant="outlined"
+                                      size="small"
+                                      label="Em trânsito"
+                                      color="success"
+                                    />
+                                  )}
+                                </>
+                                <IconButton
+                                  size="small"
+                                  color="primary"
+                                  sx={{ flexShrink: 0 }}
+                                >
+                                  <AiOutlineEdit />
+                                </IconButton>
+                              </Stack>
+                            </TableCell>
+                            <TableCell sx={{ width: "70px" }}>
+                              <Stack
+                                direction={"row"}
+                                spacing={1}
+                                alignItems={"center"}
+                              >
+                                <Chip
+                                  variant="outlined"
+                                  size="small"
+                                  label={ord.payment_mode || ""}
+                                />
+                                <>
+                                  {ord.payment_status === "PAID_OUT" && (
                                     <>
+                                      <Chip
+                                        variant="outlined"
+                                        size="small"
+                                        label={
+                                          !ord.payment_mode
+                                            ? "Nenhum"
+                                            : ord.payment_mode === "ONLINE"
+                                            ? "Confirmado"
+                                            : "Pago"
+                                        }
+                                        color="success"
+                                      />
+                                      {ord.payment_mode &&
+                                      ord.payment_mode === "ONLINE" ? (
+                                        <>
+                                          <Tooltip
+                                            title="Consultar pagamento"
+                                            arrow
+                                          >
+                                            <IconButton
+                                              size="small"
+                                              color="primary"
+                                              sx={{ flexShrink: 0 }}
+                                              onClick={() =>
+                                                navigate(
+                                                  `/dashboard/vendas/checkout/${ord.id}`
+                                                )
+                                              }
+                                            >
+                                              <AiOutlineSearch />
+                                            </IconButton>
+                                          </Tooltip>
+                                        </>
+                                      ) : (
+                                        <>
+                                          <Tooltip title="Ver parcelas" arrow>
+                                            <IconButton
+                                              size="small"
+                                              color="primary"
+                                              sx={{ flexShrink: 0 }}
+                                              onClick={() =>
+                                                navigate(
+                                                  `/dashboard/vendas/checkout/${ord.id}`
+                                                )
+                                              }
+                                            >
+                                              <AiOutlineSearch />
+                                            </IconButton>
+                                          </Tooltip>
+                                        </>
+                                      )}
+                                    </>
+                                  )}
+                                  {ord.payment_status === "REFUSED" && (
+                                    <>
+                                      <Chip
+                                        variant="outlined"
+                                        size="small"
+                                        label="Erro / Recusado"
+                                        color="error"
+                                      />
+                                      <Tooltip title="Pagar novamente" arrow>
+                                        <IconButton
+                                          size="small"
+                                          color="primary"
+                                          sx={{ flexShrink: 0 }}
+                                          onClick={() =>
+                                            navigate(
+                                              `/dashboard/vendas/checkout/${ord.id}`
+                                            )
+                                          }
+                                        >
+                                          <AiOutlineDollarCircle />
+                                        </IconButton>
+                                      </Tooltip>
+                                    </>
+                                  )}
+                                  {ord.payment_status === "WAITING" && (
+                                    <>
+                                      <Chip
+                                        variant="outlined"
+                                        size="small"
+                                        label={
+                                          !ord.payment_mode
+                                            ? "Nenhum"
+                                            : ord.payment_mode === "ONLINE"
+                                            ? "Processando"
+                                            : "Aguardando"
+                                        }
+                                        color="warning"
+                                      />
                                       <Tooltip
                                         title="Consultar pagamento"
                                         arrow
@@ -343,129 +432,65 @@ export default function SalesFinished() {
                                           size="small"
                                           color="primary"
                                           sx={{ flexShrink: 0 }}
-                                          onClick={() =>
-                                            navigate(
-                                              `/dashboard/vendas/checkout/${ord.id}`
-                                            )
-                                          }
                                         >
                                           <AiOutlineSearch />
                                         </IconButton>
                                       </Tooltip>
-                                    </>
-                                  ) : (
-                                    <>
-                                      <Tooltip title="Ver parcelas" arrow>
-                                        <IconButton
-                                          size="small"
-                                          color="primary"
-                                          sx={{ flexShrink: 0 }}
-                                          onClick={() =>
-                                            navigate(
-                                              `/dashboard/vendas/checkout/${ord.id}`
-                                            )
-                                          }
-                                        >
-                                          <AiOutlineSearch />
-                                        </IconButton>
-                                      </Tooltip>
+                                      {ord.payment_mode &&
+                                      ord.payment_mode === "ONLINE" ? (
+                                        <Tooltip title="Pagar novamente" arrow>
+                                          <IconButton
+                                            size="small"
+                                            color="primary"
+                                            sx={{ flexShrink: 0 }}
+                                            onClick={() =>
+                                              navigate(
+                                                `/dashboard/vendas/checkout/${ord.id}`
+                                              )
+                                            }
+                                          >
+                                            <AiOutlineDollarCircle />
+                                          </IconButton>
+                                        </Tooltip>
+                                      ) : (
+                                        ""
+                                      )}
                                     </>
                                   )}
                                 </>
+                              </Stack>
+                            </TableCell>
+                            <TableCell
+                              sx={{ width: "150px", textAlign: "right" }}
+                            >
+                              {new Intl.DateTimeFormat("pt-BR").format(
+                                new Date(ord.created_at)
                               )}
-                              {ord.payment_status === "REFUSED" && (
-                                <>
-                                  <Chip
-                                    variant="outlined"
-                                    size="small"
-                                    label="Erro / Recusado"
-                                    color="error"
-                                  />
-                                  <Tooltip title="Pagar novamente" arrow>
-                                    <IconButton
-                                      size="small"
-                                      color="primary"
-                                      sx={{ flexShrink: 0 }}
-                                      onClick={() =>
-                                        navigate(
-                                          `/dashboard/vendas/checkout/${ord.id}`
-                                        )
-                                      }
-                                    >
-                                      <AiOutlineDollarCircle />
-                                    </IconButton>
-                                  </Tooltip>
-                                </>
-                              )}
-                              {ord.payment_status === "WAITING" && (
-                                <>
-                                  <Chip
-                                    variant="outlined"
-                                    size="small"
-                                    label={
-                                      !ord.payment_mode
-                                        ? "Nenhum"
-                                        : ord.payment_mode === "ONLINE"
-                                        ? "Processando"
-                                        : "Aguardando"
-                                    }
-                                    color="warning"
-                                  />
-                                  <Tooltip title="Consultar pagamento" arrow>
-                                    <IconButton
-                                      size="small"
-                                      color="primary"
-                                      sx={{ flexShrink: 0 }}
-                                    >
-                                      <AiOutlineSearch />
-                                    </IconButton>
-                                  </Tooltip>
-                                  {ord.payment_mode &&
-                                  ord.payment_mode === "ONLINE" ? (
-                                    <Tooltip title="Pagar novamente" arrow>
-                                      <IconButton
-                                        size="small"
-                                        color="primary"
-                                        sx={{ flexShrink: 0 }}
-                                        onClick={() =>
-                                          navigate(
-                                            `/dashboard/vendas/checkout/${ord.id}`
-                                          )
-                                        }
-                                      >
-                                        <AiOutlineDollarCircle />
-                                      </IconButton>
-                                    </Tooltip>
-                                  ) : (
-                                    ""
-                                  )}
-                                </>
-                              )}
-                            </>
-                          </Stack>
-                        </TableCell>
-                        <TableCell sx={{ width: "150px", textAlign: "right" }}>
-                          {new Intl.DateTimeFormat("pt-BR").format(
-                            new Date(ord.created_at)
-                          )}
-                        </TableCell>
-                        <TableCell sx={{ width: "150px", textAlign: "right" }}>
-                          {formatCurrency(ord.sub_total)}
-                        </TableCell>
-                        <TableCell
-                          sx={{ maxWidth: "70px", textAlign: "center" }}
-                        >
-                          <Stack direction={"row"} justifyContent={"center"}>
-                            <IconButton size="small" color="primary">
-                              <FiChevronDown />
-                            </IconButton>
-                          </Stack>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+                            </TableCell>
+                            <TableCell
+                              sx={{ width: "150px", textAlign: "right" }}
+                            >
+                              {formatCurrency(ord.sub_total)}
+                            </TableCell>
+                            <TableCell
+                              sx={{ maxWidth: "70px", textAlign: "center" }}
+                            >
+                              <Stack
+                                direction={"row"}
+                                justifyContent={"center"}
+                              >
+                                <IconButton size="small" color="primary">
+                                  <FiChevronDown />
+                                </IconButton>
+                              </Stack>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                )}
+              </>
             )}
           </DefaultContainer>
         </Stack>

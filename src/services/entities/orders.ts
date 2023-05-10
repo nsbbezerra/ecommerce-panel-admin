@@ -26,6 +26,17 @@ interface OrderItemsProps {
   product_options: ProductOptionsEntity | null;
 }
 
+interface PaymentLocalIntentProps {
+  id: string;
+  order_id: string;
+  total: string | number;
+  due_date: Date;
+  status: "WAITING" | "PAID_OUT" | "REFUSED";
+  pay_form: string;
+  month: string;
+  year: string;
+}
+
 export interface GetOrderByIdEntity {
   checkout_id: string | null;
   client: ClientProps;
@@ -40,4 +51,6 @@ export interface GetOrderByIdEntity {
   shipping_value: string | number;
   shipping_id: string | null;
   OrderItems: OrderItemsProps[];
+  PaymentLocalIntent: PaymentLocalIntentProps[];
+  order_from: string;
 }
