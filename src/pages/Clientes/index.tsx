@@ -35,6 +35,7 @@ import { useNavigate } from "react-router-dom";
 import { BsFillStarFill } from "react-icons/bs";
 import { FaMapMarkedAlt } from "react-icons/fa";
 import { AddressesEntity } from "../../services/entities/address";
+import { grey } from "@mui/material/colors";
 
 interface CollapesdProps {
   id: string;
@@ -223,7 +224,12 @@ export default function ClientsPage() {
                               {addresses.length ? (
                                 <>
                                   {addresses.map((address) => (
-                                    <Card variant="outlined" key={address.id}>
+                                    <Card
+                                      variant="elevation"
+                                      sx={{ bgcolor: grey["100"] }}
+                                      elevation={0}
+                                      key={address.id}
+                                    >
                                       <List
                                         sx={{ width: "100%" }}
                                         aria-label="contacts"
@@ -268,7 +274,11 @@ export default function ClientsPage() {
                                   ))}
                                 </>
                               ) : (
-                                <Card variant="outlined">
+                                <Card
+                                  variant="elevation"
+                                  sx={{ bgcolor: grey["100"] }}
+                                  elevation={0}
+                                >
                                   <Box
                                     display={"flex"}
                                     justifyContent="center"

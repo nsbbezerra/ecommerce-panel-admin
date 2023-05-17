@@ -1,11 +1,9 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import AppBar from "../../components/layout/AppBar";
 import Container from "../../components/layout/Container";
 import DefaultContainer from "../../components/layout/DefaultContainer";
 import {
   Autocomplete,
-  BottomNavigation,
-  BottomNavigationAction,
   Box,
   ButtonGroup,
   Chip,
@@ -22,6 +20,8 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  ToggleButton,
+  ToggleButtonGroup,
   Typography,
 } from "@mui/material";
 import {
@@ -346,45 +346,43 @@ export default function PdvPage() {
     <Box paddingBottom={"60px"}>
       <CssBaseline />
       <AppBar title="Balcão de vendas" />
-      <Box p={"20px"}>
+      <Box p={2}>
         <Container>
           <Box
             boxShadow={"0px 0px 9px rgba(0, 0, 0, 0.05)"}
             borderRadius={"4px"}
             overflow={"hidden"}
+            bgcolor={"#fff"}
+            p={1}
+            sx={{ overflowX: "auto" }}
           >
-            <BottomNavigation showLabels value={0}>
-              <BottomNavigationAction
-                label="Balcão"
-                icon={
-                  <AiOutlineShoppingCart
-                    fontSize={20}
-                    style={{ marginBottom: "5px" }}
-                  />
-                }
-                onClick={() => navigate("/dashboard/vendas")}
-              />
-              <BottomNavigationAction
-                label="Concluídas"
-                icon={
-                  <AiOutlineShopping
-                    fontSize={20}
-                    style={{ marginBottom: "5px" }}
-                  />
-                }
+            <ToggleButtonGroup
+              color="primary"
+              exclusive
+              aria-label="Platform"
+              value={"pdv"}
+            >
+              <ToggleButton value="pdv" sx={{ flexShrink: 0 }}>
+                <AiOutlineShoppingCart style={{ marginRight: "10px" }} />
+                BALCÃO DE VENDAS
+              </ToggleButton>
+              <ToggleButton
+                value="finish"
                 onClick={() => navigate("/dashboard/vendas/finalizadas")}
-              />
-              <BottomNavigationAction
-                label="Salvas"
-                icon={
-                  <AiOutlineSave
-                    fontSize={20}
-                    style={{ marginBottom: "5px" }}
-                  />
-                }
+                sx={{ flexShrink: 0 }}
+              >
+                <AiOutlineShopping style={{ marginRight: "10px" }} />
+                VENDAS FINALIZADAS
+              </ToggleButton>
+              <ToggleButton
+                value="save"
                 onClick={() => navigate("/dashboard/vendas/salvas")}
-              />
-            </BottomNavigation>
+                sx={{ flexShrink: 0 }}
+              >
+                <AiOutlineSave style={{ marginRight: "10px" }} />
+                VENDAS SALVAS
+              </ToggleButton>
+            </ToggleButtonGroup>
           </Box>
           <Grid container spacing={2} mt={1}>
             <Grid item xs={12} md={7} lg={8}>

@@ -1,5 +1,6 @@
 import {
   Box,
+  Card,
   Collapse,
   Dialog,
   DialogContent,
@@ -55,7 +56,7 @@ import formatCurrency from "../../helpers/formatCurrency";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 import { HiOutlineCollection } from "react-icons/hi";
 import Upload from "../../components/layout/Upload";
-import { blue, red } from "@mui/material/colors";
+import { blue, grey, red } from "@mui/material/colors";
 import getSuccessMessage from "../../helpers/getMessageSuccess";
 import Swal from "sweetalert2";
 import calcDiscount from "../../helpers/calcPercentage";
@@ -353,7 +354,7 @@ export default function ProductsPage() {
                               : "Mostrar"}
                           </Button>
                         </TableCell>
-                        <TableCell sx={{ textAlign: "right" }}>
+                        <TableCell sx={{ textAlign: "right", borderBottom: 0 }}>
                           {product.promotional ? (
                             <Stack
                               direction={"row"}
@@ -419,132 +420,140 @@ export default function ProductsPage() {
                             timeout="auto"
                             unmountOnExit
                           >
-                            <TabContext value={value}>
-                              <Box
-                                sx={{
-                                  borderBottom: 1,
-                                  borderTop: 1,
-                                  borderColor: "divider",
-                                }}
-                              >
-                                <TabList
-                                  onChange={handleChange}
-                                  aria-label="product info"
-                                >
-                                  <Tab label="Categorias" value="1" />
-                                  <Tab label="Descrição" value="2" />
-                                  <Tab label="Estoque" value="3" />
-                                  <Tab label="Frete" value="4" />
-                                </TabList>
-                              </Box>
-                              <TabPanel value="1">
-                                <List dense>
-                                  <ListItem>
-                                    <ListItemIcon>
-                                      <AiOutlineTag />
-                                    </ListItemIcon>
-                                    <ListItemText
-                                      primary={product.category.name}
-                                      secondary={"Categoria"}
-                                    />
-                                  </ListItem>
-                                  <ListItem>
-                                    <ListItemIcon>
-                                      <HiOutlineCollection />
-                                    </ListItemIcon>
-                                    <ListItemText
-                                      primary={product.collection.name}
-                                      secondary={"Sub-categoria"}
-                                    />
-                                  </ListItem>
-                                </List>
-                              </TabPanel>
-                              <TabPanel value="2">
-                                <div
-                                  dangerouslySetInnerHTML={{
-                                    __html: product.description,
-                                  }}
-                                />
-                              </TabPanel>
-                              <TabPanel value="3">
-                                {(product.stock_type === "OFF" &&
-                                  "VENDA SEM ESTOQUE") ||
-                                  (product.stock_type === "CUSTOM" && (
+                            <Box p={2}>
+                              <Card elevation={0} sx={{ bgcolor: grey["100"] }}>
+                                <TabContext value={value}>
+                                  <Box
+                                    sx={{
+                                      borderBottom: 1,
+                                      borderColor: "divider",
+                                    }}
+                                  >
+                                    <TabList
+                                      onChange={handleChange}
+                                      aria-label="product info"
+                                    >
+                                      <Tab label="Categorias" value="1" />
+                                      <Tab label="Descrição" value="2" />
+                                      <Tab label="Estoque" value="3" />
+                                      <Tab label="Frete" value="4" />
+                                    </TabList>
+                                  </Box>
+                                  <TabPanel value="1">
                                     <List dense>
-                                      {product.ProductOptions.map((prodOpt) => (
-                                        <ListItem key={prodOpt.id}>
-                                          <ListItemAvatar>
-                                            <Avatar>{prodOpt.headline}</Avatar>
-                                          </ListItemAvatar>
-                                          <ListItemText
-                                            primary={`Quantidade: ${prodOpt.stock}`}
-                                            secondary={`Ordem: ${prodOpt.content}`}
-                                          />
-                                        </ListItem>
-                                      ))}
+                                      <ListItem>
+                                        <ListItemIcon>
+                                          <AiOutlineTag />
+                                        </ListItemIcon>
+                                        <ListItemText
+                                          primary={product.category.name}
+                                          secondary={"Categoria"}
+                                        />
+                                      </ListItem>
+                                      <ListItem>
+                                        <ListItemIcon>
+                                          <HiOutlineCollection />
+                                        </ListItemIcon>
+                                        <ListItemText
+                                          primary={product.collection.name}
+                                          secondary={"Sub-categoria"}
+                                        />
+                                      </ListItem>
                                     </List>
-                                  )) ||
-                                  (product.stock_type === "UNITY" && (
-                                    <span>
-                                      <strong>Quantidade:</strong>{" "}
-                                      {product.stock}
-                                    </span>
-                                  ))}
-                              </TabPanel>
-                              <TabPanel value="4">
-                                <List dense>
-                                  <ListItem>
-                                    <ListItemIcon>
-                                      <BsTruck />
-                                    </ListItemIcon>
-                                    <ListItemText
-                                      primary={
-                                        product.freight_priority === "NORMAL"
-                                          ? "Entrega normal"
-                                          : "Entrega rápida"
-                                      }
-                                      secondary={"Tipo de entrega"}
+                                  </TabPanel>
+                                  <TabPanel value="2">
+                                    <div
+                                      dangerouslySetInnerHTML={{
+                                        __html: product.description,
+                                      }}
                                     />
-                                  </ListItem>
-                                  <ListItem>
-                                    <ListItemIcon>
-                                      <FiPackage />
-                                    </ListItemIcon>
-                                    <ListItemText
-                                      primary={`${product.shipping_info.width} cm`}
-                                      secondary={"Largura"}
-                                    />
-                                  </ListItem>
-                                  <ListItem>
-                                    <ListItemIcon>
-                                      <FiPackage />
-                                    </ListItemIcon>
-                                    <ListItemText
-                                      primary={`${product.shipping_info.height} cm`}
-                                      secondary={"Altura"}
-                                    />
-                                  </ListItem>
-                                  <ListItem>
-                                    <ListItemIcon>
-                                      <FiPackage />
-                                    </ListItemIcon>
-                                    <ListItemText
-                                      primary={`${product.shipping_info.lenght} cm`}
-                                      secondary={"Comprimento"}
-                                    />
-                                  </ListItem>
-                                  <ListItem>
-                                    <ListItemIcon>
-                                      <FiPackage />
-                                    </ListItemIcon>
-                                    <ListItemText
-                                      primary={`${product.shipping_info.weight} kg`}
-                                      secondary={"Peso"}
-                                    />
-                                  </ListItem>
-                                </List>
-                              </TabPanel>
-                            </TabContext>
+                                  </TabPanel>
+                                  <TabPanel value="3">
+                                    {(product.stock_type === "OFF" &&
+                                      "VENDA SEM ESTOQUE") ||
+                                      (product.stock_type === "CUSTOM" && (
+                                        <List dense>
+                                          {product.ProductOptions.map(
+                                            (prodOpt) => (
+                                              <ListItem key={prodOpt.id}>
+                                                <ListItemAvatar>
+                                                  <Avatar>
+                                                    {prodOpt.headline}
+                                                  </Avatar>
+                                                </ListItemAvatar>
+                                                <ListItemText
+                                                  primary={`Quantidade: ${prodOpt.stock}`}
+                                                  secondary={`Ordem: ${prodOpt.content}`}
+                                                />
+                                              </ListItem>
+                                            )
+                                          )}
+                                        </List>
+                                      )) ||
+                                      (product.stock_type === "UNITY" && (
+                                        <span>
+                                          <strong>Quantidade:</strong>{" "}
+                                          {product.stock}
+                                        </span>
+                                      ))}
+                                  </TabPanel>
+                                  <TabPanel value="4">
+                                    <List dense>
+                                      <ListItem>
+                                        <ListItemIcon>
+                                          <BsTruck />
+                                        </ListItemIcon>
+                                        <ListItemText
+                                          primary={
+                                            product.freight_priority ===
+                                            "NORMAL"
+                                              ? "Entrega normal"
+                                              : "Entrega rápida"
+                                          }
+                                          secondary={"Tipo de entrega"}
+                                        />
+                                      </ListItem>
+                                      <ListItem>
+                                        <ListItemIcon>
+                                          <FiPackage />
+                                        </ListItemIcon>
+                                        <ListItemText
+                                          primary={`${product.shipping_info.width} cm`}
+                                          secondary={"Largura"}
+                                        />
+                                      </ListItem>
+                                      <ListItem>
+                                        <ListItemIcon>
+                                          <FiPackage />
+                                        </ListItemIcon>
+                                        <ListItemText
+                                          primary={`${product.shipping_info.height} cm`}
+                                          secondary={"Altura"}
+                                        />
+                                      </ListItem>
+                                      <ListItem>
+                                        <ListItemIcon>
+                                          <FiPackage />
+                                        </ListItemIcon>
+                                        <ListItemText
+                                          primary={`${product.shipping_info.lenght} cm`}
+                                          secondary={"Comprimento"}
+                                        />
+                                      </ListItem>
+                                      <ListItem>
+                                        <ListItemIcon>
+                                          <FiPackage />
+                                        </ListItemIcon>
+                                        <ListItemText
+                                          primary={`${product.shipping_info.weight} kg`}
+                                          secondary={"Peso"}
+                                        />
+                                      </ListItem>
+                                    </List>
+                                  </TabPanel>
+                                </TabContext>
+                              </Card>
+                            </Box>
                           </Collapse>
                         </TableCell>
                       </TableRow>

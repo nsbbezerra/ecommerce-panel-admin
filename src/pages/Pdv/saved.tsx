@@ -1,5 +1,4 @@
-import { BottomNavigation, BottomNavigationAction, Box } from "@mui/material";
-import { Fragment } from "react";
+import { Box, ToggleButton, ToggleButtonGroup } from "@mui/material";
 import AppBar from "../../components/layout/AppBar";
 import Container from "../../components/layout/Container";
 import { useNavigate } from "react-router-dom";
@@ -16,44 +15,42 @@ export default function SalesSaved() {
     <Box>
       <AppBar title="Vendas Salvas" />
       <Container>
-        <Box padding={"20px"}>
+        <Box p={2}>
           <Box
             boxShadow={"0px 0px 9px rgba(0, 0, 0, 0.05)"}
             borderRadius={"4px"}
             overflow={"hidden"}
+            p={1}
+            bgcolor={"#fff"}
+            sx={{ overflowX: "auto" }}
           >
-            <BottomNavigation showLabels value={2}>
-              <BottomNavigationAction
-                label="Balcão"
-                icon={
-                  <AiOutlineShoppingCart
-                    fontSize={20}
-                    style={{ marginBottom: "5px" }}
-                  />
-                }
+            <ToggleButtonGroup
+              color="primary"
+              exclusive
+              aria-label="Platform"
+              value={"save"}
+            >
+              <ToggleButton
+                sx={{ flexShrink: 0 }}
+                value="pdv"
                 onClick={() => navigate("/dashboard/vendas")}
-              />
-              <BottomNavigationAction
-                label="Concluídas"
-                icon={
-                  <AiOutlineShopping
-                    fontSize={20}
-                    style={{ marginBottom: "5px" }}
-                  />
-                }
+              >
+                <AiOutlineShoppingCart style={{ marginRight: "10px" }} />
+                BALCÃO DE VENDAS
+              </ToggleButton>
+              <ToggleButton
+                sx={{ flexShrink: 0 }}
+                value="finish"
                 onClick={() => navigate("/dashboard/vendas/finalizadas")}
-              />
-              <BottomNavigationAction
-                label="Salvas"
-                icon={
-                  <AiOutlineSave
-                    fontSize={20}
-                    style={{ marginBottom: "5px" }}
-                  />
-                }
-                onClick={() => navigate("/dashboard/vendas/salvas")}
-              />
-            </BottomNavigation>
+              >
+                <AiOutlineShopping style={{ marginRight: "10px" }} />
+                VENDAS FINALIZADAS
+              </ToggleButton>
+              <ToggleButton sx={{ flexShrink: 0 }} value="save">
+                <AiOutlineSave style={{ marginRight: "10px" }} />
+                VENDAS SALVAS
+              </ToggleButton>
+            </ToggleButtonGroup>
           </Box>
         </Box>
       </Container>

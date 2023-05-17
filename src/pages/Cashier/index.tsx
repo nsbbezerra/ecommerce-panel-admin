@@ -219,7 +219,6 @@ export default function Cashier() {
                             </TableCell>
                             <TableCell>
                               <Chip
-                                variant="outlined"
                                 size="small"
                                 label={
                                   cashier.status === "OPENED"

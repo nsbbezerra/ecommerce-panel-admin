@@ -31,6 +31,7 @@ import {
   AiOutlinePlus,
   AiOutlinePrinter,
   AiOutlineSave,
+  AiOutlineTags,
 } from "react-icons/ai";
 import InputText from "../../components/layout/InputText";
 import Button from "../../components/layout/Button";
@@ -453,10 +454,14 @@ export default function CashierMoviment() {
                               <TableCell>
                                 {formatDate(order.created_at as Date)}
                               </TableCell>
-                              <TableCell sx={{ textAlign: "right" }}>
+                              <TableCell
+                                sx={{ textAlign: "right", borderBottom: 0 }}
+                              >
                                 {formatCurrency(order.sub_total)}
                               </TableCell>
-                              <TableCell sx={{ textAlign: "center" }}>
+                              <TableCell
+                                sx={{ textAlign: "center", borderBottom: 0 }}
+                              >
                                 <Stack direction={"row"} spacing={1}>
                                   <IconButton color="primary" size="small">
                                     <AiOutlinePrinter />
@@ -476,7 +481,9 @@ export default function CashierMoviment() {
                                   </IconButton>
                                 </Stack>
                               </TableCell>
-                              <TableCell sx={{ textAlign: "center" }}>
+                              <TableCell
+                                sx={{ textAlign: "center", borderBottom: 0 }}
+                              >
                                 <IconButton
                                   size="small"
                                   color="primary"
@@ -507,119 +514,213 @@ export default function CashierMoviment() {
                                       <Loading />
                                     ) : (
                                       <>
-                                        {!order ? (
+                                        {!orderDetails ? (
                                           <EmptyBox label="Nenhuma informação disponível" />
                                         ) : (
                                           <Card
-                                            variant="outlined"
-                                            sx={{ p: 1 }}
+                                            elevation={0}
+                                            sx={{ p: 2, bgcolor: grey["100"] }}
                                           >
-                                            <Grid container spacing={1}>
-                                              <Grid item xs={12}>
-                                                <Stack>
-                                                  {orderDetails?.OrderItems.map(
-                                                    (items, index, array) => (
-                                                      <>
-                                                        <Box
-                                                          key={items.id}
-                                                          display={"flex"}
-                                                          justifyContent={
-                                                            "space-between"
-                                                          }
-                                                          alignItems={
-                                                            "flex-start"
-                                                          }
-                                                          gap={2}
-                                                        >
-                                                          <Stack
-                                                            direction={"row"}
-                                                            spacing={3}
+                                            <Box
+                                              bgcolor={"#FFF"}
+                                              borderRadius={"4px"}
+                                              overflow={"hidden"}
+                                            >
+                                              <Stack
+                                                direction={"row"}
+                                                spacing={2}
+                                                alignItems={"center"}
+                                                bgcolor={blue["100"]}
+                                                color={blue["700"]}
+                                                px={2}
+                                                py={1}
+                                              >
+                                                <AiOutlineTags />
+                                                <Typography
+                                                  variant="body2"
+                                                  fontWeight={"600"}
+                                                >
+                                                  PRODUTOS DA COMPRA
+                                                </Typography>
+                                              </Stack>
+                                              <Grid container spacing={1} p={2}>
+                                                <Grid item xs={12}>
+                                                  <Stack>
+                                                    {orderDetails?.OrderItems.map(
+                                                      (items, index, array) => (
+                                                        <>
+                                                          <Box
+                                                            key={items.id}
+                                                            display={"flex"}
+                                                            justifyContent={
+                                                              "space-between"
+                                                            }
+                                                            alignItems={
+                                                              "flex-start"
+                                                            }
+                                                            gap={2}
                                                           >
-                                                            <Avatar
-                                                              src={
-                                                                items.product
-                                                                  .thumbnail ||
-                                                                ""
-                                                              }
-                                                              sx={{
-                                                                width: 50,
-                                                                height: 50,
-                                                              }}
-                                                            />
-                                                            <Box
-                                                              display={"flex"}
-                                                              flexDirection={
-                                                                "column"
-                                                              }
+                                                            <Stack
+                                                              direction={"row"}
+                                                              spacing={3}
                                                             >
-                                                              <Typography>
-                                                                {items.product
-                                                                  .name || ""}
-                                                              </Typography>
-                                                              <Typography
-                                                                variant="caption"
-                                                                color={
-                                                                  "GrayText"
+                                                              <Avatar
+                                                                src={
+                                                                  items.product
+                                                                    .thumbnail ||
+                                                                  ""
+                                                                }
+                                                                sx={{
+                                                                  width: 50,
+                                                                  height: 50,
+                                                                }}
+                                                              />
+                                                              <Box
+                                                                display={"flex"}
+                                                                flexDirection={
+                                                                  "column"
                                                                 }
                                                               >
-                                                                Categoria:{" "}
-                                                                {items.product
-                                                                  .category
-                                                                  .name || ""}
-                                                              </Typography>
-                                                              <Typography
-                                                                variant="caption"
-                                                                color={
-                                                                  "GrayText"
-                                                                }
-                                                              >
-                                                                Sub-categoria:{" "}
-                                                                {items.product
-                                                                  .collection
-                                                                  .name || ""}
-                                                              </Typography>
-                                                              <Typography variant="caption">
-                                                                Quantidade:{" "}
-                                                                {items.quantity ||
-                                                                  ""}
-                                                              </Typography>
-                                                              {items.product_options && (
-                                                                <Chip
-                                                                  label={`Opção: ${
-                                                                    items
-                                                                      .product_options
-                                                                      ?.headline ||
-                                                                    ""
-                                                                  }`}
-                                                                  sx={{
-                                                                    width:
-                                                                      "min-content",
-                                                                  }}
-                                                                />
+                                                                <Typography>
+                                                                  {items.product
+                                                                    .name || ""}
+                                                                </Typography>
+                                                                <Typography
+                                                                  variant="caption"
+                                                                  color={
+                                                                    "GrayText"
+                                                                  }
+                                                                >
+                                                                  Categoria:{" "}
+                                                                  {items.product
+                                                                    .category
+                                                                    .name || ""}
+                                                                </Typography>
+                                                                <Typography
+                                                                  variant="caption"
+                                                                  color={
+                                                                    "GrayText"
+                                                                  }
+                                                                >
+                                                                  Sub-categoria:{" "}
+                                                                  {items.product
+                                                                    .collection
+                                                                    .name || ""}
+                                                                </Typography>
+                                                                <Typography variant="caption">
+                                                                  Quantidade:{" "}
+                                                                  {items.quantity ||
+                                                                    ""}
+                                                                </Typography>
+                                                                {items.product_options && (
+                                                                  <Chip
+                                                                    label={`Opção: ${
+                                                                      items
+                                                                        .product_options
+                                                                        ?.headline ||
+                                                                      ""
+                                                                    }`}
+                                                                    sx={{
+                                                                      width:
+                                                                        "min-content",
+                                                                    }}
+                                                                  />
+                                                                )}
+                                                              </Box>
+                                                            </Stack>
+                                                            <Typography
+                                                              fontWeight={"500"}
+                                                              variant="body1"
+                                                            >
+                                                              {formatCurrency(
+                                                                items.price
                                                               )}
-                                                            </Box>
-                                                          </Stack>
-                                                          <Typography
-                                                            fontWeight={"500"}
-                                                            variant="body1"
-                                                          >
-                                                            {formatCurrency(
-                                                              items.price
-                                                            )}
-                                                          </Typography>
-                                                        </Box>
-                                                        {index + 1 !==
-                                                          array.length && (
-                                                          <Divider
-                                                            sx={{ my: 1 }}
-                                                          />
-                                                        )}
-                                                      </>
-                                                    )
-                                                  )}
-                                                </Stack>
+                                                            </Typography>
+                                                          </Box>
+                                                          {index + 1 !==
+                                                            array.length && (
+                                                            <Divider
+                                                              sx={{ my: 1 }}
+                                                            />
+                                                          )}
+                                                        </>
+                                                      )
+                                                    )}
+                                                  </Stack>
+                                                </Grid>
                                               </Grid>
-                                            </Grid>
+                                            </Box>
+                                            <Box
+                                              bgcolor={"#FFF"}
+                                              borderRadius={"4px"}
+                                              overflow={"hidden"}
+                                              mt={2}
+                                              p={2}
+                                            >
+                                              <Stack
+                                                justifyContent={"space-between"}
+                                                direction={"row"}
+                                              >
+                                                <Typography
+                                                  variant="subtitle1"
+                                                  fontWeight={"500"}
+                                                  color={grey["700"]}
+                                                >
+                                                  TOTAL
+                                                </Typography>
+                                                <Typography
+                                                  variant="subtitle1"
+                                                  fontWeight={"500"}
+                                                  color={grey["700"]}
+                                                >
+                                                  {formatCurrency(
+                                                    orderDetails.total
+                                                  )}
+                                                </Typography>
+                                              </Stack>
+                                              <Divider sx={{ my: 1 }} />
+                                              <Stack
+                                                justifyContent={"space-between"}
+                                                direction={"row"}
+                                              >
+                                                <Typography
+                                                  variant="subtitle1"
+                                                  fontWeight={"500"}
+                                                  color={grey["700"]}
+                                                >
+                                                  DESCONTO
+                                                </Typography>
+                                                <Typography
+                                                  variant="subtitle1"
+                                                  fontWeight={"500"}
+                                                  color={grey["700"]}
+                                                >
+                                                  % {orderDetails.discount}
+                                                </Typography>
+                                              </Stack>
+                                              <Divider sx={{ my: 1 }} />
+                                              <Stack
+                                                justifyContent={"space-between"}
+                                                direction={"row"}
+                                              >
+                                                <Typography
+                                                  variant="subtitle1"
+                                                  fontWeight={"500"}
+                                                  color={grey["700"]}
+                                                >
+                                                  SUB-TOTAL
+                                                </Typography>
+                                                <Typography
+                                                  variant="subtitle1"
+                                                  fontWeight={"500"}
+                                                  color={grey["700"]}
+                                                >
+                                                  {formatCurrency(
+                                                    orderDetails.sub_total
+                                                  )}
+                                                </Typography>
+                                              </Stack>
+                                            </Box>
                                           </Card>
                                         )}
                                       </>
@@ -696,7 +797,9 @@ export default function CashierMoviment() {
                                 <TableCell>
                                   {formatDate(mov.created_at)}
                                 </TableCell>
-                                <TableCell sx={{ width: "20px" }}>
+                                <TableCell
+                                  sx={{ width: "20px", borderBottom: 0 }}
+                                >
                                   <Stack direction={"row"} spacing={1}>
                                     <IconButton
                                       size="small"
@@ -828,7 +931,9 @@ export default function CashierMoviment() {
                                 <TableCell>
                                   {formatDate(mov.created_at)}
                                 </TableCell>
-                                <TableCell sx={{ width: "20px" }}>
+                                <TableCell
+                                  sx={{ width: "20px", borderBottom: 0 }}
+                                >
                                   <Stack direction={"row"} spacing={1}>
                                     <IconButton
                                       size="small"
