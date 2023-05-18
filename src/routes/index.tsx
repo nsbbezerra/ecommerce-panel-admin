@@ -20,6 +20,7 @@ import FinishCheckout from "../pages/Checkout/finish";
 import Cashier from "../pages/Cashier";
 import OpenCashier from "../pages/Cashier/open";
 import CashierMoviment from "../pages/Cashier/moviment";
+import SavedOrderPage from "../pages/Pdv/savedOrder";
 
 export default function AppRoutes() {
   return (
@@ -54,6 +55,7 @@ export default function AppRoutes() {
           </Route>
           <Route path="vendas">
             <Route index element={<PdvPage />} />
+            <Route path=":order" element={<SavedOrderPage />} />
             <Route path="checkout" element={<Checkout />}>
               <Route path=":order" element={<Checkout />} />
             </Route>

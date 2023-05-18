@@ -12,7 +12,6 @@ import {
   FormLabel,
   Grid,
   InputLabel,
-  ListItemText,
   MenuItem,
   Radio,
   RadioGroup,
@@ -33,6 +32,7 @@ import AppBar from "../../components/layout/AppBar";
 import Container from "../../components/layout/Container";
 import { useNavigate } from "react-router-dom";
 import {
+  AiOutlineClear,
   AiOutlineDollar,
   AiOutlineDollarCircle,
   AiOutlineEdit,
@@ -92,6 +92,7 @@ interface OrdersProps {
   created_at: Date | string;
   payment_mode?: string | null;
   order_from: "WEB" | "PDV";
+  code: string;
 }
 
 interface CollapseProps {
@@ -138,6 +139,14 @@ const SalesFinished = () => {
     movId: "",
     open: false,
   });
+
+  function resetSearch() {
+    setStartDate(subDays(new Date(), 30));
+    setEndDate(new Date());
+    setSearchOrigin("ALL");
+    setSearchStatus("ALL");
+    setSearch("");
+  }
 
   function getFinishedOrders() {
     setIsLoading(true);
@@ -238,7 +247,6 @@ const SalesFinished = () => {
     const intents = orderDetails?.PaymentLocalIntent.map((intent) => {
       return { paymentIntentId: intent.id, status: intent.status };
     });
-    const orderId = orderDetails?.id || "";
     api
       .put("/orders/update-finish-order", {
         orderId: orderDetails?.id || "",
@@ -437,7 +445,7 @@ const SalesFinished = () => {
               </Grid>
               <Grid item xs={12} sm={6} md={4}>
                 <InputText
-                  label="Busque por cliente ou ID"
+                  label="Busque por cliente ou Código"
                   fullWidth
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
@@ -445,15 +453,31 @@ const SalesFinished = () => {
                 />
               </Grid>
               <Grid item xs={12} sm={6} md={4}>
-                <Button
-                  fullWidth
-                  variant="contained"
-                  startIcon={<AiOutlineSearch />}
-                  size="large"
-                  onClick={getFinishedOrders}
-                >
-                  Buscar
-                </Button>
+                <Grid container spacing={2}>
+                  <Grid item xs={6}>
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      startIcon={<AiOutlineClear />}
+                      size="large"
+                      color="error"
+                      onClick={resetSearch}
+                    >
+                      Limpar
+                    </Button>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Button
+                      fullWidth
+                      variant="contained"
+                      startIcon={<AiOutlineSearch />}
+                      size="large"
+                      onClick={getFinishedOrders}
+                    >
+                      Buscar
+                    </Button>
+                  </Grid>
+                </Grid>
               </Grid>
             </Grid>
           </DefaultContainer>
@@ -480,7 +504,9 @@ const SalesFinished = () => {
                     <Table size="small">
                       <TableHead>
                         <TableRow>
-                          <TableCell sx={{ maxWidth: "60px" }}>ID</TableCell>
+                          <TableCell sx={{ maxWidth: "60px" }}>
+                            Código
+                          </TableCell>
                           <TableCell sx={{ minWidth: "250px" }}>
                             Cliente
                           </TableCell>
@@ -515,10 +541,10 @@ const SalesFinished = () => {
                               sx={{ "& > *": { borderBottom: 0 } }}
                             >
                               <TableCell
-                                sx={{ maxWidth: "60px", borderBottom: 0 }}
+                                sx={{ maxWidth: "100px", borderBottom: 0 }}
                               >
                                 <Tooltip
-                                  title={ord.id}
+                                  title={ord.code}
                                   arrow
                                   sx={{ fontSize: "14px" }}
                                 >
@@ -530,7 +556,7 @@ const SalesFinished = () => {
                                       cursor: "default",
                                     }}
                                   >
-                                    {ord.id}
+                                    {ord.code}
                                   </Typography>
                                 </Tooltip>
                               </TableCell>
@@ -894,12 +920,12 @@ const SalesFinished = () => {
                                                       color={grey["600"]}
                                                       variant="body1"
                                                     >
-                                                      Compra Nº
+                                                      Código da Compra
                                                     </Typography>
                                                     <Typography
                                                       fontWeight={"500"}
                                                     >
-                                                      {orderDetails.id}
+                                                      {orderDetails.code}
                                                     </Typography>
                                                   </Stack>
                                                 </Grid>
@@ -1091,6 +1117,20 @@ const SalesFinished = () => {
                                                           )
                                                         )}
                                                       </Grid>
+
+                                                      <Button
+                                                        startIcon={
+                                                          <AiOutlinePrinter />
+                                                        }
+                                                        variant="outlined"
+                                                        sx={{ mt: 2 }}
+                                                        disabled={
+                                                          orderDetails.pay_form !==
+                                                          "trade_note"
+                                                        }
+                                                      >
+                                                        Imprimir Comprovantes
+                                                      </Button>
                                                     </Grid>
                                                   </>
                                                 )}

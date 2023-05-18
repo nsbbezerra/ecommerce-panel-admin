@@ -61,3 +61,45 @@ export const CardImage = styled.img`
   object-position: center;
   border-radius: 4px 4px 0px 0px;
 `;
+
+export const MenuTitle = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: ${blue["700"]};
+  padding: 7px 10px;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+`;
+
+export const MenuContainer = styled.div`
+  box-shadow: 0px 0px 9px rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+  overflow: hidden;
+  background: white;
+`;
+
+export const MenuItem = styled.button`
+  width: 100%;
+  border-right: none;
+  border-top: none;
+  border-bottom: none;
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 10px 10px;
+  border-left-width: 2px;
+  border-left-color: transparent;
+  color: ${blue["700"]};
+  font-size: 13px;
+  outline: none;
+  transition: all 0.3s;
+
+  &:hover {
+    background-color: ${blue["50"]};
+    border-left-color: ${blue["700"]};
+  }
+`;

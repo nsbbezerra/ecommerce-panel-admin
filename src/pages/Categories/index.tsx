@@ -36,6 +36,7 @@ import IconButton from "../../components/layout/IconButton";
 import getSuccessMessage from "../../helpers/getMessageSuccess";
 import Upload from "../../components/layout/Upload";
 import Tooltip from "../../components/layout/Tooltip";
+import EmptyBox from "../../components/layout/EmptyBox";
 
 interface Props {
   categoryId: string;
@@ -152,74 +153,84 @@ export default function CategoriesPage() {
           {isLoading ? (
             <Loading />
           ) : (
-            <TableContainer>
-              <Table size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell width={"5%"} align="center">
-                      Ativo?
-                    </TableCell>
-                    <TableCell width={"5%"} align="center">
-                      Thumb
-                    </TableCell>
-                    <TableCell style={{ minWidth: "280px" }}>Nome</TableCell>
-                    <TableCell style={{ minWidth: "280px" }}>Slug</TableCell>
-                    <TableCell width={"5%"} align="center">
-                      Ações
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {filteredCategories.map((category) => (
-                    <TableRow key={category.id} hover>
-                      <TableCell align="center">
-                        <Switch
-                          checked={category.active}
-                          onChange={(e) =>
-                            handleActive(category.id, e.target.checked)
-                          }
-                        />
-                      </TableCell>
-                      <TableCell align="center">
-                        <Avatar src={category.thumbnail as string} />
-                      </TableCell>
-                      <TableCell>{category.name}</TableCell>
-                      <TableCell>{category.slug}</TableCell>
-                      <TableCell align="center">
-                        <Stack spacing={1} direction="row">
-                          <Tooltip title="Editar" arrow>
-                            <IconButton
-                              id="basic-button"
-                              aria-haspopup="true"
-                              onClick={() =>
-                                navigate(
-                                  `/dashboard/categorias/editar/${category.id}`
-                                )
+            <>
+              {filteredCategories.length === 0 ? (
+                <EmptyBox label="Nenhuma informação encontrada" />
+              ) : (
+                <TableContainer>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell width={"5%"} align="center">
+                          Ativo?
+                        </TableCell>
+                        <TableCell width={"5%"} align="center">
+                          Thumb
+                        </TableCell>
+                        <TableCell style={{ minWidth: "280px" }}>
+                          Nome
+                        </TableCell>
+                        <TableCell style={{ minWidth: "280px" }}>
+                          Slug
+                        </TableCell>
+                        <TableCell width={"5%"} align="center">
+                          Ações
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {filteredCategories.map((category) => (
+                        <TableRow key={category.id} hover>
+                          <TableCell align="center">
+                            <Switch
+                              checked={category.active}
+                              onChange={(e) =>
+                                handleActive(category.id, e.target.checked)
                               }
-                              size="small"
-                              color="primary"
-                            >
-                              <AiOutlineEdit />
-                            </IconButton>
-                          </Tooltip>
-                          <Tooltip title="Alterar Imagem" arrow>
-                            <IconButton
-                              id="basic-button"
-                              aria-haspopup="true"
-                              onClick={() => handleClick(category.id)}
-                              size="small"
-                              color="primary"
-                            >
-                              <AiOutlinePicture />
-                            </IconButton>
-                          </Tooltip>
-                        </Stack>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                            />
+                          </TableCell>
+                          <TableCell align="center">
+                            <Avatar src={category.thumbnail as string} />
+                          </TableCell>
+                          <TableCell>{category.name}</TableCell>
+                          <TableCell>{category.slug}</TableCell>
+                          <TableCell align="center">
+                            <Stack spacing={1} direction="row">
+                              <Tooltip title="Editar" arrow>
+                                <IconButton
+                                  id="basic-button"
+                                  aria-haspopup="true"
+                                  onClick={() =>
+                                    navigate(
+                                      `/dashboard/categorias/editar/${category.id}`
+                                    )
+                                  }
+                                  size="small"
+                                  color="primary"
+                                >
+                                  <AiOutlineEdit />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title="Alterar Imagem" arrow>
+                                <IconButton
+                                  id="basic-button"
+                                  aria-haspopup="true"
+                                  onClick={() => handleClick(category.id)}
+                                  size="small"
+                                  color="primary"
+                                >
+                                  <AiOutlinePicture />
+                                </IconButton>
+                              </Tooltip>
+                            </Stack>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              )}
+            </>
           )}
         </DefaultContainer>
       </Container>

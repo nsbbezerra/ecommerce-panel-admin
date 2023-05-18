@@ -47,12 +47,12 @@ import { ProductOptionsEntity } from "../../services/entities/productOptions";
 import Swal from "sweetalert2";
 import currencyMask from "../../helpers/currencyMask";
 import Avatar from "../../components/layout/Avatar";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import calcDiscount from "../../helpers/calcPercentage";
 import { HiOutlineTrash } from "react-icons/hi";
-import getSuccessMessage from "../../helpers/getMessageSuccess";
 
-export default function PdvPage() {
+export default function SavedOrderPage() {
+  const { order } = useParams();
   const navigate = useNavigate();
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -72,7 +72,7 @@ export default function PdvPage() {
   const [productOptions, setProductOptions] = useState<ProductOptionsEntity[]>(
     []
   );
-  const [quantity, setQuantity] = useState<string | number>(1);
+  const [quantity] = useState<string | number>(1);
 
   function getProducts() {
     api
@@ -84,15 +84,6 @@ export default function PdvPage() {
       .catch((error) => {
         getErrorMessage({ error });
       });
-  }
-
-  function cancel() {
-    setOrderItems([]);
-    getProducts();
-    setQuantity(1);
-    setDiscount(0);
-    setSelectedClient(null);
-    localStorage.removeItem("order");
   }
 
   function handleAddProduct(product: ProductsWithRelationshipEntity) {
@@ -193,7 +184,6 @@ export default function PdvPage() {
       if (result.isConfirmed) {
         const results = orderItems.filter((obj) => obj.id !== id);
         setOrderItems(results);
-        localStorage.setItem("order", JSON.stringify(results));
       }
     });
   }
@@ -309,7 +299,6 @@ export default function PdvPage() {
         }).then((result) => {
           setIsLoading(false);
           if (result.isConfirmed) {
-            localStorage.removeItem("order");
             navigate(`/dashboard/vendas/checkout/${response.data.id}`);
           }
         });
@@ -320,70 +309,31 @@ export default function PdvPage() {
       });
   }
 
-  function saveOrderAsDraft() {
-    if (!selectedClient) {
-      Swal.fire({
-        title: "Atenção",
-        text: "Por favor selecione um cliente!",
-        icon: "warning",
-        confirmButtonColor: blue["500"],
-      });
-      return;
-    }
-    if (!orderItems) {
-      Swal.fire({
-        title: "Atenção",
-        text: "Por favor adicione pelo menos um produto!",
-        icon: "warning",
-        confirmButtonColor: blue["500"],
-      });
-      return;
-    }
+  function getDraftOderById() {
+    api
+      .get(`/orders/get-draft-order/${order}`)
+      .then((response) => {
+        setSelectedClient(response.data.client);
+        const itemsReceived: any[] = response.data.OrderItems;
 
-    Swal.fire({
-      title: "Confirmação",
-      text: `Deseja salvar esta compra?`,
-      icon: "question",
-      showDenyButton: true,
-      denyButtonText: "Não",
-      denyButtonColor: red["600"],
-      confirmButtonText: "Sim",
-      confirmButtonColor: blue["500"],
-      showLoaderOnConfirm: true,
-    }).then((result) => {
-      if (result.isConfirmed) {
-        api
-          .post("/orders/save-as-draft", {
-            order: {
-              total: parseFloat(
-                total.toString().replace(".", "").replace(",", ".")
-              ),
-              order_from: "PDV",
-              client_id: selectedClient.id,
-              discount: Number(discount),
-              sub_total: parseFloat(
-                subTotal.toString().replace(".", "").replace(",", ".")
-              ),
-              month: new Intl.DateTimeFormat("pt-BR", {
-                month: "long",
-              }).format(new Date()),
-              year: new Intl.DateTimeFormat("pt-BR", {
-                year: "numeric",
-              })
-                .format(new Date())
-                .toString(),
-            },
-            orderItems,
-          })
-          .then((response) => {
-            getSuccessMessage({ message: response.data.message });
-            cancel();
-          })
-          .catch((error) => {
-            getErrorMessage({ error });
-          });
-      }
-    });
+        const itemsParsed = itemsReceived.map((item) => {
+          return {
+            id: item?.id || "",
+            quantity: item?.quantity || 0,
+            price: item?.price || "0",
+            actual_stock: item?.product?.stock || 0,
+            promo_rate: item?.product?.promo_rate || null,
+            stock_type: item?.product?.stock_type || "",
+            product_id: item?.product_id || "",
+            product_name: item?.product?.name || "",
+            product_options_id: item?.product_options_id || null,
+            product_options_label: item?.product_options?.headline || "",
+          };
+        });
+
+        setOrderItems(itemsParsed as OrderItemsDto[]);
+      })
+      .catch((error) => getErrorMessage({ error }));
   }
 
   useEffect(() => {
@@ -394,8 +344,6 @@ export default function PdvPage() {
 
   useEffect(() => {
     getProducts();
-    const items = localStorage.getItem("order");
-    items && setOrderItems(JSON.parse(items));
   }, []);
 
   useEffect(() => {
@@ -405,11 +353,13 @@ export default function PdvPage() {
     );
     setTotal(currencyMask(formatCurrency(sum, "withoutSign") as string));
     setSubTotal(currencyMask(formatCurrency(sum, "withoutSign") as string));
-
-    if (orderItems.length) {
-      localStorage.setItem("order", JSON.stringify(orderItems));
-    }
   }, [orderItems]);
+
+  useEffect(() => {
+    if (order) {
+      getDraftOderById();
+    }
+  }, [order]);
 
   return (
     <Fragment>
@@ -430,9 +380,13 @@ export default function PdvPage() {
                 color="primary"
                 exclusive
                 aria-label="Platform"
-                value={"pdv"}
+                value={""}
               >
-                <ToggleButton value="pdv" sx={{ flexShrink: 0 }}>
+                <ToggleButton
+                  value="pdv"
+                  sx={{ flexShrink: 0 }}
+                  onClick={() => navigate("/dashboard/vendas")}
+                >
                   <AiOutlineShoppingCart style={{ marginRight: "10px" }} />
                   BALCÃO DE VENDAS
                 </ToggleButton>
@@ -491,7 +445,7 @@ export default function PdvPage() {
                             newValue as ProductsWithRelationshipEntity
                           )
                         }
-                        ListboxProps={{ sx: { maxHeight: "250px" } }}
+                        ListboxProps={{ sx: { maxHeight: "190px" } }}
                       />
                     </Grid>
                   </Grid>
@@ -699,7 +653,7 @@ export default function PdvPage() {
                       )}
                       value={selectedClient}
                       onChange={(_, newValue) => setSelectedClient(newValue)}
-                      ListboxProps={{ sx: { maxHeight: "250px" } }}
+                      ListboxProps={{ sx: { maxHeight: "190px" } }}
                     />
                     <Grid container spacing={1} my={1}>
                       <Grid item xs={6}>
@@ -752,30 +706,6 @@ export default function PdvPage() {
                     </Grid>
 
                     <Grid container spacing={2} mt={1}>
-                      <Grid item xs={6}>
-                        <LoadingButton
-                          color="error"
-                          variant="contained"
-                          fullWidth
-                          size="large"
-                          startIcon={<HiOutlineTrash />}
-                          onClick={cancel}
-                        >
-                          Cancelar
-                        </LoadingButton>
-                      </Grid>
-                      <Grid item xs={6}>
-                        <LoadingButton
-                          fullWidth
-                          color="info"
-                          variant="contained"
-                          size="large"
-                          startIcon={<AiOutlineSave />}
-                          onClick={saveOrderAsDraft}
-                        >
-                          Salvar
-                        </LoadingButton>
-                      </Grid>
                       <Grid item xs={12}>
                         <LoadingButton
                           fullWidth

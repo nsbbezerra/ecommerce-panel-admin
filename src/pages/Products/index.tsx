@@ -60,6 +60,7 @@ import { blue, grey, red } from "@mui/material/colors";
 import getSuccessMessage from "../../helpers/getMessageSuccess";
 import Swal from "sweetalert2";
 import calcDiscount from "../../helpers/calcPercentage";
+import EmptyBox from "../../components/layout/EmptyBox";
 
 interface CollapsedProps {
   id: string;
@@ -274,320 +275,339 @@ export default function ProductsPage() {
           {isLoading ? (
             <Loading />
           ) : (
-            <TableContainer>
-              <Table size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell sx={{ width: "5%", textAlign: "center" }}>
-                      Ativo?
-                    </TableCell>
-                    <TableCell sx={{ width: "5%", textAlign: "center" }}>
-                      Promo?
-                    </TableCell>
-                    <TableCell sx={{ width: "5%", textAlign: "center" }}>
-                      Thumb
-                    </TableCell>
-                    <TableCell sx={{ minWidth: "260px" }}>Nome</TableCell>
-                    <TableCell sx={{ minWidth: "90px", textAlign: "center" }}>
-                      Informações
-                    </TableCell>
-                    <TableCell sx={{ minWidth: "120px", textAlign: "right" }}>
-                      Preço
-                    </TableCell>
-                    <TableCell sx={{ width: "10%", textAlign: "center" }}>
-                      Ações
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {products.map((product) => (
-                    <>
-                      <TableRow
-                        key={product.id}
-                        sx={{ "& > *": { borderBottom: "unset" } }}
-                        hover
-                      >
-                        <TableCell>
-                          <Switch
-                            checked={product.active}
-                            onChange={(e) =>
-                              activeProduct(product.id, e.target.checked)
-                            }
-                          />
+            <>
+              {products.length === 0 ? (
+                <EmptyBox label="Nenhuma informação encontrada" />
+              ) : (
+                <TableContainer>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell sx={{ width: "5%", textAlign: "center" }}>
+                          Ativo?
                         </TableCell>
-                        <TableCell>
-                          <Switch
-                            checked={product.promotional}
-                            onChange={(e) =>
-                              setPromoProduct(product.id, e.target.checked)
-                            }
-                          />
+                        <TableCell sx={{ width: "5%", textAlign: "center" }}>
+                          Promo?
                         </TableCell>
-                        <TableCell>
-                          <Avatar src={product.thumbnail || ""} />
+                        <TableCell sx={{ width: "5%", textAlign: "center" }}>
+                          Thumb
                         </TableCell>
-                        <TableCell>{product.name}</TableCell>
-                        <TableCell>
-                          <Button
-                            fullWidth
-                            endIcon={
-                              isCollapesed.id === product.id &&
-                              isCollapesed.open ? (
-                                <FiChevronUp />
-                              ) : (
-                                <FiChevronDown />
-                              )
-                            }
-                            onClick={() =>
-                              setIsCollapsed({
-                                id: product.id,
-                                open:
-                                  isCollapesed.id !== product.id
-                                    ? true
-                                    : !isCollapesed.open,
-                              })
-                            }
-                            size="small"
+                        <TableCell sx={{ minWidth: "260px" }}>Nome</TableCell>
+                        <TableCell
+                          sx={{ minWidth: "90px", textAlign: "center" }}
+                        >
+                          Informações
+                        </TableCell>
+                        <TableCell
+                          sx={{ minWidth: "120px", textAlign: "right" }}
+                        >
+                          Preço
+                        </TableCell>
+                        <TableCell sx={{ width: "10%", textAlign: "center" }}>
+                          Ações
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {products.map((product) => (
+                        <>
+                          <TableRow
+                            key={product.id}
+                            sx={{ "& > *": { borderBottom: "unset" } }}
+                            hover
                           >
-                            {isCollapesed.id === product.id && isCollapesed.open
-                              ? "Ocultar"
-                              : "Mostrar"}
-                          </Button>
-                        </TableCell>
-                        <TableCell sx={{ textAlign: "right", borderBottom: 0 }}>
-                          {product.promotional ? (
-                            <Stack
-                              direction={"row"}
-                              justifyContent={"end"}
-                              spacing={1}
-                            >
-                              <Typography
-                                variant="body2"
-                                fontSize={"12px"}
-                                sx={{ textDecoration: "line-through" }}
-                              >
-                                {formatCurrency(product.price)}
-                              </Typography>
-                              <Typography variant="body2">
-                                {calcDiscount(
-                                  Number(product.price),
-                                  product.promo_rate
-                                )}
-                              </Typography>
-                            </Stack>
-                          ) : (
-                            <>{formatCurrency(product.price)}</>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <Stack
-                            spacing={1}
-                            direction="row"
-                            justifyContent={"center"}
-                          >
-                            <Tooltip title="Editar" arrow>
-                              <IconButton
-                                color="primary"
-                                size="small"
-                                onClick={() =>
-                                  navigate(
-                                    `/dashboard/produtos/editar/${product.id}`
+                            <TableCell>
+                              <Switch
+                                checked={product.active}
+                                onChange={(e) =>
+                                  activeProduct(product.id, e.target.checked)
+                                }
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Switch
+                                checked={product.promotional}
+                                onChange={(e) =>
+                                  setPromoProduct(product.id, e.target.checked)
+                                }
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Avatar src={product.thumbnail || ""} />
+                            </TableCell>
+                            <TableCell>{product.name}</TableCell>
+                            <TableCell>
+                              <Button
+                                fullWidth
+                                endIcon={
+                                  isCollapesed.id === product.id &&
+                                  isCollapesed.open ? (
+                                    <FiChevronUp />
+                                  ) : (
+                                    <FiChevronDown />
                                   )
                                 }
-                              >
-                                <AiOutlineEdit />
-                              </IconButton>
-                            </Tooltip>
-                            <Tooltip title="Alterar Imagem" arrow>
-                              <IconButton
-                                color="primary"
+                                onClick={() =>
+                                  setIsCollapsed({
+                                    id: product.id,
+                                    open:
+                                      isCollapesed.id !== product.id
+                                        ? true
+                                        : !isCollapesed.open,
+                                  })
+                                }
                                 size="small"
-                                onClick={() => handleEditProduct(product)}
                               >
-                                <AiOutlinePicture />
-                              </IconButton>
-                            </Tooltip>
-                          </Stack>
-                        </TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell colSpan={7} style={{ padding: 0 }}>
-                          <Collapse
-                            in={
-                              isCollapesed.id === product.id &&
-                              isCollapesed.open
-                            }
-                            timeout="auto"
-                            unmountOnExit
-                          >
-                            <Box p={2}>
-                              <Card elevation={0} sx={{ bgcolor: grey["100"] }}>
-                                <TabContext value={value}>
-                                  <Box
-                                    sx={{
-                                      borderBottom: 1,
-                                      borderColor: "divider",
-                                    }}
-                                  >
-                                    <TabList
-                                      onChange={handleChange}
-                                      aria-label="product info"
-                                    >
-                                      <Tab label="Categorias" value="1" />
-                                      <Tab label="Descrição" value="2" />
-                                      <Tab label="Estoque" value="3" />
-                                      <Tab label="Frete" value="4" />
-                                    </TabList>
-                                  </Box>
-                                  <TabPanel value="1">
-                                    <List dense>
-                                      <ListItem>
-                                        <ListItemIcon>
-                                          <AiOutlineTag />
-                                        </ListItemIcon>
-                                        <ListItemText
-                                          primary={product.category.name}
-                                          secondary={"Categoria"}
-                                        />
-                                      </ListItem>
-                                      <ListItem>
-                                        <ListItemIcon>
-                                          <HiOutlineCollection />
-                                        </ListItemIcon>
-                                        <ListItemText
-                                          primary={product.collection.name}
-                                          secondary={"Sub-categoria"}
-                                        />
-                                      </ListItem>
-                                    </List>
-                                  </TabPanel>
-                                  <TabPanel value="2">
-                                    <div
-                                      dangerouslySetInnerHTML={{
-                                        __html: product.description,
-                                      }}
-                                    />
-                                  </TabPanel>
-                                  <TabPanel value="3">
-                                    {(product.stock_type === "OFF" &&
-                                      "VENDA SEM ESTOQUE") ||
-                                      (product.stock_type === "CUSTOM" && (
-                                        <List dense>
-                                          {product.ProductOptions.map(
-                                            (prodOpt) => (
-                                              <ListItem key={prodOpt.id}>
-                                                <ListItemAvatar>
-                                                  <Avatar>
-                                                    {prodOpt.headline}
-                                                  </Avatar>
-                                                </ListItemAvatar>
-                                                <ListItemText
-                                                  primary={`Quantidade: ${prodOpt.stock}`}
-                                                  secondary={`Ordem: ${prodOpt.content}`}
-                                                />
-                                              </ListItem>
-                                            )
-                                          )}
-                                        </List>
-                                      )) ||
-                                      (product.stock_type === "UNITY" && (
-                                        <span>
-                                          <strong>Quantidade:</strong>{" "}
-                                          {product.stock}
-                                        </span>
-                                      ))}
-                                  </TabPanel>
-                                  <TabPanel value="4">
-                                    <List dense>
-                                      <ListItem>
-                                        <ListItemIcon>
-                                          <BsTruck />
-                                        </ListItemIcon>
-                                        <ListItemText
-                                          primary={
-                                            product.freight_priority ===
-                                            "NORMAL"
-                                              ? "Entrega normal"
-                                              : "Entrega rápida"
-                                          }
-                                          secondary={"Tipo de entrega"}
-                                        />
-                                      </ListItem>
-                                      <ListItem>
-                                        <ListItemIcon>
-                                          <FiPackage />
-                                        </ListItemIcon>
-                                        <ListItemText
-                                          primary={`${product.shipping_info.width} cm`}
-                                          secondary={"Largura"}
-                                        />
-                                      </ListItem>
-                                      <ListItem>
-                                        <ListItemIcon>
-                                          <FiPackage />
-                                        </ListItemIcon>
-                                        <ListItemText
-                                          primary={`${product.shipping_info.height} cm`}
-                                          secondary={"Altura"}
-                                        />
-                                      </ListItem>
-                                      <ListItem>
-                                        <ListItemIcon>
-                                          <FiPackage />
-                                        </ListItemIcon>
-                                        <ListItemText
-                                          primary={`${product.shipping_info.lenght} cm`}
-                                          secondary={"Comprimento"}
-                                        />
-                                      </ListItem>
-                                      <ListItem>
-                                        <ListItemIcon>
-                                          <FiPackage />
-                                        </ListItemIcon>
-                                        <ListItemText
-                                          primary={`${product.shipping_info.weight} kg`}
-                                          secondary={"Peso"}
-                                        />
-                                      </ListItem>
-                                    </List>
-                                  </TabPanel>
-                                </TabContext>
-                              </Card>
-                            </Box>
-                          </Collapse>
-                        </TableCell>
-                      </TableRow>
-                    </>
-                  ))}
-                </TableBody>
-                {products.length !== 0 && (
-                  <>
-                    {search !== "all" ? (
-                      ""
-                    ) : (
-                      <TableFooter>
-                        <TableRow>
-                          <TableCell colSpan={7} sx={{ borderBottom: "none" }}>
-                            <Box
-                              display={"flex"}
-                              justifyContent="center"
-                              mt={2}
-                            >
-                              <Button
-                                onClick={() => handleMore()}
-                                disabled={totalItems === products.length}
-                              >
-                                Mostrar mais
+                                {isCollapesed.id === product.id &&
+                                isCollapesed.open
+                                  ? "Ocultar"
+                                  : "Mostrar"}
                               </Button>
-                            </Box>
-                          </TableCell>
-                        </TableRow>
-                      </TableFooter>
+                            </TableCell>
+                            <TableCell
+                              sx={{ textAlign: "right", borderBottom: 0 }}
+                            >
+                              {product.promotional ? (
+                                <Stack
+                                  direction={"row"}
+                                  justifyContent={"end"}
+                                  spacing={1}
+                                >
+                                  <Typography
+                                    variant="body2"
+                                    fontSize={"12px"}
+                                    sx={{ textDecoration: "line-through" }}
+                                  >
+                                    {formatCurrency(product.price)}
+                                  </Typography>
+                                  <Typography variant="body2">
+                                    {calcDiscount(
+                                      Number(product.price),
+                                      product.promo_rate
+                                    )}
+                                  </Typography>
+                                </Stack>
+                              ) : (
+                                <>{formatCurrency(product.price)}</>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              <Stack
+                                spacing={1}
+                                direction="row"
+                                justifyContent={"center"}
+                              >
+                                <Tooltip title="Editar" arrow>
+                                  <IconButton
+                                    color="primary"
+                                    size="small"
+                                    onClick={() =>
+                                      navigate(
+                                        `/dashboard/produtos/editar/${product.id}`
+                                      )
+                                    }
+                                  >
+                                    <AiOutlineEdit />
+                                  </IconButton>
+                                </Tooltip>
+                                <Tooltip title="Alterar Imagem" arrow>
+                                  <IconButton
+                                    color="primary"
+                                    size="small"
+                                    onClick={() => handleEditProduct(product)}
+                                  >
+                                    <AiOutlinePicture />
+                                  </IconButton>
+                                </Tooltip>
+                              </Stack>
+                            </TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell colSpan={7} style={{ padding: 0 }}>
+                              <Collapse
+                                in={
+                                  isCollapesed.id === product.id &&
+                                  isCollapesed.open
+                                }
+                                timeout="auto"
+                                unmountOnExit
+                              >
+                                <Box p={2}>
+                                  <Card
+                                    elevation={0}
+                                    sx={{ bgcolor: grey["100"] }}
+                                  >
+                                    <TabContext value={value}>
+                                      <Box
+                                        sx={{
+                                          borderBottom: 1,
+                                          borderColor: "divider",
+                                        }}
+                                      >
+                                        <TabList
+                                          onChange={handleChange}
+                                          aria-label="product info"
+                                        >
+                                          <Tab label="Categorias" value="1" />
+                                          <Tab label="Descrição" value="2" />
+                                          <Tab label="Estoque" value="3" />
+                                          <Tab label="Frete" value="4" />
+                                        </TabList>
+                                      </Box>
+                                      <TabPanel value="1">
+                                        <List dense>
+                                          <ListItem>
+                                            <ListItemIcon>
+                                              <AiOutlineTag />
+                                            </ListItemIcon>
+                                            <ListItemText
+                                              primary={product.category.name}
+                                              secondary={"Categoria"}
+                                            />
+                                          </ListItem>
+                                          <ListItem>
+                                            <ListItemIcon>
+                                              <HiOutlineCollection />
+                                            </ListItemIcon>
+                                            <ListItemText
+                                              primary={product.collection.name}
+                                              secondary={"Sub-categoria"}
+                                            />
+                                          </ListItem>
+                                        </List>
+                                      </TabPanel>
+                                      <TabPanel value="2">
+                                        <div
+                                          dangerouslySetInnerHTML={{
+                                            __html: product.description,
+                                          }}
+                                        />
+                                      </TabPanel>
+                                      <TabPanel value="3">
+                                        {(product.stock_type === "OFF" &&
+                                          "VENDA SEM ESTOQUE") ||
+                                          (product.stock_type === "CUSTOM" && (
+                                            <List dense>
+                                              {product.ProductOptions.map(
+                                                (prodOpt) => (
+                                                  <ListItem key={prodOpt.id}>
+                                                    <ListItemAvatar>
+                                                      <Avatar>
+                                                        {prodOpt.headline}
+                                                      </Avatar>
+                                                    </ListItemAvatar>
+                                                    <ListItemText
+                                                      primary={`Quantidade: ${prodOpt.stock}`}
+                                                      secondary={`Ordem: ${prodOpt.content}`}
+                                                    />
+                                                  </ListItem>
+                                                )
+                                              )}
+                                            </List>
+                                          )) ||
+                                          (product.stock_type === "UNITY" && (
+                                            <span>
+                                              <strong>Quantidade:</strong>{" "}
+                                              {product.stock}
+                                            </span>
+                                          ))}
+                                      </TabPanel>
+                                      <TabPanel value="4">
+                                        <List dense>
+                                          <ListItem>
+                                            <ListItemIcon>
+                                              <BsTruck />
+                                            </ListItemIcon>
+                                            <ListItemText
+                                              primary={
+                                                product.freight_priority ===
+                                                "NORMAL"
+                                                  ? "Entrega normal"
+                                                  : "Entrega rápida"
+                                              }
+                                              secondary={"Tipo de entrega"}
+                                            />
+                                          </ListItem>
+                                          <ListItem>
+                                            <ListItemIcon>
+                                              <FiPackage />
+                                            </ListItemIcon>
+                                            <ListItemText
+                                              primary={`${product.shipping_info.width} cm`}
+                                              secondary={"Largura"}
+                                            />
+                                          </ListItem>
+                                          <ListItem>
+                                            <ListItemIcon>
+                                              <FiPackage />
+                                            </ListItemIcon>
+                                            <ListItemText
+                                              primary={`${product.shipping_info.height} cm`}
+                                              secondary={"Altura"}
+                                            />
+                                          </ListItem>
+                                          <ListItem>
+                                            <ListItemIcon>
+                                              <FiPackage />
+                                            </ListItemIcon>
+                                            <ListItemText
+                                              primary={`${product.shipping_info.lenght} cm`}
+                                              secondary={"Comprimento"}
+                                            />
+                                          </ListItem>
+                                          <ListItem>
+                                            <ListItemIcon>
+                                              <FiPackage />
+                                            </ListItemIcon>
+                                            <ListItemText
+                                              primary={`${product.shipping_info.weight} kg`}
+                                              secondary={"Peso"}
+                                            />
+                                          </ListItem>
+                                        </List>
+                                      </TabPanel>
+                                    </TabContext>
+                                  </Card>
+                                </Box>
+                              </Collapse>
+                            </TableCell>
+                          </TableRow>
+                        </>
+                      ))}
+                    </TableBody>
+                    {products.length !== 0 && (
+                      <>
+                        {search !== "all" ? (
+                          ""
+                        ) : (
+                          <TableFooter>
+                            <TableRow>
+                              <TableCell
+                                colSpan={7}
+                                sx={{ borderBottom: "none" }}
+                              >
+                                <Box
+                                  display={"flex"}
+                                  justifyContent="center"
+                                  mt={2}
+                                >
+                                  <Button
+                                    onClick={() => handleMore()}
+                                    disabled={totalItems === products.length}
+                                  >
+                                    Mostrar mais
+                                  </Button>
+                                </Box>
+                              </TableCell>
+                            </TableRow>
+                          </TableFooter>
+                        )}
+                      </>
                     )}
-                  </>
-                )}
-              </Table>
-            </TableContainer>
+                  </Table>
+                </TableContainer>
+              )}
+            </>
           )}
         </DefaultContainer>
       </Container>

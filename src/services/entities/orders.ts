@@ -40,6 +40,7 @@ export interface PaymentLocalIntentProps {
 export interface GetOrderByIdEntity {
   checkout_id: string | null;
   client: ClientProps;
+  code: string;
   discount: string | number;
   id: string;
   created_at: Date | string;

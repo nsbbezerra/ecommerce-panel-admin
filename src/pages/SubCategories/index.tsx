@@ -38,6 +38,7 @@ import getErrorMessage from "../../helpers/getMessageError";
 import { CategoriesEntity } from "../../services/entities/categories";
 import { CollectionsWithRelationshipEntity } from "../../services/entities/collections";
 import { SeachContainer } from "../Clientes/styles";
+import EmptyBox from "../../components/layout/EmptyBox";
 
 export default function SubCategories() {
   const navigate = useNavigate();
@@ -132,57 +133,67 @@ export default function SubCategories() {
           {isLoading ? (
             <Loading />
           ) : (
-            <TableContainer>
-              <Table size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell width={"5%"} align="center">
-                      Ativo?
-                    </TableCell>
-                    <TableCell style={{ minWidth: "230px" }}>Nome</TableCell>
-                    <TableCell style={{ minWidth: "230px" }}>
-                      Categoria
-                    </TableCell>
-                    <TableCell style={{ minWidth: "160px" }}>Slug</TableCell>
-                    <TableCell width={"5%"}>Ações</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {filteredCollections.map((collection) => (
-                    <TableRow key={collection.id} hover>
-                      <TableCell>
-                        <Switch
-                          checked={collection.active}
-                          onChange={(e) =>
-                            handleActive(collection.id, e.target.checked)
-                          }
-                        />
-                      </TableCell>
-                      <TableCell>{collection.name}</TableCell>
-                      <TableCell>{collection.category.name}</TableCell>
-                      <TableCell>{collection.slug}</TableCell>
-                      <TableCell style={{ textAlign: "center" }}>
-                        <Stack direction={"row"}>
-                          <Tooltip title="Editar" arrow>
-                            <IconButton
-                              size="small"
-                              color="primary"
-                              onClick={() =>
-                                navigate(
-                                  `/dashboard/sub-categorias/editar/${collection.id}`
-                                )
+            <>
+              {filteredCollections.length === 0 ? (
+                <EmptyBox label="Nenhuma informação encontrada" />
+              ) : (
+                <TableContainer>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell width={"5%"} align="center">
+                          Ativo?
+                        </TableCell>
+                        <TableCell style={{ minWidth: "230px" }}>
+                          Nome
+                        </TableCell>
+                        <TableCell style={{ minWidth: "230px" }}>
+                          Categoria
+                        </TableCell>
+                        <TableCell style={{ minWidth: "160px" }}>
+                          Slug
+                        </TableCell>
+                        <TableCell width={"5%"}>Ações</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {filteredCollections.map((collection) => (
+                        <TableRow key={collection.id} hover>
+                          <TableCell>
+                            <Switch
+                              checked={collection.active}
+                              onChange={(e) =>
+                                handleActive(collection.id, e.target.checked)
                               }
-                            >
-                              <AiOutlineEdit />
-                            </IconButton>
-                          </Tooltip>
-                        </Stack>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                            />
+                          </TableCell>
+                          <TableCell>{collection.name}</TableCell>
+                          <TableCell>{collection.category.name}</TableCell>
+                          <TableCell>{collection.slug}</TableCell>
+                          <TableCell style={{ textAlign: "center" }}>
+                            <Stack direction={"row"}>
+                              <Tooltip title="Editar" arrow>
+                                <IconButton
+                                  size="small"
+                                  color="primary"
+                                  onClick={() =>
+                                    navigate(
+                                      `/dashboard/sub-categorias/editar/${collection.id}`
+                                    )
+                                  }
+                                >
+                                  <AiOutlineEdit />
+                                </IconButton>
+                              </Tooltip>
+                            </Stack>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              )}
+            </>
           )}
         </DefaultContainer>
       </Container>
