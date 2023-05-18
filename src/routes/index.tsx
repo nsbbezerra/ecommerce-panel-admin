@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import Home from "../components/layout/Home";
 import ProtectedRoute from "../hooks/ProtectedRoutes";
 import CategoriesPage from "../pages/Categories";
@@ -21,11 +21,14 @@ import Cashier from "../pages/Cashier";
 import OpenCashier from "../pages/Cashier/open";
 import CashierMoviment from "../pages/Cashier/moviment";
 import SavedOrderPage from "../pages/Pdv/savedOrder";
+import FinancialMovements from "../pages/Financial/movements";
+import SaveFinancial from "../pages/Financial/saveFinancial";
 
 export default function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<LoginPage />} />
+      <Route path="*" element={<Navigate to={"/dashboard"} />} />
       <Route path="" element={<ProtectedRoute />}>
         <Route path="dashboard" element={<Home />}>
           <Route path="" element={<HomePage />} />
@@ -66,6 +69,12 @@ export default function AppRoutes() {
             <Route path="salvas" element={<SalesSaved />} />
           </Route>
           <Route path="configuracoes" element={<Configurations />} />
+          <Route path="financeiro">
+            <Route path="movimentos">
+              <Route index element={<FinancialMovements />} />
+              <Route path="criar" element={<SaveFinancial />} />
+            </Route>
+          </Route>
         </Route>
       </Route>
     </Routes>

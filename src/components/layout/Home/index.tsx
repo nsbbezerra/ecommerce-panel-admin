@@ -193,10 +193,11 @@ export default function Home() {
             arrow
           >
             <MenuItem
-              isActive={false}
+              isActive={itemActive.includes("/dashboard/financeiro")}
               isOpen={is.isSiderOpen}
               className="menu-item"
               data-pr-tooltip="FINANCEIRO"
+              onClick={() => navigate("/dashboard/financeiro/movimentos")}
             >
               <AiOutlineLineChart className="menu-icon" fontSize={16} />
               <span className="menu-text">FINANCEIRO</span>

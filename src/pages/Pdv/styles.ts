@@ -82,7 +82,7 @@ export const MenuItem = styled.button<Props>`
   min-width: 200px;
   border: none;
   background-color: ${(props) =>
-    props.active ? "rgba(255,255,255,.2)" : "transparent"};
+    props.active ? "rgba(255,255,255,.1)" : "transparent"};
   padding: 8px 20px;
   border-radius: 4px;
   display: flex;
@@ -92,7 +92,7 @@ export const MenuItem = styled.button<Props>`
   transition: all 0.3s;
 
   .menu-icon {
-    color: ${(props) => (props.active ? "#FFF" : blue["400"])};
+    color: ${(props) => (props.active ? blue["500"] : "#FFF")};
     font-size: 35px;
   }
 

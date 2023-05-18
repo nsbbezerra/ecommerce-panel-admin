@@ -4,10 +4,11 @@ import Container from "../../components/layout/Container";
 import DefaultContainer from "../../components/layout/DefaultContainer";
 import {
   Autocomplete,
+  Backdrop,
   Box,
   ButtonGroup,
   Chip,
-  CssBaseline,
+  CircularProgress,
   Dialog,
   DialogContent,
   DialogTitle,
@@ -20,17 +21,9 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  ToggleButton,
-  ToggleButtonGroup,
   Typography,
 } from "@mui/material";
-import {
-  AiOutlineMinus,
-  AiOutlinePlus,
-  AiOutlineSave,
-  AiOutlineShopping,
-  AiOutlineShoppingCart,
-} from "react-icons/ai";
+import { AiOutlineMinus, AiOutlinePlus } from "react-icons/ai";
 import InputText from "../../components/layout/InputText";
 import IconButton from "../../components/layout/IconButton";
 import { LoadingButton } from "@mui/lab";
@@ -67,7 +60,7 @@ export default function SavedOrderPage() {
   const [products, setProducts] = useState<ProductsWithRelationshipEntity[]>(
     []
   );
-
+  const [backdrop, setBackdrop] = useState<boolean>(true);
   const [orderItems, setOrderItems] = useState<OrderItemsDto[]>([]);
   const [total, setTotal] = useState<number | string>(0);
   const [discount, setDiscount] = useState<number | string>(0);
@@ -304,6 +297,7 @@ export default function SavedOrderPage() {
   }
 
   function getDraftOderById() {
+    setBackdrop(true);
     api
       .get(`/orders/get-draft-order/${order}`)
       .then((response) => {
@@ -327,8 +321,12 @@ export default function SavedOrderPage() {
         });
 
         setOrderItems(itemsParsed as OrderItemsDto[]);
+        setBackdrop(false);
       })
-      .catch((error) => getErrorMessage({ error }));
+      .catch((error) => {
+        setBackdrop(false);
+        getErrorMessage({ error });
+      });
   }
 
   useEffect(() => {
@@ -725,6 +723,14 @@ export default function SavedOrderPage() {
           </DialogContent>
         </Dialog>
       </Container>
+
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={backdrop}
+        onClick={() => {}}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </Fragment>
   );
 }
