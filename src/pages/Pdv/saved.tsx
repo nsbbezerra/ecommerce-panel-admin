@@ -12,8 +12,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  ToggleButton,
-  ToggleButtonGroup,
   Typography,
 } from "@mui/material";
 import { Fragment, memo, useEffect, useState } from "react";
@@ -25,10 +23,7 @@ import {
   AiOutlineClear,
   AiOutlineMinus,
   AiOutlinePlus,
-  AiOutlineSave,
   AiOutlineSearch,
-  AiOutlineShopping,
-  AiOutlineShoppingCart,
   AiOutlineTags,
 } from "react-icons/ai";
 import { LocalizationProvider } from "@mui/x-date-pickers";
@@ -39,7 +34,6 @@ import InputText from "../../components/layout/InputText";
 import Button from "../../components/layout/Button";
 import subDays from "date-fns/subDays";
 import DefaultContainer from "../../components/layout/DefaultContainer";
-import differenceInDays from "date-fns/differenceInDays";
 import Loading from "../../components/layout/Loading";
 import { api } from "../../configs/api";
 import getErrorMessage from "../../helpers/getMessageError";
@@ -50,6 +44,8 @@ import EmptyBox from "../../components/layout/EmptyBox";
 import { GetOrderByIdEntity } from "../../services/entities/orders";
 import Avatar from "../../components/layout/Avatar";
 import { blue, grey } from "@mui/material/colors";
+import { MenuContainer, MenuItem as StyledMenuItem } from "./styles";
+import { FaSave, FaShoppingBag, FaShoppingCart } from "react-icons/fa";
 
 interface OrdersProps {
   id: string;
@@ -153,46 +149,35 @@ const SalesSaved = () => {
       <AppBar title="Vendas Salvas" />
       <Container>
         <Stack p={2} spacing={2}>
-          <Box
-            boxShadow={"0px 0px 9px rgba(0, 0, 0, 0.05)"}
-            borderRadius={"4px"}
-            overflow={"hidden"}
-            p={1}
-            bgcolor={"#fff"}
-            sx={{ overflowX: "auto" }}
-          >
-            <ToggleButtonGroup
-              color="primary"
-              exclusive
-              aria-label="Platform"
-              value={"save"}
+          <MenuContainer>
+            <StyledMenuItem
+              active={false}
+              onClick={() => navigate("/dashboard/vendas")}
             >
-              <ToggleButton
-                sx={{ flexShrink: 0 }}
-                value="pdv"
-                onClick={() => navigate("/dashboard/vendas")}
-              >
-                <AiOutlineShoppingCart style={{ marginRight: "10px" }} />
-                BALCÃO DE VENDAS
-              </ToggleButton>
-              <ToggleButton
-                sx={{ flexShrink: 0 }}
-                value="finish"
-                onClick={() => navigate("/dashboard/vendas/finalizadas")}
-              >
-                <AiOutlineShopping style={{ marginRight: "10px" }} />
-                VENDAS FINALIZADAS
-              </ToggleButton>
-              <ToggleButton
-                sx={{ flexShrink: 0 }}
-                value="save"
-                onClick={() => navigate("/dashboard/vendas/salvas")}
-              >
-                <AiOutlineSave style={{ marginRight: "10px" }} />
-                VENDAS SALVAS
-              </ToggleButton>
-            </ToggleButtonGroup>
-          </Box>
+              <FaShoppingCart className="menu-icon" />
+              <div className="menu-right">
+                <span className="menu-title">BALCÃO</span>
+                <span className="menu-desc">DE VENDAS</span>
+              </div>
+            </StyledMenuItem>
+            <StyledMenuItem
+              active={false}
+              onClick={() => navigate("/dashboard/vendas/finalizadas")}
+            >
+              <FaShoppingBag className="menu-icon" />
+              <div className="menu-right">
+                <span className="menu-title">VENDAS</span>
+                <span className="menu-desc">FINALIZADAS</span>
+              </div>
+            </StyledMenuItem>
+            <StyledMenuItem active={true}>
+              <FaSave className="menu-icon" />
+              <div className="menu-right">
+                <span className="menu-title">VENDAS</span>
+                <span className="menu-desc">SALVAS</span>
+              </div>
+            </StyledMenuItem>
+          </MenuContainer>
 
           <DefaultContainer disabledPadding>
             <Grid container spacing={2} alignItems={"center"}>
@@ -271,10 +256,6 @@ const SalesSaved = () => {
               </Grid>
             </Grid>
           </DefaultContainer>
-
-          <Typography variant="body2" fontWeight={"600"} color={"GrayText"}>
-            Resultados dos últimos {differenceInDays(endDate, startDate)} dias
-          </Typography>
 
           <DefaultContainer disabledPadding>
             {isLoading ? (

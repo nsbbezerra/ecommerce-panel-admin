@@ -34,7 +34,13 @@ import {
 import InputText from "../../components/layout/InputText";
 import IconButton from "../../components/layout/IconButton";
 import { LoadingButton } from "@mui/lab";
-import { FaBoxOpen, FaDollarSign } from "react-icons/fa";
+import {
+  FaBoxOpen,
+  FaDollarSign,
+  FaSave,
+  FaShoppingBag,
+  FaShoppingCart,
+} from "react-icons/fa";
 import { GetAllClientsEntity } from "../../services/entities/clients";
 import { ProductsWithRelationshipEntity } from "../../services/entities/products";
 import { api } from "../../configs/api";
@@ -50,6 +56,7 @@ import Avatar from "../../components/layout/Avatar";
 import { useNavigate, useParams } from "react-router-dom";
 import calcDiscount from "../../helpers/calcPercentage";
 import { HiOutlineTrash } from "react-icons/hi";
+import { MenuContainer, MenuItem } from "./styles";
 
 export default function SavedOrderPage() {
   const { order } = useParams();
@@ -264,27 +271,14 @@ export default function SavedOrderPage() {
     setIsLoading(true);
 
     api
-      .post("/orders/create", {
-        order: {
-          total: parseFloat(
-            total.toString().replace(".", "").replace(",", ".")
-          ),
-          order_from: "PDV",
-          client_id: selectedClient.id,
-          discount: Number(discount),
-          sub_total: parseFloat(
-            subTotal.toString().replace(".", "").replace(",", ".")
-          ),
-          month: new Intl.DateTimeFormat("pt-BR", {
-            month: "long",
-          }).format(new Date()),
-          year: new Intl.DateTimeFormat("pt-BR", {
-            year: "numeric",
-          })
-            .format(new Date())
-            .toString(),
-        },
+      .post("/orders/convert-draft-as-sale", {
+        orderId: order,
         orderItems,
+        total: parseFloat(total.toString().replace(".", "").replace(",", ".")),
+        discount: Number(discount),
+        sub_total: parseFloat(
+          subTotal.toString().replace(".", "").replace(",", ".")
+        ),
       })
       .then((response) => {
         Swal.fire({
@@ -314,11 +308,12 @@ export default function SavedOrderPage() {
       .get(`/orders/get-draft-order/${order}`)
       .then((response) => {
         setSelectedClient(response.data.client);
+
         const itemsReceived: any[] = response.data.OrderItems;
 
         const itemsParsed = itemsReceived.map((item) => {
           return {
-            id: item?.id || "",
+            id: item?.product_id || "",
             quantity: item?.quantity || 0,
             price: item?.price || "0",
             actual_stock: item?.product?.stock || 0,
@@ -365,392 +360,370 @@ export default function SavedOrderPage() {
     <Fragment>
       <AppBar title="Balcão de vendas" />
       <Container>
-        <Box>
-          <CssBaseline />
-          <Box p={2}>
-            <Box
-              boxShadow={"0px 0px 9px rgba(0, 0, 0, 0.05)"}
-              borderRadius={"4px"}
-              overflow={"hidden"}
-              bgcolor={"#fff"}
-              p={1}
-              sx={{ overflowX: "auto" }}
+        <Box p={2}>
+          <MenuContainer>
+            <MenuItem
+              active={false}
+              onClick={() => navigate("/dashboard/vendas")}
             >
-              <ToggleButtonGroup
-                color="primary"
-                exclusive
-                aria-label="Platform"
-                value={""}
-              >
-                <ToggleButton
-                  value="pdv"
-                  sx={{ flexShrink: 0 }}
-                  onClick={() => navigate("/dashboard/vendas")}
-                >
-                  <AiOutlineShoppingCart style={{ marginRight: "10px" }} />
-                  BALCÃO DE VENDAS
-                </ToggleButton>
-                <ToggleButton
-                  value="finish"
-                  onClick={() => navigate("/dashboard/vendas/finalizadas")}
-                  sx={{ flexShrink: 0 }}
-                >
-                  <AiOutlineShopping style={{ marginRight: "10px" }} />
-                  VENDAS FINALIZADAS
-                </ToggleButton>
-                <ToggleButton
-                  value="save"
-                  onClick={() => navigate("/dashboard/vendas/salvas")}
-                  sx={{ flexShrink: 0 }}
-                >
-                  <AiOutlineSave style={{ marginRight: "10px" }} />
-                  VENDAS SALVAS
-                </ToggleButton>
-              </ToggleButtonGroup>
-            </Box>
-            <Grid container spacing={2} mt={1}>
-              <Grid item xs={12} md={7} lg={8}>
-                <DefaultContainer disabledPadding>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12}>
-                      <Autocomplete
-                        disablePortal
-                        id="products_name"
-                        options={products}
-                        renderInput={(params) => (
-                          <InputText
-                            {...params}
-                            label="Busque por nome ou código"
-                            fullWidth
-                          />
-                        )}
-                        getOptionLabel={(option) =>
-                          `${option.name} - ${option.code || ""}`
-                        }
-                        renderOption={(props, option) => (
-                          <Box component="li" {...props}>
-                            <Avatar
-                              sx={{ width: 24, height: 24, mr: 2 }}
-                              src={option.thumbnail || ""}
-                            />
-                            <Typography variant="body1">
-                              {option.name}
-                            </Typography>
-                          </Box>
-                        )}
-                        noOptionsText="Nenhum produto encontrado"
-                        value={selectectProduct}
-                        onChange={(_, newValue) =>
-                          setSelectedProduct(
-                            newValue as ProductsWithRelationshipEntity
-                          )
-                        }
-                        ListboxProps={{ sx: { maxHeight: "190px" } }}
-                      />
-                    </Grid>
-                  </Grid>
-                  {orderItems.length !== 0 ? (
-                    <TableContainer>
-                      <Table size="small">
-                        <TableHead>
-                          <TableRow>
-                            <TableCell
-                              sx={{
-                                fontSize: "13px",
-                                width: "1%",
-                                textAlign: "center",
-                              }}
-                            >
-                              Qtd.
-                            </TableCell>
-                            <TableCell
-                              sx={{ fontSize: "13px", minWidth: "230px" }}
-                            >
-                              Produto
-                            </TableCell>
-                            <TableCell
-                              sx={{
-                                fontSize: "13px",
-                                width: "40px",
-                                textAlign: "center",
-                              }}
-                            >
-                              Opções
-                            </TableCell>
-                            <TableCell
-                              sx={{
-                                fontSize: "13px",
-                                width: "40px",
-                                textAlign: "right",
-                              }}
-                            >
-                              Preço
-                            </TableCell>
-                            <TableCell
-                              sx={{
-                                fontSize: "13px",
-                                width: "40px",
-                                textAlign: "right",
-                              }}
-                            >
-                              Total
-                            </TableCell>
-                            <TableCell
-                              sx={{
-                                fontSize: "13px",
-                                width: "40px",
-                                textAlign: "center",
-                              }}
-                            >
-                              Ações
-                            </TableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {orderItems.map((orderItem) => (
-                            <TableRow hover key={orderItem.id}>
-                              <TableCell sx={{ fontSize: "13px", width: "1%" }}>
-                                <ButtonGroup size="small">
-                                  <Button
-                                    variant="outlined"
-                                    onClick={() =>
-                                      handleQuantity(orderItem.id, "minus")
-                                    }
-                                  >
-                                    <AiOutlineMinus />
-                                  </Button>
-                                  <Button variant="outlined">
-                                    {orderItem.quantity}
-                                  </Button>
-                                  <Button
-                                    variant="outlined"
-                                    onClick={() =>
-                                      handleQuantity(orderItem.id, "add")
-                                    }
-                                  >
-                                    <AiOutlinePlus />
-                                  </Button>
-                                </ButtonGroup>
-                              </TableCell>
-                              <TableCell
-                                sx={{ fontSize: "13px", width: "140px" }}
-                              >
-                                {orderItem.product_name}
-                              </TableCell>
-                              <TableCell
-                                sx={{
-                                  fontSize: "13px",
-                                  width: "40px",
-                                  textAlign: "center",
-                                }}
-                              >
-                                {orderItem.product_options_id ? (
-                                  <Chip
-                                    label={orderItem.product_options_label}
-                                  />
-                                ) : (
-                                  "-"
-                                )}
-                              </TableCell>
-                              <TableCell
-                                sx={{
-                                  fontSize: "13px",
-                                  width: "40px",
-                                  textAlign: "right",
-                                }}
-                              >
-                                {orderItem.promo_rate !== null ? (
-                                  <Stack
-                                    direction={"row"}
-                                    alignItems={"center"}
-                                    spacing={1}
-                                    justifyContent={"flex-end"}
-                                  >
-                                    <Chip
-                                      label={`-${orderItem.promo_rate}%`}
-                                      size="small"
-                                      color="error"
-                                    />
-                                    <Typography
-                                      variant="body2"
-                                      fontSize={"13px"}
-                                    >
-                                      {formatCurrency(orderItem.price)}
-                                    </Typography>
-                                  </Stack>
-                                ) : (
-                                  formatCurrency(orderItem.price)
-                                )}
-                              </TableCell>
-                              <TableCell
-                                sx={{
-                                  fontSize: "13px",
-                                  width: "40px",
-                                  textAlign: "right",
-                                }}
-                              >
-                                {formatCurrency(
-                                  Number(orderItem.price) *
-                                    Number(orderItem.quantity)
-                                )}
-                              </TableCell>
-                              <TableCell
-                                sx={{
-                                  fontSize: "13px",
-                                  width: "40px",
-                                  textAlign: "center",
-                                }}
-                              >
-                                <IconButton
-                                  size="small"
-                                  color="error"
-                                  onClick={() => removeProduct(orderItem.id)}
-                                >
-                                  <HiOutlineTrash />
-                                </IconButton>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
-                  ) : (
-                    <Box
-                      color={grey["700"]}
-                      display={"flex"}
-                      justifyContent={"center"}
-                      alignItems={"center"}
-                      flexDirection={"column"}
-                      padding={"20px"}
-                      gap={"5px"}
-                      height={"100%"}
-                    >
-                      <FaBoxOpen fontSize={40} />
-                      <Typography variant="body2" sx={{ userSelect: "none" }}>
-                        Nenhum item selecionado
-                      </Typography>
-                    </Box>
-                  )}
-                </DefaultContainer>
-              </Grid>
-              <Grid item xs={12} md={5} lg={4}>
-                <Box>
-                  <DefaultContainer disabledPadding>
+              <FaShoppingCart className="menu-icon" />
+              <div className="menu-right">
+                <span className="menu-title">BALCÃO</span>
+                <span className="menu-desc">DE VENDAS</span>
+              </div>
+            </MenuItem>
+            <MenuItem
+              active={false}
+              onClick={() => navigate("/dashboard/vendas/finalizadas")}
+            >
+              <FaShoppingBag className="menu-icon" />
+              <div className="menu-right">
+                <span className="menu-title">VENDAS</span>
+                <span className="menu-desc">FINALIZADAS</span>
+              </div>
+            </MenuItem>
+            <MenuItem
+              active={false}
+              onClick={() => navigate("/dashboard/vendas/salvas")}
+            >
+              <FaSave className="menu-icon" />
+              <div className="menu-right">
+                <span className="menu-title">VENDAS</span>
+                <span className="menu-desc">SALVAS</span>
+              </div>
+            </MenuItem>
+          </MenuContainer>
+
+          <Grid container spacing={2} mt={1}>
+            <Grid item xs={12} md={7} lg={8}>
+              <DefaultContainer disabledPadding>
+                <Grid container spacing={2}>
+                  <Grid item xs={12}>
                     <Autocomplete
                       disablePortal
-                      id="combo-box-demo"
-                      options={clients}
-                      getOptionLabel={(option) => option.name}
-                      isOptionEqualToValue={(option, value) =>
-                        option.id === value.id
-                      }
+                      id="products_name"
+                      options={products}
                       renderInput={(params) => (
                         <InputText
                           {...params}
-                          label="Selecione o cliente"
+                          label="Busque por nome ou código"
                           fullWidth
                         />
                       )}
-                      value={selectedClient}
-                      onChange={(_, newValue) => setSelectedClient(newValue)}
+                      getOptionLabel={(option) =>
+                        `${option.name} - ${option.code || ""}`
+                      }
+                      renderOption={(props, option) => (
+                        <Box component="li" {...props}>
+                          <Avatar
+                            sx={{ width: 24, height: 24, mr: 2 }}
+                            src={option.thumbnail || ""}
+                          />
+                          <Typography variant="body1">{option.name}</Typography>
+                        </Box>
+                      )}
+                      noOptionsText="Nenhum produto encontrado"
+                      value={selectectProduct}
+                      onChange={(_, newValue) =>
+                        setSelectedProduct(
+                          newValue as ProductsWithRelationshipEntity
+                        )
+                      }
                       ListboxProps={{ sx: { maxHeight: "190px" } }}
                     />
-                    <Grid container spacing={1} my={1}>
-                      <Grid item xs={6}>
-                        <InputText
-                          label="Total"
-                          value={total}
-                          fullWidth
-                          InputProps={{
-                            readOnly: true,
-                            startAdornment: (
-                              <InputAdornment position="start">
-                                R$
-                              </InputAdornment>
-                            ),
-                          }}
-                        />
-                      </Grid>
-                      <Grid item xs={6}>
-                        <InputText
-                          label="Desconto"
-                          value={discount}
-                          onChange={(e) => addDiscount(e.target.value)}
-                          fullWidth
-                          type="number"
-                          InputProps={{
-                            startAdornment: (
-                              <InputAdornment position="start">
-                                %
-                              </InputAdornment>
-                            ),
-                          }}
-                        />
-                      </Grid>
-
-                      <Grid item xs={12}>
-                        <InputText
-                          label="Sub-total"
-                          value={subTotal}
-                          fullWidth
-                          InputProps={{
-                            startAdornment: (
-                              <InputAdornment position="start">
-                                R$
-                              </InputAdornment>
-                            ),
-                            readOnly: true,
-                          }}
-                        />
-                      </Grid>
-                    </Grid>
-
-                    <Grid container spacing={2} mt={1}>
-                      <Grid item xs={12}>
-                        <LoadingButton
-                          fullWidth
-                          color="success"
-                          variant="contained"
-                          size="large"
-                          startIcon={<FaDollarSign />}
-                          loading={isLoading}
-                          onClick={createOrder}
-                        >
-                          Finalizar
-                        </LoadingButton>
-                      </Grid>
-                    </Grid>
-                  </DefaultContainer>
-                </Box>
-              </Grid>
-            </Grid>
-          </Box>
-
-          <Dialog
-            open={isDialogOpen}
-            onClose={() => setIsDialogOpen(false)}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-          >
-            <DialogTitle id="alert-dialog-title" fontSize={15}>
-              Selecione uma opção
-            </DialogTitle>
-            <DialogContent>
-              <Box display={"flex"} gap={2} flexWrap={"wrap"}>
-                {productOptions.map((opt) => (
-                  <IconButton
-                    key={opt.id}
-                    disabled={Number(opt.stock) <= 0 ? true : false}
-                    size="large"
-                    onClick={() => handleAddProductOptions(opt)}
+                  </Grid>
+                </Grid>
+                {orderItems.length !== 0 ? (
+                  <TableContainer>
+                    <Table size="small">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell
+                            sx={{
+                              fontSize: "13px",
+                              width: "1%",
+                              textAlign: "center",
+                            }}
+                          >
+                            Qtd.
+                          </TableCell>
+                          <TableCell
+                            sx={{ fontSize: "13px", minWidth: "230px" }}
+                          >
+                            Produto
+                          </TableCell>
+                          <TableCell
+                            sx={{
+                              fontSize: "13px",
+                              width: "40px",
+                              textAlign: "center",
+                            }}
+                          >
+                            Opções
+                          </TableCell>
+                          <TableCell
+                            sx={{
+                              fontSize: "13px",
+                              width: "40px",
+                              textAlign: "right",
+                            }}
+                          >
+                            Preço
+                          </TableCell>
+                          <TableCell
+                            sx={{
+                              fontSize: "13px",
+                              width: "40px",
+                              textAlign: "right",
+                            }}
+                          >
+                            Total
+                          </TableCell>
+                          <TableCell
+                            sx={{
+                              fontSize: "13px",
+                              width: "40px",
+                              textAlign: "center",
+                            }}
+                          >
+                            Ações
+                          </TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {orderItems.map((orderItem) => (
+                          <TableRow hover key={orderItem.id}>
+                            <TableCell sx={{ fontSize: "13px", width: "1%" }}>
+                              <ButtonGroup size="small">
+                                <Button
+                                  variant="outlined"
+                                  onClick={() =>
+                                    handleQuantity(orderItem.id, "minus")
+                                  }
+                                >
+                                  <AiOutlineMinus />
+                                </Button>
+                                <Button variant="outlined">
+                                  {orderItem.quantity}
+                                </Button>
+                                <Button
+                                  variant="outlined"
+                                  onClick={() =>
+                                    handleQuantity(orderItem.id, "add")
+                                  }
+                                >
+                                  <AiOutlinePlus />
+                                </Button>
+                              </ButtonGroup>
+                            </TableCell>
+                            <TableCell
+                              sx={{ fontSize: "13px", width: "140px" }}
+                            >
+                              {orderItem.product_name}
+                            </TableCell>
+                            <TableCell
+                              sx={{
+                                fontSize: "13px",
+                                width: "40px",
+                                textAlign: "center",
+                              }}
+                            >
+                              {orderItem.product_options_id ? (
+                                <Chip label={orderItem.product_options_label} />
+                              ) : (
+                                "-"
+                              )}
+                            </TableCell>
+                            <TableCell
+                              sx={{
+                                fontSize: "13px",
+                                width: "40px",
+                                textAlign: "right",
+                              }}
+                            >
+                              {orderItem.promo_rate !== null ? (
+                                <Stack
+                                  direction={"row"}
+                                  alignItems={"center"}
+                                  spacing={1}
+                                  justifyContent={"flex-end"}
+                                >
+                                  <Chip
+                                    label={`-${orderItem.promo_rate}%`}
+                                    size="small"
+                                    color="error"
+                                  />
+                                  <Typography variant="body2" fontSize={"13px"}>
+                                    {formatCurrency(orderItem.price)}
+                                  </Typography>
+                                </Stack>
+                              ) : (
+                                formatCurrency(orderItem.price)
+                              )}
+                            </TableCell>
+                            <TableCell
+                              sx={{
+                                fontSize: "13px",
+                                width: "40px",
+                                textAlign: "right",
+                              }}
+                            >
+                              {formatCurrency(
+                                Number(orderItem.price) *
+                                  Number(orderItem.quantity)
+                              )}
+                            </TableCell>
+                            <TableCell
+                              sx={{
+                                fontSize: "13px",
+                                width: "40px",
+                                textAlign: "center",
+                              }}
+                            >
+                              <IconButton
+                                size="small"
+                                color="error"
+                                onClick={() => removeProduct(orderItem.id)}
+                              >
+                                <HiOutlineTrash />
+                              </IconButton>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                ) : (
+                  <Box
+                    color={grey["700"]}
+                    display={"flex"}
+                    justifyContent={"center"}
+                    alignItems={"center"}
+                    flexDirection={"column"}
+                    padding={"20px"}
+                    gap={"5px"}
+                    height={"100%"}
                   >
-                    {opt.headline}
-                  </IconButton>
-                ))}
+                    <FaBoxOpen fontSize={40} />
+                    <Typography variant="body2" sx={{ userSelect: "none" }}>
+                      Nenhum item selecionado
+                    </Typography>
+                  </Box>
+                )}
+              </DefaultContainer>
+            </Grid>
+            <Grid item xs={12} md={5} lg={4}>
+              <Box>
+                <DefaultContainer disabledPadding>
+                  <Autocomplete
+                    disablePortal
+                    id="combo-box-demo"
+                    options={clients}
+                    getOptionLabel={(option) => option.name}
+                    isOptionEqualToValue={(option, value) =>
+                      option.id === value.id
+                    }
+                    renderInput={(params) => (
+                      <InputText
+                        {...params}
+                        label="Selecione o cliente"
+                        fullWidth
+                      />
+                    )}
+                    value={selectedClient}
+                    onChange={(_, newValue) => setSelectedClient(newValue)}
+                    ListboxProps={{ sx: { maxHeight: "190px" } }}
+                    disabled
+                  />
+                  <Grid container spacing={1} my={1}>
+                    <Grid item xs={6}>
+                      <InputText
+                        label="Total"
+                        value={total}
+                        fullWidth
+                        InputProps={{
+                          readOnly: true,
+                          startAdornment: (
+                            <InputAdornment position="start">R$</InputAdornment>
+                          ),
+                        }}
+                      />
+                    </Grid>
+                    <Grid item xs={6}>
+                      <InputText
+                        label="Desconto"
+                        value={discount}
+                        onChange={(e) => addDiscount(e.target.value)}
+                        fullWidth
+                        type="number"
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">%</InputAdornment>
+                          ),
+                        }}
+                      />
+                    </Grid>
+
+                    <Grid item xs={12}>
+                      <InputText
+                        label="Sub-total"
+                        value={subTotal}
+                        fullWidth
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">R$</InputAdornment>
+                          ),
+                          readOnly: true,
+                        }}
+                      />
+                    </Grid>
+                  </Grid>
+
+                  <Grid container spacing={2} mt={1}>
+                    <Grid item xs={12}>
+                      <LoadingButton
+                        fullWidth
+                        color="success"
+                        variant="contained"
+                        size="large"
+                        startIcon={<FaDollarSign />}
+                        loading={isLoading}
+                        onClick={createOrder}
+                      >
+                        Finalizar
+                      </LoadingButton>
+                    </Grid>
+                  </Grid>
+                </DefaultContainer>
               </Box>
-            </DialogContent>
-          </Dialog>
+            </Grid>
+          </Grid>
         </Box>
+
+        <Dialog
+          open={isDialogOpen}
+          onClose={() => setIsDialogOpen(false)}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title" fontSize={15}>
+            Selecione uma opção
+          </DialogTitle>
+          <DialogContent>
+            <Box display={"flex"} gap={2} flexWrap={"wrap"}>
+              {productOptions.map((opt) => (
+                <IconButton
+                  key={opt.id}
+                  disabled={Number(opt.stock) <= 0 ? true : false}
+                  size="large"
+                  onClick={() => handleAddProductOptions(opt)}
+                >
+                  {opt.headline}
+                </IconButton>
+              ))}
+            </Box>
+          </DialogContent>
+        </Dialog>
       </Container>
     </Fragment>
   );

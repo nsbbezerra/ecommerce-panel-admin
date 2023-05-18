@@ -74,7 +74,6 @@ export default function PaymentsConfigsPage() {
     api
       .get("/configurations")
       .then((response) => {
-        console.log(response.data);
         setIsLoading(false);
         const configuration: ConfigurationsEntity | null = response.data;
 

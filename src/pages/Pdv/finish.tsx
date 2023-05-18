@@ -23,8 +23,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  ToggleButton,
-  ToggleButtonGroup,
   Typography,
 } from "@mui/material";
 import { Fragment, memo, useEffect, useState } from "react";
@@ -41,7 +39,6 @@ import {
   AiOutlinePrinter,
   AiOutlineSave,
   AiOutlineSearch,
-  AiOutlineShopping,
   AiOutlineShoppingCart,
   AiOutlineTags,
   AiOutlineUser,
@@ -54,7 +51,6 @@ import InputText from "../../components/layout/InputText";
 import Button from "../../components/layout/Button";
 import subDays from "date-fns/subDays";
 import DefaultContainer from "../../components/layout/DefaultContainer";
-import differenceInDays from "date-fns/differenceInDays";
 import Loading from "../../components/layout/Loading";
 import { api } from "../../configs/api";
 import getErrorMessage from "../../helpers/getMessageError";
@@ -74,7 +70,13 @@ import handlePayForm from "../../helpers/handlePayForm";
 import { MdCurrencyExchange } from "react-icons/md";
 import handlePaymentStatus from "../../helpers/hanldePaymentStatus";
 import getSuccessMessage from "../../helpers/getMessageSuccess";
-import { FaCircle } from "react-icons/fa";
+import {
+  FaCircle,
+  FaSave,
+  FaShoppingBag,
+  FaShoppingCart,
+} from "react-icons/fa";
+import { MenuContainer, MenuItem as StyledMenuItem } from "./styles";
 
 interface OrdersProps {
   id: string;
@@ -282,42 +284,35 @@ const SalesFinished = () => {
       <AppBar title="Vendas Finalizadas" />
       <Container>
         <Stack p={2} spacing={2}>
-          <Box
-            boxShadow={"0px 0px 9px rgba(0, 0, 0, 0.05)"}
-            borderRadius={"4px"}
-            overflow={"hidden"}
-            p={1}
-            bgcolor={"#fff"}
-            sx={{ overflowX: "auto" }}
-          >
-            <ToggleButtonGroup
-              color="primary"
-              exclusive
-              aria-label="Platform"
-              value={"finish"}
+          <MenuContainer>
+            <StyledMenuItem
+              active={false}
+              onClick={() => navigate("/dashboard/vendas")}
             >
-              <ToggleButton
-                sx={{ flexShrink: 0 }}
-                value="pdv"
-                onClick={() => navigate("/dashboard/vendas")}
-              >
-                <AiOutlineShoppingCart style={{ marginRight: "10px" }} />
-                BALCÃO DE VENDAS
-              </ToggleButton>
-              <ToggleButton sx={{ flexShrink: 0 }} value="finish">
-                <AiOutlineShopping style={{ marginRight: "10px" }} />
-                VENDAS FINALIZADAS
-              </ToggleButton>
-              <ToggleButton
-                sx={{ flexShrink: 0 }}
-                value="save"
-                onClick={() => navigate("/dashboard/vendas/salvas")}
-              >
-                <AiOutlineSave style={{ marginRight: "10px" }} />
-                VENDAS SALVAS
-              </ToggleButton>
-            </ToggleButtonGroup>
-          </Box>
+              <FaShoppingCart className="menu-icon" />
+              <div className="menu-right">
+                <span className="menu-title">BALCÃO</span>
+                <span className="menu-desc">DE VENDAS</span>
+              </div>
+            </StyledMenuItem>
+            <StyledMenuItem active={true}>
+              <FaShoppingBag className="menu-icon" />
+              <div className="menu-right">
+                <span className="menu-title">VENDAS</span>
+                <span className="menu-desc">FINALIZADAS</span>
+              </div>
+            </StyledMenuItem>
+            <StyledMenuItem
+              active={false}
+              onClick={() => navigate("/dashboard/vendas/salvas")}
+            >
+              <FaSave className="menu-icon" />
+              <div className="menu-right">
+                <span className="menu-title">VENDAS</span>
+                <span className="menu-desc">SALVAS</span>
+              </div>
+            </StyledMenuItem>
+          </MenuContainer>
 
           <DefaultContainer disabledPadding>
             <Grid container spacing={2} alignItems={"center"}>
@@ -481,16 +476,6 @@ const SalesFinished = () => {
               </Grid>
             </Grid>
           </DefaultContainer>
-
-          {searchStatus === "ALL" ? (
-            <Typography variant="body2" fontWeight={"600"} color={"GrayText"}>
-              Resultados dos últimos {differenceInDays(endDate, startDate)} dias
-            </Typography>
-          ) : (
-            <Typography variant="body2" fontWeight={"600"} color={"GrayText"}>
-              Mostrando {orders.length} resultados
-            </Typography>
-          )}
 
           <DefaultContainer disabledPadding>
             {isLoading ? (

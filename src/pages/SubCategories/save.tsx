@@ -129,7 +129,6 @@ export default function SaveSubCategory() {
     api
       .get(`/collections/get-by-id/${id}`)
       .then((response) => {
-        console.log(response.data);
         setName(response.data.name);
         setSelectedCategory(response.data.category);
       })

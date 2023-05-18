@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { blue, grey } from "@mui/material/colors";
+import { blue, grey, lightBlue } from "@mui/material/colors";
 
 export const ProductsGrid = styled.div`
   display: grid;
@@ -62,44 +62,60 @@ export const CardImage = styled.img`
   border-radius: 4px 4px 0px 0px;
 `;
 
-export const MenuTitle = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background-color: ${blue["700"]};
-  padding: 7px 10px;
-  color: white;
-  font-size: 14px;
-  font-weight: 500;
-`;
-
 export const MenuContainer = styled.div`
-  box-shadow: 0px 0px 9px rgba(0, 0, 0, 0.05);
+  width: 100%;
   border-radius: 4px;
-  overflow: hidden;
-  background: white;
+  background-color: ${lightBlue["900"]};
+  padding: 8px;
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  box-shadow: 0px 0px 9px rgba(0, 0, 0, 0.05);
 `;
 
-export const MenuItem = styled.button`
-  width: 100%;
-  border-right: none;
-  border-top: none;
-  border-bottom: none;
-  background-color: transparent;
+interface Props {
+  active: boolean;
+}
+
+export const MenuItem = styled.button<Props>`
+  width: 200px;
+  min-width: 200px;
+  border: none;
+  background-color: ${(props) =>
+    props.active ? "rgba(255,255,255,.2)" : "transparent"};
+  padding: 8px 20px;
+  border-radius: 4px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 15px;
   cursor: pointer;
-  padding: 10px 10px;
-  border-left-width: 2px;
-  border-left-color: transparent;
-  color: ${blue["700"]};
-  font-size: 13px;
-  outline: none;
   transition: all 0.3s;
 
+  .menu-icon {
+    color: ${(props) => (props.active ? "#FFF" : blue["400"])};
+    font-size: 35px;
+  }
+
+  .menu-right {
+    display: flex;
+    flex-direction: column;
+    color: ${grey["100"]};
+    align-items: start;
+  }
+
+  .menu-title {
+    font-size: 12px;
+  }
+  .menu-desc {
+    font-size: 13.5px;
+    font-weight: 600;
+  }
+
   &:hover {
-    background-color: ${blue["50"]};
-    border-left-color: ${blue["700"]};
+    background-color: ${(props) => !props.active && "rgba(255, 255, 255, 0.1)"};
+  }
+
+  &:active {
+    background-color: ${(props) => !props.active && "rgba(255, 255, 255, 0.2)"};
   }
 `;
