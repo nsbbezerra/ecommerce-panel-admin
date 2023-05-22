@@ -1,8 +1,10 @@
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import AppBar from "../../components/layout/AppBar";
 import Container from "../../components/layout/Container";
 import {
+  Backdrop,
   Box,
+  CircularProgress,
   FormControl,
   Grid,
   InputLabel,
@@ -11,7 +13,7 @@ import {
 } from "@mui/material";
 import Button from "../../components/layout/Button";
 import { FiChevronLeft } from "react-icons/fi";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import DefaultContainer from "../../components/layout/DefaultContainer";
 import InputText from "../../components/layout/InputText";
 import { LocalizationProvider } from "@mui/x-date-pickers";
@@ -24,6 +26,7 @@ import { blue } from "@mui/material/colors";
 import { api } from "../../configs/api";
 import getErrorMessage from "../../helpers/getMessageError";
 import currencyMask from "../../helpers/currencyMask";
+import formatCurrency from "../../helpers/formatCurrency";
 
 interface FormProps {
   title: string;
@@ -31,13 +34,18 @@ interface FormProps {
   description: string;
   payment_status: string;
   value: string;
+  due_date?: Date;
 }
 
 export default function SaveFinancial() {
   const navigate = useNavigate();
 
+  const { moviment } = useParams();
+
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [backdrop, setBackdrop] = useState<boolean>(false);
+  const [formType, setFormType] = useState<"add" | "edit">("add");
 
   const [formulary, setFormulary] = useState<FormProps>({
     description: "",
@@ -102,44 +110,110 @@ export default function SaveFinancial() {
       });
       return;
     }
-    setIsLoading(true);
-    api
-      .post("/financial-movements/save", {
-        financial: {
-          title: formulary.title,
-          mode: formulary.mode,
-          description: formulary.description,
-          payment_status: formulary.payment_status,
-          due_date: startDate,
-          month: new Intl.DateTimeFormat("pt-BR", { month: "long" }).format(
-            startDate
-          ),
-          year: startDate.getFullYear().toString(),
-          value: formulary.value.replace(".", "").replace(",", "."),
-        },
-      })
-      .then((response) => {
-        setIsLoading(false);
-        Swal.fire({
-          title: "Sucesso",
-          text: response.data.message,
-          icon: "success",
-          confirmButtonColor: blue["500"],
-        }).then((result) => {
-          if (result.isConfirmed) {
-            navigate("/dashboard/financeiro/movimentos");
-          }
+
+    if (formType === "add") {
+      setIsLoading(true);
+      api
+        .post("/financial-movements/save", {
+          financial: {
+            title: formulary.title,
+            mode: formulary.mode,
+            description: formulary.description,
+            payment_status: formulary.payment_status,
+            due_date: startDate,
+            month: new Intl.DateTimeFormat("pt-BR", { month: "long" }).format(
+              startDate
+            ),
+            year: startDate.getFullYear().toString(),
+            value: formulary.value.replace(".", "").replace(",", "."),
+          },
+        })
+        .then((response) => {
+          setIsLoading(false);
+          Swal.fire({
+            title: "Sucesso",
+            text: response.data.message,
+            icon: "success",
+            confirmButtonColor: blue["500"],
+          }).then((result) => {
+            if (result.isConfirmed) {
+              navigate("/dashboard/financeiro/movimentos");
+            }
+          });
+        })
+        .catch((error) => {
+          setIsLoading(false);
+          getErrorMessage({ error });
         });
+    } else {
+      api
+        .put("/financial-movements/update", {
+          financial: {
+            id: moviment,
+            title: formulary.title,
+            mode: formulary.mode,
+            description: formulary.description,
+            payment_status: formulary.payment_status,
+            due_date: startDate,
+            month: new Intl.DateTimeFormat("pt-BR", { month: "long" }).format(
+              startDate
+            ),
+            year: startDate.getFullYear().toString(),
+            value: formulary.value.replace(".", "").replace(",", "."),
+          },
+        })
+        .then((response) => {
+          setIsLoading(false);
+          Swal.fire({
+            title: "Sucesso",
+            text: response.data.message,
+            icon: "success",
+            confirmButtonColor: blue["500"],
+          }).then((result) => {
+            if (result.isConfirmed) {
+              navigate("/dashboard/financeiro/movimentos");
+            }
+          });
+        })
+        .catch((error) => {
+          setIsLoading(false);
+          getErrorMessage({ error });
+        });
+    }
+  }
+
+  function getFinancialMovimentById() {
+    setBackdrop(true);
+    api
+      .get(`/financial-movements/get-by-id/${moviment}`)
+      .then((response) => {
+        setBackdrop(false);
+        const catchMoviment: FormProps = response.data;
+        setFormulary({
+          description: catchMoviment.description,
+          mode: catchMoviment.mode,
+          payment_status: catchMoviment.payment_status,
+          title: catchMoviment.title,
+          value: formatCurrency(catchMoviment.value, "withoutSign") as string,
+        });
+        setStartDate(new Date(catchMoviment.due_date as Date));
       })
       .catch((error) => {
-        setIsLoading(false);
+        setBackdrop(false);
         getErrorMessage({ error });
       });
   }
 
+  useEffect(() => {
+    if (moviment) {
+      getFinancialMovimentById();
+      setFormType("edit");
+    }
+  }, [moviment]);
+
   return (
     <Fragment>
-      <AppBar title="Novo Movimento Financeiro" />
+      <AppBar title={`${moviment ? "Editar" : "Novo"} Movimento Financeiro`} />
 
       <Container>
         <Box p={2}>
@@ -283,6 +357,13 @@ export default function SaveFinancial() {
           </Box>
         </Box>
       </Container>
+
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={backdrop}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </Fragment>
   );
 }

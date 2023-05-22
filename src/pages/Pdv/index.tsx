@@ -357,9 +357,8 @@ export default function PdvPage() {
       confirmButtonText: "Sim",
       confirmButtonColor: blue["500"],
       showLoaderOnConfirm: true,
-    }).then((result) => {
-      if (result.isConfirmed) {
-        api
+      preConfirm: () => {
+        return api
           .post("/orders/save-as-draft", {
             order: {
               total: parseFloat(
@@ -383,12 +382,16 @@ export default function PdvPage() {
             orderItems,
           })
           .then((response) => {
-            getSuccessMessage({ message: response.data.message });
-            cancel();
+            return response.data;
           })
           .catch((error) => {
             getErrorMessage({ error });
           });
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        getSuccessMessage({ message: result.value.message });
+        cancel();
       }
     });
   }

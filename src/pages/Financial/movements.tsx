@@ -16,15 +16,10 @@ import {
   TableRow,
   TableCell,
   TableBody,
-  Divider,
   Backdrop,
   CircularProgress,
   Collapse,
   Chip,
-  FormLabel,
-  RadioGroup,
-  FormControlLabel,
-  Radio,
 } from "@mui/material";
 import { MenuContainer, MenuItem } from "../Pdv/styles";
 import { GiPayMoney, GiReceiveMoney } from "react-icons/gi";
@@ -43,19 +38,19 @@ import {
   AiOutlineEdit,
   AiOutlineMinus,
   AiOutlinePlus,
-  AiOutlineSave,
   AiOutlineSearch,
-  AiOutlineShoppingCart,
 } from "react-icons/ai";
 import { blue, green, grey, red } from "@mui/material/colors";
 import IconButton from "../../components/layout/IconButton";
-import { PieChart, Pie, Cell } from "recharts";
 import { api } from "../../configs/api";
 import getErrorMessage from "../../helpers/getMessageError";
 import { FinancialMovimentsEntity } from "../../services/entities/financial-moviments";
 import formatCurrency from "../../helpers/formatCurrency";
 import EmptyBox from "../../components/layout/EmptyBox";
 import handlePaymentStatus from "../../helpers/hanldePaymentStatus";
+import { FiTrash2 } from "react-icons/fi";
+import Swal from "sweetalert2";
+import getSuccessMessage from "../../helpers/getMessageSuccess";
 
 interface MovimentSum {
   _sum: { value: string };
@@ -98,22 +93,6 @@ export default function FinancialMovements() {
     setTypeSearch("MONTH");
   }
 
-  const data = [
-    {
-      name: "Receitas",
-      value: parseInt(
-        movimentSum.find((obj) => obj.mode === "REVENUE")?._sum.value || "0"
-      ),
-    },
-    {
-      name: "Despesas",
-      value: parseInt(
-        movimentSum.find((obj) => obj.mode === "EXPENSE")?._sum.value || "0"
-      ),
-    },
-  ];
-  const COLORS = [green["700"], red["700"]];
-
   function formatDate(date: Date): string {
     return new Intl.DateTimeFormat("pt-BR").format(new Date(date));
   }
@@ -152,6 +131,33 @@ export default function FinancialMovements() {
     const totalValue = revenueValue - expenseValue;
 
     return { revenueValue, expenseValue, totalValue };
+  }
+
+  function deleteMoviment(id: string) {
+    Swal.fire({
+      title: "Confirmação",
+      text: "Deseja deletar este movimento?",
+      icon: "question",
+      showDenyButton: true,
+      denyButtonText: "Não",
+      confirmButtonText: "Sim",
+      denyButtonColor: red["600"],
+      confirmButtonColor: blue["500"],
+      showLoaderOnConfirm: true,
+      preConfirm: () => {
+        return api
+          .delete(`/financial-movements/delete/${id}`)
+          .then((response) => {
+            return response.data;
+          })
+          .catch((error) => getErrorMessage({ error }));
+      },
+    }).then((results) => {
+      if (results.isConfirmed) {
+        getSuccessMessage({ message: results.value.message });
+        findMovements();
+      }
+    });
   }
 
   useEffect(() => {
@@ -322,6 +328,7 @@ export default function FinancialMovements() {
             gap={2}
             direction={"row"}
             justifyContent={"space-between"}
+            flexWrap={"wrap"}
           >
             <Button
               variant="contained"
@@ -332,11 +339,46 @@ export default function FinancialMovements() {
             >
               ADICIONAR NOVO
             </Button>
+
+            <Box
+              sx={{ boxShadow: "0px 0px 9px rgba(0, 0, 0, 0.05)" }}
+              bgcolor={
+                calcSummary().totalValue === 0
+                  ? grey["400"]
+                  : calcSummary().totalValue > 0
+                  ? green["100"]
+                  : red["100"]
+              }
+              borderRadius={"4px"}
+              px={2}
+              py={1}
+              color={
+                calcSummary().totalValue === 0
+                  ? grey["800"]
+                  : calcSummary().totalValue > 0
+                  ? green["700"]
+                  : red["700"]
+              }
+              flex={1}
+            >
+              <Stack
+                direction={"row"}
+                justifyContent={"space-between"}
+                spacing={2}
+              >
+                <Typography fontWeight={600} variant="h6">
+                  Saldo
+                </Typography>
+                <Typography fontWeight={600} variant="h6">
+                  {formatCurrency(calcSummary().totalValue)}
+                </Typography>
+              </Stack>
+            </Box>
           </Stack>
 
           <Box mt={2}>
             <Grid container spacing={2}>
-              <Grid item xs={12} md={6} lg={4.5}>
+              <Grid item xs={12} md={6}>
                 <Box
                   bgcolor={green["700"]}
                   sx={{
@@ -399,7 +441,14 @@ export default function FinancialMovements() {
                                 <TableRow
                                   hover
                                   key={rev.id}
-                                  sx={{ "& > *": { borderBottom: "0" } }}
+                                  sx={{
+                                    "& > *": { borderBottom: "0" },
+                                    background:
+                                      new Date(rev.due_date) < new Date() &&
+                                      rev.payment_status !== "PAID_OUT"
+                                        ? red["100"]
+                                        : "",
+                                  }}
                                 >
                                   <TableCell sx={{ borderBottom: 0 }}>
                                     {rev.title}
@@ -540,54 +589,71 @@ export default function FinancialMovements() {
                                               </Grid>
                                             </Grid>
 
-                                            <FormControl size="small">
-                                              <FormLabel
-                                                id={`demo-row-radio-buttons-group-label${rev.id}`}
-                                                sx={{ mb: -0.5 }}
-                                              >
-                                                Status do Pagamento
-                                              </FormLabel>
-                                              <RadioGroup
-                                                row
-                                                aria-labelledby={`demo-row-radio-buttons-group-label${rev.id}`}
-                                                name="row-radio-buttons-group"
-                                                value={rev.payment_status}
-                                              >
-                                                <FormControlLabel
-                                                  value="WAITING"
-                                                  control={<Radio />}
-                                                  label="Não Pago"
-                                                />
-                                                <FormControlLabel
-                                                  value="PAID_OUT"
-                                                  control={<Radio />}
-                                                  label="Pago"
-                                                />
-                                                <FormControlLabel
-                                                  value="REFUSED"
-                                                  control={<Radio />}
-                                                  label="Não Aprovado"
-                                                />
-                                              </RadioGroup>
-                                            </FormControl>
+                                            <Grid
+                                              container
+                                              spacing={0}
+                                              alignItems={"center"}
+                                            >
+                                              <Grid item xs={6}>
+                                                <Stack spacing={0}>
+                                                  <Typography
+                                                    color={grey["600"]}
+                                                    variant="body1"
+                                                  >
+                                                    Status do Pagamento
+                                                  </Typography>
+                                                  <Chip
+                                                    label={
+                                                      handlePaymentStatus(
+                                                        rev.payment_status
+                                                      ).label
+                                                    }
+                                                    color={
+                                                      handlePaymentStatus(
+                                                        rev.payment_status
+                                                      ).color
+                                                    }
+                                                    sx={{
+                                                      width: "fit-content",
+                                                    }}
+                                                  />
+                                                </Stack>
+                                              </Grid>
 
-                                            <Stack direction={"row"} gap={1}>
-                                              <Button
-                                                startIcon={<AiOutlineEdit />}
-                                                variant="outlined"
-                                                fullWidth
-                                              >
-                                                Editar
-                                              </Button>
+                                              <Grid item xs={6}>
+                                                <Stack
+                                                  direction={"row"}
+                                                  gap={1}
+                                                >
+                                                  <Button
+                                                    startIcon={<FiTrash2 />}
+                                                    variant="contained"
+                                                    color="error"
+                                                    onClick={() =>
+                                                      deleteMoviment(rev.id)
+                                                    }
+                                                    fullWidth
+                                                  >
+                                                    Excluir
+                                                  </Button>
 
-                                              <Button
-                                                startIcon={<AiOutlineSave />}
-                                                variant="contained"
-                                                fullWidth
-                                              >
-                                                Salvar
-                                              </Button>
-                                            </Stack>
+                                                  <Button
+                                                    startIcon={
+                                                      <AiOutlineEdit />
+                                                    }
+                                                    variant="contained"
+                                                    onClick={() =>
+                                                      navigate(
+                                                        `/dashboard/financeiro/movimentos/editar/${rev.id}`
+                                                      )
+                                                    }
+                                                    fullWidth
+                                                  >
+                                                    Editar
+                                                  </Button>
+                                                </Stack>
+                                              </Grid>
+                                            </Grid>
                                           </Stack>
                                         </Box>
                                       </Box>
@@ -603,7 +669,7 @@ export default function FinancialMovements() {
                   </DefaultContainer>
                 </Box>
               </Grid>
-              <Grid item xs={12} md={6} lg={4.5}>
+              <Grid item xs={12} md={6}>
                 <Box
                   bgcolor={red["700"]}
                   sx={{
@@ -663,7 +729,14 @@ export default function FinancialMovements() {
                                 <TableRow
                                   hover
                                   key={exp.id}
-                                  sx={{ "& > *": { borderBottom: "0" } }}
+                                  sx={{
+                                    "& > *": { borderBottom: "0" },
+                                    background:
+                                      new Date(exp.due_date) < new Date() &&
+                                      exp.payment_status !== "PAID_OUT"
+                                        ? red["100"]
+                                        : "",
+                                  }}
                                 >
                                   <TableCell sx={{ borderBottom: 0 }}>
                                     {exp.title}
@@ -804,52 +877,50 @@ export default function FinancialMovements() {
                                               </Grid>
                                             </Grid>
 
-                                            <FormControl size="small">
-                                              <FormLabel
-                                                id={`demo-row-radio-buttons-group-label${exp.id}`}
-                                                sx={{ mb: -0.5 }}
+                                            <Stack spacing={0}>
+                                              <Typography
+                                                color={grey["600"]}
+                                                variant="body1"
                                               >
                                                 Status do Pagamento
-                                              </FormLabel>
-                                              <RadioGroup
-                                                row
-                                                aria-labelledby={`demo-row-radio-buttons-group-label${exp.id}`}
-                                                name="row-radio-buttons-group"
-                                                value={exp.payment_status}
-                                              >
-                                                <FormControlLabel
-                                                  value="WAITING"
-                                                  control={<Radio />}
-                                                  label="Não Pago"
-                                                />
-                                                <FormControlLabel
-                                                  value="PAID_OUT"
-                                                  control={<Radio />}
-                                                  label="Pago"
-                                                />
-                                                <FormControlLabel
-                                                  value="REFUSED"
-                                                  control={<Radio />}
-                                                  label="Não Aprovado"
-                                                />
-                                              </RadioGroup>
-                                            </FormControl>
+                                              </Typography>
+                                              <Chip
+                                                label={
+                                                  handlePaymentStatus(
+                                                    exp.payment_status
+                                                  ).label
+                                                }
+                                                color={
+                                                  handlePaymentStatus(
+                                                    exp.payment_status
+                                                  ).color
+                                                }
+                                                sx={{ width: "fit-content" }}
+                                              />
+                                            </Stack>
 
                                             <Stack direction={"row"} gap={1}>
                                               <Button
-                                                startIcon={<AiOutlineEdit />}
-                                                variant="outlined"
-                                                fullWidth
+                                                startIcon={<FiTrash2 />}
+                                                variant="contained"
+                                                color="error"
+                                                onClick={() =>
+                                                  deleteMoviment(exp.id)
+                                                }
                                               >
-                                                Editar
+                                                Excluir
                                               </Button>
 
                                               <Button
-                                                startIcon={<AiOutlineSave />}
+                                                startIcon={<AiOutlineEdit />}
                                                 variant="contained"
-                                                fullWidth
+                                                onClick={() =>
+                                                  navigate(
+                                                    `/dashboard/financeiro/movimentos/editar/${exp.id}`
+                                                  )
+                                                }
                                               >
-                                                Salvar
+                                                Editar
                                               </Button>
                                             </Stack>
                                           </Stack>
@@ -866,108 +937,6 @@ export default function FinancialMovements() {
                     )}
                   </DefaultContainer>
                 </Box>
-              </Grid>
-              <Grid item xs={12} lg={3}>
-                <Stack spacing={2}>
-                  <DefaultContainer disabledPadding>
-                    <Box display={"flex"} justifyContent={"center"}>
-                      <PieChart width={200} height={200}>
-                        <Pie
-                          data={data}
-                          innerRadius={60}
-                          outerRadius={80}
-                          fill="#8884d8"
-                          paddingAngle={5}
-                          dataKey="value"
-                          label={false}
-                        >
-                          {data.map((entry, index) => (
-                            <Cell
-                              key={`cell-${index}`}
-                              fill={COLORS[index % COLORS.length]}
-                            />
-                          ))}
-                        </Pie>
-                      </PieChart>
-                    </Box>
-                    <Stack direction={"row"} spacing={2}>
-                      <Stack
-                        direction={"row"}
-                        spacing={1}
-                        alignItems={"center"}
-                      >
-                        <Box
-                          width={"20px"}
-                          height={"20px"}
-                          bgcolor={green["700"]}
-                          borderRadius={"4px"}
-                        />
-                        <Typography
-                          fontWeight={500}
-                          color={grey["700"]}
-                          variant="body2"
-                        >
-                          Receitas
-                        </Typography>
-                      </Stack>
-
-                      <Stack
-                        direction={"row"}
-                        spacing={1}
-                        alignItems={"center"}
-                      >
-                        <Box
-                          width={"20px"}
-                          height={"20px"}
-                          bgcolor={red["700"]}
-                          borderRadius={"4px"}
-                        />
-                        <Typography
-                          fontWeight={500}
-                          color={grey["700"]}
-                          variant="body2"
-                        >
-                          Despesas
-                        </Typography>
-                      </Stack>
-                    </Stack>
-                  </DefaultContainer>
-
-                  <DefaultContainer disabledPadding>
-                    <Stack
-                      direction={"row"}
-                      justifyContent={"space-between"}
-                      color={red["700"]}
-                    >
-                      <Typography fontWeight={600}>Despesas</Typography>
-                      <Typography fontWeight={600}>
-                        {formatCurrency(calcSummary().expenseValue)}
-                      </Typography>
-                    </Stack>
-                    <Divider sx={{ my: 1 }} />
-                    <Stack
-                      direction={"row"}
-                      justifyContent={"space-between"}
-                      color={green["700"]}
-                    >
-                      <Typography fontWeight={600}>Receitas</Typography>
-                      <Typography fontWeight={600}>
-                        {formatCurrency(calcSummary().revenueValue)}
-                      </Typography>
-                    </Stack>
-                    <Divider sx={{ my: 1 }} />
-                    <Stack
-                      direction={"row"}
-                      justifyContent={"space-between"}
-                      color={grey["800"]}
-                    >
-                      <Typography fontWeight={600}>Saldo</Typography>
-                      <Typography fontWeight={600}>
-                        {formatCurrency(calcSummary().totalValue)}
-                      </Typography>
-                    </Stack>
-                  </DefaultContainer>
-                </Stack>
               </Grid>
             </Grid>
           </Box>

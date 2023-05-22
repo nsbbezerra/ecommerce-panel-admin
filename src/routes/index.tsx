@@ -23,6 +23,7 @@ import CashierMoviment from "../pages/Cashier/moviment";
 import SavedOrderPage from "../pages/Pdv/savedOrder";
 import FinancialMovements from "../pages/Financial/movements";
 import SaveFinancial from "../pages/Financial/saveFinancial";
+import PaymentsManager from "../pages/Financial/payments";
 
 export default function AppRoutes() {
   return (
@@ -73,7 +74,9 @@ export default function AppRoutes() {
             <Route path="movimentos">
               <Route index element={<FinancialMovements />} />
               <Route path="criar" element={<SaveFinancial />} />
+              <Route path="editar/:moviment" element={<SaveFinancial />} />
             </Route>
+            <Route path="pagamentos" element={<PaymentsManager />} />
           </Route>
         </Route>
       </Route>

@@ -316,37 +316,24 @@ export default function ClientsPage() {
                         </>
                       ))}
                     </TableBody>
-                    {clients.length !== 0 && (
-                      <>
-                        {search.length ? (
-                          ""
-                        ) : (
-                          <TableFooter>
-                            <TableRow>
-                              <TableCell
-                                colSpan={5}
-                                sx={{ borderBottom: "none" }}
-                              >
-                                <Box
-                                  display={"flex"}
-                                  justifyContent="center"
-                                  mt={2}
-                                >
-                                  <Button
-                                    onClick={() => handleMore()}
-                                    disabled={totalItems === clients.length}
-                                  >
-                                    Mostrar mais
-                                  </Button>
-                                </Box>
-                              </TableCell>
-                            </TableRow>
-                          </TableFooter>
-                        )}
-                      </>
-                    )}
                   </Table>
                 </TableContainer>
+              )}
+            </>
+          )}
+          {clients.length !== 0 && (
+            <>
+              {search.length ? (
+                ""
+              ) : (
+                <Box display={"flex"} justifyContent="center" mt={1.5}>
+                  <Button
+                    onClick={() => handleMore()}
+                    disabled={totalItems === clients.length}
+                  >
+                    Mostrar mais
+                  </Button>
+                </Box>
               )}
             </>
           )}

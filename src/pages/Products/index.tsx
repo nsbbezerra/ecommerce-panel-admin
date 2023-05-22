@@ -16,7 +16,6 @@ import {
   MenuItem,
   Select,
   Stack,
-  Tab,
   Table,
   TableBody,
   TableCell,
@@ -30,13 +29,14 @@ import { Fragment, useEffect, useState } from "react";
 import {
   AiOutlineClose,
   AiOutlineEdit,
+  AiOutlineMinus,
   AiOutlinePicture,
   AiOutlinePlus,
   AiOutlineSearch,
   AiOutlineTag,
 } from "react-icons/ai";
-import { BsTruck } from "react-icons/bs";
-import { FiChevronDown, FiChevronUp, FiPackage } from "react-icons/fi";
+import { BsArchive, BsTruck } from "react-icons/bs";
+import { FiPackage } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import AppBar from "../../components/layout/AppBar";
 import Avatar from "../../components/layout/Avatar";
@@ -53,14 +53,13 @@ import { configs } from "../../configs";
 import getErrorMessage from "../../helpers/getMessageError";
 import Loading from "../../components/layout/Loading";
 import formatCurrency from "../../helpers/formatCurrency";
-import { TabContext, TabList, TabPanel } from "@mui/lab";
-import { HiOutlineCollection } from "react-icons/hi";
 import Upload from "../../components/layout/Upload";
 import { blue, grey, red } from "@mui/material/colors";
 import getSuccessMessage from "../../helpers/getMessageSuccess";
 import Swal from "sweetalert2";
 import calcDiscount from "../../helpers/calcPercentage";
 import EmptyBox from "../../components/layout/EmptyBox";
+import { MdOutlineDescription, MdOutlineLocalShipping } from "react-icons/md";
 
 interface CollapsedProps {
   id: string;
@@ -68,12 +67,6 @@ interface CollapsedProps {
 }
 
 export default function ProductsPage() {
-  const [value, setValue] = useState("1");
-
-  const handleChange = (event: React.SyntheticEvent, newValue: string) => {
-    setValue(newValue);
-  };
-
   const [productToupdate, setProductToUpdate] =
     useState<ProductsWithRelationshipEntity | null>(null);
 
@@ -172,21 +165,24 @@ export default function ProductsPage() {
       input: "text",
       showLoaderOnConfirm: true,
       inputValue: 0,
-    }).then((results) => {
-      if (results.isConfirmed) {
-        api
+      preConfirm: (value) => {
+        return api
           .put("/products/update", {
             product: {
               id,
               promotional: promo,
-              promo_rate: Number(results.value),
+              promo_rate: Number(value),
             },
           })
           .then((response) => {
-            getSuccessMessage({ message: response.data.message });
-            getAllProducts(0);
+            return response.data;
           })
           .catch((error) => getErrorMessage({ error }));
+      },
+    }).then((results) => {
+      if (results.isConfirmed) {
+        getSuccessMessage({ message: results.value.message });
+        getAllProducts(0);
       }
     });
   }
@@ -283,6 +279,13 @@ export default function ProductsPage() {
                   <Table size="small">
                     <TableHead>
                       <TableRow>
+                        <TableCell
+                          sx={{
+                            width: "1px",
+                            minWidth: "1px",
+                            maxWidth: "1px",
+                          }}
+                        ></TableCell>
                         <TableCell sx={{ width: "5%", textAlign: "center" }}>
                           Ativo?
                         </TableCell>
@@ -293,11 +296,6 @@ export default function ProductsPage() {
                           Thumb
                         </TableCell>
                         <TableCell sx={{ minWidth: "260px" }}>Nome</TableCell>
-                        <TableCell
-                          sx={{ minWidth: "90px", textAlign: "center" }}
-                        >
-                          Informações
-                        </TableCell>
                         <TableCell
                           sx={{ minWidth: "120px", textAlign: "right" }}
                         >
@@ -316,6 +314,30 @@ export default function ProductsPage() {
                             sx={{ "& > *": { borderBottom: "unset" } }}
                             hover
                           >
+                            <TableCell
+                              sx={{ textAlign: "center", borderBottom: 0 }}
+                            >
+                              <IconButton
+                                onClick={() =>
+                                  setIsCollapsed({
+                                    id: product.id,
+                                    open:
+                                      isCollapesed.id !== product.id
+                                        ? true
+                                        : !isCollapesed.open,
+                                  })
+                                }
+                                size="small"
+                                color="primary"
+                              >
+                                {isCollapesed.id === product.id &&
+                                isCollapesed.open ? (
+                                  <AiOutlineMinus />
+                                ) : (
+                                  <AiOutlinePlus />
+                                )}
+                              </IconButton>
+                            </TableCell>
                             <TableCell>
                               <Switch
                                 checked={product.active}
@@ -336,34 +358,6 @@ export default function ProductsPage() {
                               <Avatar src={product.thumbnail || ""} />
                             </TableCell>
                             <TableCell>{product.name}</TableCell>
-                            <TableCell>
-                              <Button
-                                fullWidth
-                                endIcon={
-                                  isCollapesed.id === product.id &&
-                                  isCollapesed.open ? (
-                                    <FiChevronUp />
-                                  ) : (
-                                    <FiChevronDown />
-                                  )
-                                }
-                                onClick={() =>
-                                  setIsCollapsed({
-                                    id: product.id,
-                                    open:
-                                      isCollapesed.id !== product.id
-                                        ? true
-                                        : !isCollapesed.open,
-                                  })
-                                }
-                                size="small"
-                              >
-                                {isCollapesed.id === product.id &&
-                                isCollapesed.open
-                                  ? "Ocultar"
-                                  : "Mostrar"}
-                              </Button>
-                            </TableCell>
                             <TableCell
                               sx={{ textAlign: "right", borderBottom: 0 }}
                             >
@@ -432,58 +426,123 @@ export default function ProductsPage() {
                                 timeout="auto"
                                 unmountOnExit
                               >
-                                <Box p={2}>
+                                <Box py={1}>
                                   <Card
                                     elevation={0}
-                                    sx={{ bgcolor: grey["100"] }}
+                                    sx={{ bgcolor: grey["100"], p: 2 }}
                                   >
-                                    <TabContext value={value}>
-                                      <Box
-                                        sx={{
-                                          borderBottom: 1,
-                                          borderColor: "divider",
-                                        }}
+                                    <Box
+                                      bgcolor={"#FFF"}
+                                      borderRadius={"4px"}
+                                      overflow={"hidden"}
+                                    >
+                                      <Stack
+                                        direction={"row"}
+                                        spacing={2}
+                                        alignItems={"center"}
+                                        bgcolor={blue["100"]}
+                                        color={blue["700"]}
+                                        px={2}
+                                        py={1}
                                       >
-                                        <TabList
-                                          onChange={handleChange}
-                                          aria-label="product info"
+                                        <AiOutlineTag />
+                                        <Typography
+                                          variant="body2"
+                                          fontWeight={"600"}
                                         >
-                                          <Tab label="Categorias" value="1" />
-                                          <Tab label="Descrição" value="2" />
-                                          <Tab label="Estoque" value="3" />
-                                          <Tab label="Frete" value="4" />
-                                        </TabList>
-                                      </Box>
-                                      <TabPanel value="1">
-                                        <List dense>
-                                          <ListItem>
-                                            <ListItemIcon>
-                                              <AiOutlineTag />
-                                            </ListItemIcon>
-                                            <ListItemText
-                                              primary={product.category.name}
-                                              secondary={"Categoria"}
-                                            />
-                                          </ListItem>
-                                          <ListItem>
-                                            <ListItemIcon>
-                                              <HiOutlineCollection />
-                                            </ListItemIcon>
-                                            <ListItemText
-                                              primary={product.collection.name}
-                                              secondary={"Sub-categoria"}
-                                            />
-                                          </ListItem>
-                                        </List>
-                                      </TabPanel>
-                                      <TabPanel value="2">
-                                        <div
-                                          dangerouslySetInnerHTML={{
-                                            __html: product.description,
-                                          }}
-                                        />
-                                      </TabPanel>
-                                      <TabPanel value="3">
+                                          CATEGORIAS
+                                        </Typography>
+                                      </Stack>
+
+                                      <Grid container spacing={2} p={2}>
+                                        <Grid item xs={4}>
+                                          <Stack spacing={1}>
+                                            <Typography
+                                              color={grey["600"]}
+                                              variant="body1"
+                                            >
+                                              Categoria
+                                            </Typography>
+                                            <Typography fontWeight={"500"}>
+                                              {product.category.name}
+                                            </Typography>
+                                          </Stack>
+                                        </Grid>
+
+                                        <Grid item xs={4}>
+                                          <Stack spacing={1}>
+                                            <Typography
+                                              color={grey["600"]}
+                                              variant="body1"
+                                            >
+                                              Sub-Categoria
+                                            </Typography>
+                                            <Typography fontWeight={"500"}>
+                                              {product.collection.name}
+                                            </Typography>
+                                          </Stack>
+                                        </Grid>
+                                      </Grid>
+                                    </Box>
+
+                                    <Box
+                                      bgcolor={"#FFF"}
+                                      borderRadius={"4px"}
+                                      overflow={"hidden"}
+                                      mt={2}
+                                    >
+                                      <Stack
+                                        direction={"row"}
+                                        spacing={2}
+                                        alignItems={"center"}
+                                        bgcolor={blue["100"]}
+                                        color={blue["700"]}
+                                        px={2}
+                                        py={1}
+                                      >
+                                        <MdOutlineDescription />
+                                        <Typography
+                                          variant="body2"
+                                          fontWeight={"600"}
+                                        >
+                                          DESCRIÇÃO
+                                        </Typography>
+                                      </Stack>
+
+                                      <Box
+                                        py={2}
+                                        px={4}
+                                        dangerouslySetInnerHTML={{
+                                          __html: product.description,
+                                        }}
+                                      />
+                                    </Box>
+
+                                    <Box
+                                      bgcolor={"#FFF"}
+                                      borderRadius={"4px"}
+                                      overflow={"hidden"}
+                                      mt={2}
+                                    >
+                                      <Stack
+                                        direction={"row"}
+                                        spacing={2}
+                                        alignItems={"center"}
+                                        bgcolor={blue["100"]}
+                                        color={blue["700"]}
+                                        px={2}
+                                        py={1}
+                                      >
+                                        <BsArchive />
+                                        <Typography
+                                          variant="body2"
+                                          fontWeight={"600"}
+                                        >
+                                          ESTOQUE
+                                        </Typography>
+                                      </Stack>
+
+                                      <Box p={2}>
                                         {(product.stock_type === "OFF" &&
                                           "VENDA SEM ESTOQUE") ||
                                           (product.stock_type === "CUSTOM" && (
@@ -511,8 +570,34 @@ export default function ProductsPage() {
                                               {product.stock}
                                             </span>
                                           ))}
-                                      </TabPanel>
-                                      <TabPanel value="4">
+                                      </Box>
+                                    </Box>
+
+                                    <Box
+                                      bgcolor={"#FFF"}
+                                      borderRadius={"4px"}
+                                      overflow={"hidden"}
+                                      mt={2}
+                                    >
+                                      <Stack
+                                        direction={"row"}
+                                        spacing={2}
+                                        alignItems={"center"}
+                                        bgcolor={blue["100"]}
+                                        color={blue["700"]}
+                                        px={2}
+                                        py={1}
+                                      >
+                                        <MdOutlineLocalShipping />
+                                        <Typography
+                                          variant="body2"
+                                          fontWeight={"600"}
+                                        >
+                                          FRETE
+                                        </Typography>
+                                      </Stack>
+
+                                      <Box p={2}>
                                         <List dense>
                                           <ListItem>
                                             <ListItemIcon>
@@ -565,8 +650,8 @@ export default function ProductsPage() {
                                             />
                                           </ListItem>
                                         </List>
-                                      </TabPanel>
-                                    </TabContext>
+                                      </Box>
+                                    </Box>
                                   </Card>
                                 </Box>
                               </Collapse>
@@ -575,37 +660,24 @@ export default function ProductsPage() {
                         </>
                       ))}
                     </TableBody>
-                    {products.length !== 0 && (
-                      <>
-                        {search !== "all" ? (
-                          ""
-                        ) : (
-                          <TableFooter>
-                            <TableRow>
-                              <TableCell
-                                colSpan={7}
-                                sx={{ borderBottom: "none" }}
-                              >
-                                <Box
-                                  display={"flex"}
-                                  justifyContent="center"
-                                  mt={2}
-                                >
-                                  <Button
-                                    onClick={() => handleMore()}
-                                    disabled={totalItems === products.length}
-                                  >
-                                    Mostrar mais
-                                  </Button>
-                                </Box>
-                              </TableCell>
-                            </TableRow>
-                          </TableFooter>
-                        )}
-                      </>
-                    )}
                   </Table>
                 </TableContainer>
+              )}
+            </>
+          )}
+          {products.length !== 0 && (
+            <>
+              {search !== "all" ? (
+                ""
+              ) : (
+                <Box display={"flex"} justifyContent="center" mt={1.5}>
+                  <Button
+                    onClick={() => handleMore()}
+                    disabled={totalItems === products.length}
+                  >
+                    Mostrar mais
+                  </Button>
+                </Box>
               )}
             </>
           )}

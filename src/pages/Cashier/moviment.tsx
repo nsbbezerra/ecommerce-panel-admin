@@ -203,15 +203,18 @@ export default function CashierMoviment() {
       denyButtonText: "Não",
       showDenyButton: true,
       showLoaderOnConfirm: true,
-    }).then((result) => {
-      if (result.isConfirmed) {
-        api
+      preConfirm: () => {
+        return api
           .delete(`/cashier/moviment/${id}`)
           .then((response) => {
-            getSuccessMessage({ message: response.data.message });
-            getCashierMoviment();
+            return response.data;
           })
           .catch((error) => getErrorMessage({ error }));
+      },
+    }).then((results) => {
+      if (results.isConfirmed) {
+        getSuccessMessage({ message: results.value.message });
+        getCashierMoviment();
       }
     });
   }
@@ -266,18 +269,20 @@ export default function CashierMoviment() {
       confirmButtonText: "Sim",
       confirmButtonColor: blue["500"],
       showLoaderOnConfirm: true,
-    }).then((result) => {
-      setIsLoading(false);
-      if (result.isConfirmed) {
-        api
+      preConfirm: () => {
+        return api
           .post("/orders/finish-order", {
             orderId: id,
           })
           .then((response) => {
-            getSuccessMessage({ message: response.data.message });
-            getOrders();
+            return response.data;
           })
           .catch((error) => getErrorMessage({ error }));
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        getOrders();
+        getSuccessMessage({ message: result.value.message });
       }
     });
   }
@@ -300,28 +305,31 @@ export default function CashierMoviment() {
       confirmButtonText: "Sim",
       confirmButtonColor: blue["500"],
       showLoaderOnConfirm: true,
-    }).then((result) => {
-      if (result.isConfirmed) {
-        api
+      preConfirm: () => {
+        return api
           .put("/cashier/close", {
             cashierId: cashier,
             closeValue: calcTotalCashier(),
           })
           .then((response) => {
-            Swal.fire({
-              title: "Sucesso",
-              text: response.data.message,
-              icon: "success",
-              confirmButtonColor: blue["500"],
-            }).then((results) => {
-              if (results.isConfirmed) {
-                navigate("/dashboard/caixa");
-              }
-            });
+            return response.data;
           })
           .catch((error) => {
             getErrorMessage({ error });
           });
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          title: "Sucesso",
+          text: result.value.message,
+          icon: "success",
+          confirmButtonColor: blue["500"],
+        }).then((results) => {
+          if (results.isConfirmed) {
+            navigate("/dashboard/caixa");
+          }
+        });
       }
     });
   }
