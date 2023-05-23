@@ -339,7 +339,7 @@ export default function ProductsPage() {
                                 )}
                               </IconButton>
                             </TableCell>
-                            <TableCell>
+                            <TableCell sx={{ borderBottom: 0 }}>
                               <Switch
                                 checked={product.active}
                                 onChange={(e) =>
@@ -347,7 +347,7 @@ export default function ProductsPage() {
                                 }
                               />
                             </TableCell>
-                            <TableCell>
+                            <TableCell sx={{ borderBottom: 0 }}>
                               <Switch
                                 checked={product.promotional}
                                 onChange={(e) =>
@@ -355,10 +355,12 @@ export default function ProductsPage() {
                                 }
                               />
                             </TableCell>
-                            <TableCell>
+                            <TableCell sx={{ borderBottom: 0 }}>
                               <Avatar src={product.thumbnail || ""} />
                             </TableCell>
-                            <TableCell>{product.name}</TableCell>
+                            <TableCell sx={{ borderBottom: 0 }}>
+                              {product.name}
+                            </TableCell>
                             <TableCell
                               sx={{ textAlign: "right", borderBottom: 0 }}
                             >
@@ -386,7 +388,7 @@ export default function ProductsPage() {
                                 <>{formatCurrency(product.price)}</>
                               )}
                             </TableCell>
-                            <TableCell>
+                            <TableCell sx={{ borderBottom: 0 }}>
                               <Stack
                                 spacing={1}
                                 direction="row"
