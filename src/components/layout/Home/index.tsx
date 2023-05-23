@@ -204,22 +204,6 @@ export default function Home() {
             </MenuItem>
           </Tooltip>
           <Tooltip
-            title="Fiscal"
-            placement="right"
-            disableHoverListener={is.isSiderOpen}
-            arrow
-          >
-            <MenuItem
-              isActive={false}
-              isOpen={is.isSiderOpen}
-              className="menu-item"
-              data-pr-tooltip="FISCAL"
-            >
-              <TbFileInvoice className="menu-icon" fontSize={16} />
-              <span className="menu-text">FISCAL</span>
-            </MenuItem>
-          </Tooltip>
-          <Tooltip
             title="Configurações"
             placement="right"
             disableHoverListener={is.isSiderOpen}

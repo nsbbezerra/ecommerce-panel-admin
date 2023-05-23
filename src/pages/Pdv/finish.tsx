@@ -52,7 +52,7 @@ import Button from "../../components/layout/Button";
 import subDays from "date-fns/subDays";
 import DefaultContainer from "../../components/layout/DefaultContainer";
 import Loading from "../../components/layout/Loading";
-import { api } from "../../configs/api";
+import { api, apiUrl } from "../../configs/api";
 import getErrorMessage from "../../helpers/getMessageError";
 import formatCurrency from "../../helpers/formatCurrency";
 import IconButton from "../../components/layout/IconButton";
@@ -266,6 +266,11 @@ const SalesFinished = () => {
         setUpdateLoading(false);
         getErrorMessage({ error });
       });
+  }
+
+  function printOrder(id: string) {
+    const printUrl = `${apiUrl}/orders/print/${id}`;
+    window.open(printUrl, "_blank", "noreferrer");
   }
 
   useEffect(() => {
@@ -718,7 +723,11 @@ const SalesFinished = () => {
                                   direction={"row"}
                                   justifyContent={"center"}
                                 >
-                                  <IconButton size="small" color="primary">
+                                  <IconButton
+                                    size="small"
+                                    color="primary"
+                                    onClick={() => printOrder(ord.id)}
+                                  >
                                     <AiOutlinePrinter />
                                   </IconButton>
                                   <IconButton

@@ -45,7 +45,7 @@ import { BsCaretDown, BsDoorClosed } from "react-icons/bs";
 import { useNavigate, useParams } from "react-router-dom";
 import Loading from "../../components/layout/Loading";
 import EmptyBox from "../../components/layout/EmptyBox";
-import { api } from "../../configs/api";
+import { api, apiUrl } from "../../configs/api";
 import getSuccessMessage from "../../helpers/getMessageSuccess";
 import getErrorMessage from "../../helpers/getMessageError";
 import currencyMask from "../../helpers/currencyMask";
@@ -53,7 +53,8 @@ import formatCurrency from "../../helpers/formatCurrency";
 import handlePayForm from "../../helpers/handlePayForm";
 import { GetOrderByIdEntity } from "../../services/entities/orders";
 import Avatar from "../../components/layout/Avatar";
-
+import { RiDraftLine } from "react-icons/ri";
+import { MdOutlinePayments } from "react-icons/md";
 interface OrdersProps {
   id: string;
   client: { id: string; name: string };
@@ -219,6 +220,33 @@ export default function CashierMoviment() {
     });
   }
 
+  function convertSaleToDraft(id: string) {
+    Swal.fire({
+      text: "Deseja converter esta venda em rascunho?",
+      title: "Confirmação",
+      icon: "question",
+      confirmButtonColor: blue["500"],
+      denyButtonColor: red["500"],
+      confirmButtonText: "Sim",
+      denyButtonText: "Não",
+      showDenyButton: true,
+      showLoaderOnConfirm: true,
+      preConfirm: () => {
+        return api
+          .put(`/orders/convert-to-draft/${id}`)
+          .then((response) => {
+            return response.data;
+          })
+          .catch((error) => getErrorMessage({ error }));
+      },
+    }).then((results) => {
+      if (results.isConfirmed) {
+        getSuccessMessage({ message: results.value.message });
+        getOrders();
+      }
+    });
+  }
+
   function getOrders() {
     setIsLoading(true);
     api
@@ -334,6 +362,11 @@ export default function CashierMoviment() {
     });
   }
 
+  function printOrder(id: string) {
+    const printUrl = `${apiUrl}/orders/print/${id}`;
+    window.open(printUrl, "_blank", "noreferrer");
+  }
+
   useEffect(() => {
     getOrders();
   }, []);
@@ -444,8 +477,10 @@ export default function CashierMoviment() {
                               key={order.id}
                               sx={{ "& > *": { borderBottom: "0" } }}
                             >
-                              <TableCell>{order.client.name}</TableCell>
-                              <TableCell>
+                              <TableCell sx={{ borderBottom: 0 }}>
+                                {order.client.name}
+                              </TableCell>
+                              <TableCell sx={{ borderBottom: 0 }}>
                                 <Stack direction={"row"} spacing={1}>
                                   <Chip
                                     size="small"
@@ -459,7 +494,7 @@ export default function CashierMoviment() {
                                   />
                                 </Stack>
                               </TableCell>
-                              <TableCell>
+                              <TableCell sx={{ borderBottom: 0 }}>
                                 {formatDate(order.created_at as Date)}
                               </TableCell>
                               <TableCell
@@ -471,22 +506,42 @@ export default function CashierMoviment() {
                                 sx={{ textAlign: "center", borderBottom: 0 }}
                               >
                                 <Stack direction={"row"} spacing={1}>
-                                  <IconButton color="primary" size="small">
+                                  <IconButton
+                                    color="primary"
+                                    size="small"
+                                    onClick={() => printOrder(order.id)}
+                                  >
                                     <AiOutlinePrinter />
                                   </IconButton>
-                                  <IconButton color="primary" size="small">
-                                    <AiOutlineEdit />
-                                  </IconButton>
                                   <IconButton
-                                    color="success"
+                                    color="error"
                                     size="small"
-                                    onClick={() => setFinishOrder(order.id)}
+                                    onClick={() => convertSaleToDraft(order.id)}
                                   >
-                                    <AiOutlineCheck />
+                                    <RiDraftLine />
                                   </IconButton>
-                                  <IconButton color="error" size="small">
-                                    <HiOutlineTrash />
-                                  </IconButton>
+                                  {handlePayForm(order.pay_form || "") ===
+                                  "Nenhum" ? (
+                                    <IconButton
+                                      color="info"
+                                      size="small"
+                                      onClick={() =>
+                                        navigate(
+                                          `/dashboard/vendas/checkout/${order.id}`
+                                        )
+                                      }
+                                    >
+                                      <MdOutlinePayments />
+                                    </IconButton>
+                                  ) : (
+                                    <IconButton
+                                      color="success"
+                                      size="small"
+                                      onClick={() => setFinishOrder(order.id)}
+                                    >
+                                      <AiOutlineCheck />
+                                    </IconButton>
+                                  )}
                                 </Stack>
                               </TableCell>
                               <TableCell
@@ -507,17 +562,14 @@ export default function CashierMoviment() {
                               </TableCell>
                             </TableRow>
                             <TableRow>
-                              <TableCell
-                                colSpan={6}
-                                style={{ paddingBottom: 0, paddingTop: 0 }}
-                              >
+                              <TableCell colSpan={6} style={{ padding: 0 }}>
                                 <Collapse
                                   in={
                                     openCollapse.movId === order.id &&
                                     openCollapse.open
                                   }
                                 >
-                                  <Box py={2}>
+                                  <Box py={1}>
                                     {detailsLoading ? (
                                       <Loading />
                                     ) : (
@@ -744,6 +796,43 @@ export default function CashierMoviment() {
                   </TableContainer>
                 )}
               </DefaultContainer>
+            </Grid>
+
+            <Grid item xs={12}>
+              <Box
+                sx={{ boxShadow: "0px 0px 9px rgba(0, 0, 0, 0.05)" }}
+                bgcolor={
+                  calcTotalCashier() === 0
+                    ? grey["400"]
+                    : calcTotalCashier() > 0
+                    ? green["100"]
+                    : red["100"]
+                }
+                borderRadius={"4px"}
+                px={2}
+                py={1}
+                color={
+                  calcTotalCashier() === 0
+                    ? grey["800"]
+                    : calcTotalCashier() > 0
+                    ? green["700"]
+                    : red["700"]
+                }
+                flex={1}
+              >
+                <Stack
+                  direction={"row"}
+                  justifyContent={"space-between"}
+                  spacing={2}
+                >
+                  <Typography fontWeight={600} variant="h6">
+                    Saldo
+                  </Typography>
+                  <Typography fontWeight={600} variant="h6">
+                    {formatCurrency(calcTotalCashier())}
+                  </Typography>
+                </Stack>
+              </Box>
             </Grid>
 
             <Grid item xs={12} md={6}>
@@ -1012,25 +1101,6 @@ export default function CashierMoviment() {
                   </Button>
                 </AccordionDetails>
               </Accordion>
-            </Grid>
-
-            <Grid item xs={12}>
-              <DefaultContainer disabledPadding>
-                <Stack
-                  direction={"row"}
-                  justifyContent={"space-between"}
-                  flexWrap={"wrap"}
-                  gap={1}
-                  color={grey["700"]}
-                >
-                  <Typography variant="body1">
-                    TOTAL DAS MOVIMENTAÇÕES
-                  </Typography>
-                  <Typography variant="body1" fontWeight={"bold"}>
-                    {formatCurrency(calcTotalCashier())}
-                  </Typography>
-                </Stack>
-              </DefaultContainer>
             </Grid>
           </Grid>
         )}

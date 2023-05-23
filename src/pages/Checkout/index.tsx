@@ -235,7 +235,9 @@ export default function Checkout() {
                       <Grid item xs={12}>
                         <DefaultContainer disabledPadding>
                           <Typography variant="h6" color={grey["700"]}>
-                            Compra: #{myOrder.id} -{" "}
+                            Compra Nº: {myOrder.code}
+                          </Typography>
+                          <Typography variant="subtitle2" color={grey["700"]}>
                             {formatDate(new Date(myOrder.created_at))}
                           </Typography>
                           <Divider sx={{ my: 1 }} />
@@ -433,7 +435,8 @@ export default function Checkout() {
                                   disabled={
                                     payForm === "credit_card" ||
                                     payForm === "trade_note" ||
-                                    payForm === "ticket"
+                                    payForm === "ticket" ||
+                                    payForm === "check"
                                       ? false
                                       : true
                                   }
