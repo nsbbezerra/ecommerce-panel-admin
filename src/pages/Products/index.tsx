@@ -92,6 +92,7 @@ export default function ProductsPage() {
 
   function getAllProducts(actualPage: number) {
     if (search === "all") {
+      setIsLoading(true);
       setPage(actualPage);
       const paginate = actualPage * configs.paginationItems;
       api

@@ -13,7 +13,6 @@ import {
   Collapse,
   List,
   ListItem,
-  ListItemButton,
   ListItemIcon,
   ListItemText,
   Stack,
@@ -21,7 +20,6 @@ import {
   TableBody,
   TableCell,
   TableContainer,
-  TableFooter,
   TableHead,
   TableRow,
 } from "@mui/material";
@@ -49,6 +47,7 @@ export default function ClientsPage() {
   const [page, setPage] = useState(0);
   const [totalItems, setTotalItems] = useState(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isAddressLoading, setIsAddressLoading] = useState<boolean>(false);
   const [search, setSearch] = useState<string>("");
   const [isCollapesed, setIsCollapesed] = useState<CollapesdProps>({
     id: "",
@@ -110,6 +109,7 @@ export default function ClientsPage() {
   }
 
   function getAddress(id: string) {
+    setIsAddressLoading(true);
     setIsCollapesed({
       id,
       open: isCollapesed.id === id && isCollapesed.open === true ? false : true,
@@ -119,8 +119,12 @@ export default function ClientsPage() {
       .get(`/addresses/get-by-client-id/${id}`)
       .then((response) => {
         setAddresses(response.data);
+        setIsAddressLoading(false);
       })
-      .catch((error) => getErrorMessage({ error }));
+      .catch((error) => {
+        getErrorMessage({ error });
+        setIsAddressLoading(false);
+      });
   }
 
   useEffect(() => {
@@ -292,22 +296,28 @@ export default function ClientsPage() {
                                       ))}
                                     </>
                                   ) : (
-                                    <Card
-                                      variant="elevation"
-                                      sx={{ bgcolor: grey["100"] }}
-                                      elevation={0}
-                                    >
-                                      <Box
-                                        display={"flex"}
-                                        justifyContent="center"
-                                        alignItems={"center"}
-                                        flexDirection="column"
-                                        padding={"10px"}
-                                      >
-                                        <AiOutlineDropbox fontSize={50} />
-                                        <span>Nada encontrado</span>
-                                      </Box>
-                                    </Card>
+                                    <>
+                                      {isAddressLoading ? (
+                                        <Loading />
+                                      ) : (
+                                        <Card
+                                          variant="elevation"
+                                          sx={{ bgcolor: grey["100"] }}
+                                          elevation={0}
+                                        >
+                                          <Box
+                                            display={"flex"}
+                                            justifyContent="center"
+                                            alignItems={"center"}
+                                            flexDirection="column"
+                                            padding={"10px"}
+                                          >
+                                            <AiOutlineDropbox fontSize={50} />
+                                            <span>Nada encontrado</span>
+                                          </Box>
+                                        </Card>
+                                      )}
+                                    </>
                                   )}
                                 </Stack>
                               </Collapse>
