@@ -12,6 +12,13 @@ export const HomeConteiner = styled.div`
   text-align: center;
 
   img {
-    width: 20%;
+    width: 30%;
+
+    @media (max-width: 400px) {
+      width: 70%;
+    }
+    @media (max-width: 800px) {
+      width: 50%;
+    }
   }
 `;

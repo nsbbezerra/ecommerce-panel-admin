@@ -1,4 +1,5 @@
 import styled from "@emotion/styled";
+import { Box } from "@mui/material";
 import { blue, grey, lightBlue } from "@mui/material/colors";
 
 export const ProductsGrid = styled.div`
@@ -63,6 +64,7 @@ export const CardImage = styled.img`
 `;
 
 export const MenuContainer = styled.div`
+  flex-shrink: 0;
   width: 100%;
   border-radius: 4px;
   background-color: ${lightBlue["900"]};
@@ -118,4 +120,40 @@ export const MenuItem = styled.button<Props>`
   &:active {
     background-color: ${(props) => !props.active && "rgba(255, 255, 255, 0.2)"};
   }
+`;
+
+export const PdvContainer = styled.div`
+  width: 100%;
+  height: calc(100vh - 60px);
+  max-height: calc(100vh - 60px);
+  display: flex;
+  flex-direction: column;
+  padding: 16px 8px;
+  gap: 10px;
+`;
+
+export const ProductsContainer = styled(Box)`
+  box-shadow: 0px 0px 9px rgba(0, 0, 0, 0.05);
+  background-color: #fff;
+  border-radius: 4px;
+  overflow: auto;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: #ffffff;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: ${grey["400"]};
+    border-radius: 4px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: ${grey["500"]};
+  }
+`;
+
+export const ProductsList = styled.div`
+  padding-top: 8px;
+  border-radius: 4px;
 `;
