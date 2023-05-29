@@ -162,7 +162,7 @@ export default function ClientsPage() {
           </SeachContainer>
         </Box>
 
-        <DefaultContainer>
+        <DefaultContainer disablePaddingInside>
           {isLoading ? (
             <Loading />
           ) : (
@@ -170,7 +170,7 @@ export default function ClientsPage() {
               {clients.length === 0 ? (
                 <EmptyBox label="Nenhuma informação encontrada" />
               ) : (
-                <TableContainer>
+                <TableContainer sx={{ py: 1 }}>
                   <Table size="small" aria-label="collapsible table">
                     <TableHead>
                       <TableRow>
@@ -336,7 +336,7 @@ export default function ClientsPage() {
               {search.length ? (
                 ""
               ) : (
-                <Box display={"flex"} justifyContent="center" mt={1.5}>
+                <Box display={"flex"} justifyContent="center" pb={1}>
                   <Button
                     onClick={() => handleMore()}
                     disabled={totalItems === clients.length}

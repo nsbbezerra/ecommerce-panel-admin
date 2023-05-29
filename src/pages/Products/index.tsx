@@ -268,7 +268,7 @@ export default function ProductsPage() {
           </Grid>
         </Box>
 
-        <DefaultContainer>
+        <DefaultContainer disablePaddingInside>
           {isLoading ? (
             <Loading />
           ) : (
@@ -276,7 +276,7 @@ export default function ProductsPage() {
               {products.length === 0 ? (
                 <EmptyBox label="Nenhuma informação encontrada" />
               ) : (
-                <TableContainer>
+                <TableContainer sx={{ py: 1 }}>
                   <Table size="small">
                     <TableHead>
                       <TableRow>
@@ -286,7 +286,9 @@ export default function ProductsPage() {
                             minWidth: "1px",
                             maxWidth: "1px",
                           }}
-                        ></TableCell>
+                        >
+                          Detalhes
+                        </TableCell>
                         <TableCell sx={{ width: "5%", textAlign: "center" }}>
                           Ativo?
                         </TableCell>
@@ -429,7 +431,7 @@ export default function ProductsPage() {
                                 timeout="auto"
                                 unmountOnExit
                               >
-                                <Box py={1}>
+                                <Box p={1}>
                                   <Card
                                     elevation={0}
                                     sx={{ bgcolor: grey["100"], p: 2 }}
@@ -673,7 +675,7 @@ export default function ProductsPage() {
               {search !== "all" ? (
                 ""
               ) : (
-                <Box display={"flex"} justifyContent="center" mt={1.5}>
+                <Box display={"flex"} justifyContent="center" pb={1}>
                   <Button
                     onClick={() => handleMore()}
                     disabled={totalItems === products.length}

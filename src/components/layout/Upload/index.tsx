@@ -24,7 +24,7 @@ import getErrorMessage from "../../../helpers/getMessageError";
 interface Props {
   disabled?: boolean;
   name: string;
-  to: "category" | "product";
+  to: "category" | "product" | "supplier";
   id: string;
   onFinish?: () => void;
   old?: string;

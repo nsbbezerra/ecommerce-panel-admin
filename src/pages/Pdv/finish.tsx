@@ -482,7 +482,7 @@ const SalesFinished = () => {
             </Grid>
           </DefaultContainer>
 
-          <DefaultContainer disabledPadding>
+          <DefaultContainer disabledPadding disablePaddingInside>
             {isLoading ? (
               <Loading />
             ) : (
@@ -490,7 +490,7 @@ const SalesFinished = () => {
                 {orders.length === 0 ? (
                   <EmptyBox label="Nenhuma informação encontrada" />
                 ) : (
-                  <TableContainer>
+                  <TableContainer sx={{ py: 1 }}>
                     <Table size="small">
                       <TableHead>
                         <TableRow>

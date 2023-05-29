@@ -24,6 +24,8 @@ import SavedOrderPage from "../pages/Pdv/savedOrder";
 import FinancialMovements from "../pages/Financial/movements";
 import SaveFinancial from "../pages/Financial/saveFinancial";
 import PaymentsManager from "../pages/Financial/payments";
+import Supplier from "../pages/Supplier";
+import SaveSupplier from "../pages/Supplier/save";
 
 export default function AppRoutes() {
   return (
@@ -41,6 +43,10 @@ export default function AppRoutes() {
             <Route path="" element={<CategoriesPage />} />
             <Route path="criar" element={<SaveCategoryPage />} />
             <Route path="editar/:category" element={<SaveCategoryPage />} />
+          </Route>
+          <Route path="marcas">
+            <Route index element={<Supplier />} />
+            <Route path="criar" element={<SaveSupplier />} />
           </Route>
           <Route path="sub-categorias">
             <Route index element={<SubCategories />} />

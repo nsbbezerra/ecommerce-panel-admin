@@ -7,15 +7,19 @@ import {
 interface Props {
   children?: ReactNode | ReactNode[];
   disabledPadding?: boolean;
+  disablePaddingInside?: boolean;
 }
 
 export default function DefaultContainer({
   children,
   disabledPadding = false,
+  disablePaddingInside = false,
 }: Props) {
   return (
     <StyledDefaultContainer disabledPadding={disabledPadding}>
-      <ContentContainer>{children}</ContentContainer>
+      <ContentContainer disablePaddingInside={disablePaddingInside}>
+        {children}
+      </ContentContainer>
     </StyledDefaultContainer>
   );
 }

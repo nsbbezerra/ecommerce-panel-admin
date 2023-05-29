@@ -148,7 +148,7 @@ export default function Cashier() {
             </Typography>
           </Stack>
 
-          <DefaultContainer disabledPadding>
+          <DefaultContainer disabledPadding disablePaddingInside>
             {isLoading ? (
               <Loading />
             ) : (
@@ -156,7 +156,7 @@ export default function Cashier() {
                 {cashiers.length === 0 ? (
                   <EmptyBox label="Nenhuma informação encontrada" />
                 ) : (
-                  <TableContainer>
+                  <TableContainer sx={{ py: 1 }}>
                     <Table size="small">
                       <TableHead>
                         <TableRow>

@@ -412,7 +412,7 @@ export default function PaymentsManager() {
           </Box>
 
           <Box mt={2}>
-            <DefaultContainer disabledPadding>
+            <DefaultContainer disabledPadding disablePaddingInside>
               {backdrop ? (
                 <Loading />
               ) : (
@@ -420,7 +420,7 @@ export default function PaymentsManager() {
                   {payments.length === 0 ? (
                     <EmptyBox label="Nenhuma informação encontrada" />
                   ) : (
-                    <TableContainer>
+                    <TableContainer sx={{ py: 1 }}>
                       <Table size="small">
                         <TableHead>
                           <TableRow>

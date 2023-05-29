@@ -4,11 +4,15 @@ interface Props {
   disabledPadding?: boolean;
 }
 
-export const ContentContainer = styled.div`
+interface ContainerProps {
+  disablePaddingInside: boolean;
+}
+
+export const ContentContainer = styled.div<ContainerProps>`
   width: 100%;
   box-shadow: 0px 0px 9px rgba(0, 0, 0, 0.05);
   background-color: #fff;
-  padding: 10px;
+  padding: ${(props) => (props.disablePaddingInside ? "0px" : "10px")};
   border-radius: 4px;
 `;
 

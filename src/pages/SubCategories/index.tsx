@@ -129,7 +129,7 @@ export default function SubCategories() {
           </SeachContainer>
         </Box>
 
-        <DefaultContainer>
+        <DefaultContainer disablePaddingInside>
           {isLoading ? (
             <Loading />
           ) : (
@@ -137,7 +137,7 @@ export default function SubCategories() {
               {filteredCollections.length === 0 ? (
                 <EmptyBox label="Nenhuma informação encontrada" />
               ) : (
-                <TableContainer>
+                <TableContainer sx={{ py: 1 }}>
                   <Table size="small">
                     <TableHead>
                       <TableRow>

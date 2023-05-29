@@ -149,7 +149,7 @@ export default function CategoriesPage() {
       </Container>
 
       <Container>
-        <DefaultContainer>
+        <DefaultContainer disablePaddingInside>
           {isLoading ? (
             <Loading />
           ) : (
@@ -157,7 +157,7 @@ export default function CategoriesPage() {
               {filteredCategories.length === 0 ? (
                 <EmptyBox label="Nenhuma informação encontrada" />
               ) : (
-                <TableContainer>
+                <TableContainer sx={{ py: 1 }}>
                   <Table size="small">
                     <TableHead>
                       <TableRow>

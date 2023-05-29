@@ -301,6 +301,7 @@ export default function CashierMoviment() {
         return api
           .post("/orders/finish-order", {
             orderId: id,
+            cashierId: cashier,
           })
           .then((response) => {
             return response.data;
@@ -418,11 +419,11 @@ export default function CashierMoviment() {
             </Grid>
 
             <Grid item xs={12}>
-              <DefaultContainer disabledPadding>
+              <DefaultContainer disabledPadding disablePaddingInside>
                 {orders.length === 0 ? (
                   <EmptyBox label="Nenhuma informação encontrada" />
                 ) : (
-                  <TableContainer>
+                  <TableContainer sx={{ py: 1 }}>
                     <Table size="small">
                       <TableHead>
                         <TableRow>
@@ -569,7 +570,7 @@ export default function CashierMoviment() {
                                     openCollapse.open
                                   }
                                 >
-                                  <Box py={1}>
+                                  <Box p={1}>
                                     {detailsLoading ? (
                                       <Loading />
                                     ) : (
@@ -888,10 +889,10 @@ export default function CashierMoviment() {
                                 key={mov.id}
                                 sx={{ "& > *": { borderBottom: "0" } }}
                               >
-                                <TableCell>
+                                <TableCell sx={{ borderBottom: 0 }}>
                                   {formatCurrency(mov.value)}
                                 </TableCell>
-                                <TableCell>
+                                <TableCell sx={{ borderBottom: 0 }}>
                                   {formatDate(mov.created_at)}
                                 </TableCell>
                                 <TableCell
@@ -1022,10 +1023,10 @@ export default function CashierMoviment() {
                                 key={mov.id}
                                 sx={{ "& > *": { borderBottom: "0" } }}
                               >
-                                <TableCell>
+                                <TableCell sx={{ borderBottom: 0 }}>
                                   {formatCurrency(mov.value)}
                                 </TableCell>
-                                <TableCell>
+                                <TableCell sx={{ borderBottom: 0 }}>
                                   {formatDate(mov.created_at)}
                                 </TableCell>
                                 <TableCell

@@ -430,7 +430,7 @@ export default function PdvPage() {
   return (
     <Fragment>
       <AppBar title="Balcão de vendas" />
-      <Container size="lg">
+      <Container>
         <PdvContainer>
           <MenuContainer>
             <MenuItem active={true}>

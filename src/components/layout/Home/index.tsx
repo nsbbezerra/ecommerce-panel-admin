@@ -27,6 +27,7 @@ import {
 import { TbFileInvoice, TbNotebook } from "react-icons/tb";
 import { HiOutlineCollection } from "react-icons/hi";
 import { Scrollbars } from "react-custom-scrollbars-2";
+import { BsPostage } from "react-icons/bs";
 
 export default function Home() {
   const { is, setIs } = useContext(BooleanEventsContext);
@@ -133,6 +134,23 @@ export default function Home() {
             >
               <HiOutlineCollection className="menu-icon" fontSize={16} />
               <span className="menu-text">SUB-CATEGORIAS</span>
+            </MenuItem>
+          </Tooltip>
+          <Tooltip
+            title="Marcas"
+            placement="right"
+            disableHoverListener={is.isSiderOpen}
+            arrow
+          >
+            <MenuItem
+              isActive={itemActive.includes("/dashboard/marcas")}
+              isOpen={is.isSiderOpen}
+              className="menu-item"
+              data-pr-tooltip="PRODUTOS"
+              onClick={() => navigate("/dashboard/marcas")}
+            >
+              <BsPostage className="menu-icon" fontSize={16} />
+              <span className="menu-text">MARCAS</span>
             </MenuItem>
           </Tooltip>
           <Tooltip
