@@ -26,6 +26,7 @@ import SaveFinancial from "../pages/Financial/saveFinancial";
 import PaymentsManager from "../pages/Financial/payments";
 import Supplier from "../pages/Supplier";
 import SaveSupplier from "../pages/Supplier/save";
+import CashierReport from "../pages/Cashier/report";
 
 export default function AppRoutes() {
   return (
@@ -47,6 +48,7 @@ export default function AppRoutes() {
           <Route path="marcas">
             <Route index element={<Supplier />} />
             <Route path="criar" element={<SaveSupplier />} />
+            <Route path="editar/:supplier" element={<SaveSupplier />} />
           </Route>
           <Route path="sub-categorias">
             <Route index element={<SubCategories />} />
@@ -62,6 +64,7 @@ export default function AppRoutes() {
             <Route index element={<Cashier />} />
             <Route path="novo" element={<OpenCashier />} />
             <Route path=":cashier" element={<CashierMoviment />} />
+            <Route path="resumo/:cashier" element={<CashierReport />} />
           </Route>
           <Route path="vendas">
             <Route index element={<PdvPage />} />

@@ -654,8 +654,9 @@ export default function CashierMoviment() {
                                                                 >
                                                                   Categoria:{" "}
                                                                   {items.product
-                                                                    .category
-                                                                    .name || ""}
+                                                                    ?.category
+                                                                    ?.name ||
+                                                                    "-"}
                                                                 </Typography>
                                                                 <Typography
                                                                   variant="caption"
@@ -665,8 +666,9 @@ export default function CashierMoviment() {
                                                                 >
                                                                   Sub-categoria:{" "}
                                                                   {items.product
-                                                                    .collection
-                                                                    .name || ""}
+                                                                    ?.collection
+                                                                    ?.name ||
+                                                                    "-"}
                                                                 </Typography>
                                                                 <Typography variant="caption">
                                                                   Quantidade:{" "}

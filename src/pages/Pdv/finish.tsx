@@ -95,6 +95,8 @@ interface OrdersProps {
   payment_mode?: string | null;
   order_from: "WEB" | "PDV";
   code: string;
+  pay_form: string;
+  installments: number;
 }
 
 interface CollapseProps {
@@ -482,6 +484,42 @@ const SalesFinished = () => {
             </Grid>
           </DefaultContainer>
 
+          <Stack direction={"row"} gap={2} flexWrap={"wrap"}>
+            <Stack direction={"row"} spacing={1} alignItems={"center"}>
+              <Box
+                width={"20px"}
+                height={"20px"}
+                bgcolor={green["700"]}
+                borderRadius={"4px"}
+              />
+              <Typography color={grey["800"]} variant="body2">
+                Pagamento Confirmado
+              </Typography>
+            </Stack>
+            <Stack direction={"row"} spacing={1} alignItems={"center"}>
+              <Box
+                width={"20px"}
+                height={"20px"}
+                bgcolor={orange["700"]}
+                borderRadius={"4px"}
+              />
+              <Typography color={grey["800"]} variant="body2">
+                Aguardando Pagamento
+              </Typography>
+            </Stack>
+            <Stack direction={"row"} spacing={1} alignItems={"center"}>
+              <Box
+                width={"20px"}
+                height={"20px"}
+                bgcolor={red["700"]}
+                borderRadius={"4px"}
+              />
+              <Typography color={grey["800"]} variant="body2">
+                Não Pago
+              </Typography>
+            </Stack>
+          </Stack>
+
           <DefaultContainer disabledPadding disablePaddingInside>
             {isLoading ? (
               <Loading />
@@ -494,17 +532,20 @@ const SalesFinished = () => {
                     <Table size="small">
                       <TableHead>
                         <TableRow>
-                          <TableCell sx={{ maxWidth: "60px" }}>
+                          <TableCell
+                            sx={{ maxWidth: "10px", textAlign: "center" }}
+                          ></TableCell>
+                          <TableCell sx={{ maxWidth: "130px" }}>
                             Código
                           </TableCell>
-                          <TableCell sx={{ minWidth: "250px" }}>
+                          <TableCell sx={{ minWidth: "220px" }}>
                             Cliente
                           </TableCell>
                           <TableCell sx={{ width: "130px" }}>Status</TableCell>
                           <TableCell sx={{ width: "70px" }}>
                             Pagamento
                           </TableCell>
-                          <TableCell sx={{ width: "120px", minWidth: "120px" }}>
+                          <TableCell sx={{ width: "50px", minWidth: "50px" }}>
                             Origem
                           </TableCell>
                           <TableCell
@@ -518,7 +559,7 @@ const SalesFinished = () => {
                             Sub-Total
                           </TableCell>
                           <TableCell
-                            sx={{ maxWidth: "10px", textAlign: "center" }}
+                            sx={{ maxWidth: "5px", textAlign: "center" }}
                           ></TableCell>
                         </TableRow>
                       </TableHead>
@@ -531,7 +572,27 @@ const SalesFinished = () => {
                               sx={{ "& > *": { borderBottom: 0 } }}
                             >
                               <TableCell
-                                sx={{ maxWidth: "100px", borderBottom: 0 }}
+                                sx={{
+                                  maxWidth: "10px",
+                                  textAlign: "center",
+                                  borderBottom: 0,
+                                }}
+                              >
+                                <IconButton
+                                  size="small"
+                                  color="primary"
+                                  onClick={() => getOrderDetails(ord.id)}
+                                >
+                                  {openCollapse.movId === ord.id &&
+                                  openCollapse.open ? (
+                                    <AiOutlineMinus />
+                                  ) : (
+                                    <AiOutlinePlus />
+                                  )}
+                                </IconButton>
+                              </TableCell>
+                              <TableCell
+                                sx={{ maxWidth: "130px", borderBottom: 0 }}
                               >
                                 <Tooltip
                                   title={ord.code}
@@ -551,7 +612,7 @@ const SalesFinished = () => {
                                 </Tooltip>
                               </TableCell>
                               <TableCell
-                                sx={{ minWidth: "250px", borderBottom: 0 }}
+                                sx={{ minWidth: "220px", borderBottom: 0 }}
                               >
                                 {ord.client.name || ""}
                               </TableCell>
@@ -567,7 +628,7 @@ const SalesFinished = () => {
                                     {ord.order_status === "PAYMENT" && (
                                       <Chip
                                         size="small"
-                                        label="Processando pagamento"
+                                        label="Pagamento"
                                         color="warning"
                                       />
                                     )}
@@ -628,61 +689,18 @@ const SalesFinished = () => {
                                     size="small"
                                     label={ord.payment_mode || ""}
                                   />
-                                  <>
-                                    {ord.payment_status === "PAID_OUT" && (
-                                      <>
-                                        <Chip
-                                          size="small"
-                                          label={
-                                            !ord.payment_mode
-                                              ? "Nenhum"
-                                              : ord.payment_mode === "ONLINE"
-                                              ? "Confirmado"
-                                              : "Pago"
-                                          }
-                                          color="success"
-                                        />
-                                      </>
-                                    )}
-                                    {ord.payment_status === "REFUSED" && (
-                                      <>
-                                        <Chip
-                                          size="small"
-                                          label="Erro / Recusado"
-                                          color="error"
-                                        />
-                                        <Tooltip title="Pagar novamente" arrow>
-                                          <IconButton
-                                            size="small"
-                                            color="primary"
-                                            sx={{ flexShrink: 0 }}
-                                            onClick={() =>
-                                              navigate(
-                                                `/dashboard/vendas/checkout/${ord.id}`
-                                              )
-                                            }
-                                          >
-                                            <AiOutlineDollarCircle />
-                                          </IconButton>
-                                        </Tooltip>
-                                      </>
-                                    )}
-                                    {ord.payment_status === "WAITING" && (
-                                      <>
-                                        <Chip
-                                          size="small"
-                                          label={
-                                            !ord.payment_mode
-                                              ? "Nenhum"
-                                              : ord.payment_mode === "ONLINE"
-                                              ? "Processando"
-                                              : "Aguardando"
-                                          }
-                                          color="warning"
-                                        />
-                                      </>
-                                    )}
-                                  </>
+                                  <Chip
+                                    size="small"
+                                    label={`${ord.installments}x`}
+                                  />
+                                  <Chip
+                                    size="small"
+                                    label={handlePayForm(ord.pay_form)}
+                                    color={
+                                      handlePaymentStatus(ord.payment_status)
+                                        .color
+                                    }
+                                  />
                                 </Stack>
                               </TableCell>
                               <TableCell sx={{ borderBottom: 0 }}>
@@ -730,34 +748,19 @@ const SalesFinished = () => {
                                   >
                                     <AiOutlinePrinter />
                                   </IconButton>
-                                  <IconButton
-                                    size="small"
-                                    color="primary"
-                                    onClick={() => getOrderDetails(ord.id)}
-                                  >
-                                    {openCollapse.movId === ord.id &&
-                                    openCollapse.open ? (
-                                      <AiOutlineMinus />
-                                    ) : (
-                                      <AiOutlinePlus />
-                                    )}
-                                  </IconButton>
                                 </Stack>
                               </TableCell>
                             </TableRow>
 
                             <TableRow>
-                              <TableCell
-                                colSpan={8}
-                                style={{ paddingBottom: 0, paddingTop: 0 }}
-                              >
+                              <TableCell colSpan={9} style={{ padding: 0 }}>
                                 <Collapse
                                   in={
                                     openCollapse.movId === ord.id &&
                                     openCollapse.open
                                   }
                                 >
-                                  <Box py={2}>
+                                  <Box p={1}>
                                     {detailsLoading ? (
                                       <Loading />
                                     ) : (
@@ -1347,8 +1350,8 @@ const SalesFinished = () => {
                                                             >
                                                               Categoria:{" "}
                                                               {items.product
-                                                                .category
-                                                                .name || ""}
+                                                                ?.category
+                                                                ?.name || "-"}
                                                             </Typography>
                                                             <Typography
                                                               variant="caption"
@@ -1356,8 +1359,8 @@ const SalesFinished = () => {
                                                             >
                                                               Sub-categoria:{" "}
                                                               {items.product
-                                                                .collection
-                                                                .name || ""}
+                                                                ?.collection
+                                                                ?.name || "-"}
                                                             </Typography>
                                                             <Typography variant="caption">
                                                               Quantidade:{" "}

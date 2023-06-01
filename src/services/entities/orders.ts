@@ -10,8 +10,9 @@ interface ClientProps {
 }
 
 interface ProductProps {
-  category: { name: string; id: string };
-  collection: { name: string; id: string };
+  category: { name: string; id: string } | null;
+  collection: { name: string; id: string } | null;
+  supplier: { name: string; id: string } | null;
   id: string;
   name: string;
   code: string | null;

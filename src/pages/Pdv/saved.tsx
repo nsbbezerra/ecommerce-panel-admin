@@ -23,6 +23,7 @@ import {
   AiOutlineClear,
   AiOutlineMinus,
   AiOutlinePlus,
+  AiOutlinePrinter,
   AiOutlineSearch,
   AiOutlineTags,
 } from "react-icons/ai";
@@ -35,7 +36,7 @@ import Button from "../../components/layout/Button";
 import subDays from "date-fns/subDays";
 import DefaultContainer from "../../components/layout/DefaultContainer";
 import Loading from "../../components/layout/Loading";
-import { api } from "../../configs/api";
+import { api, apiUrl } from "../../configs/api";
 import getErrorMessage from "../../helpers/getMessageError";
 import formatCurrency from "../../helpers/formatCurrency";
 import IconButton from "../../components/layout/IconButton";
@@ -138,6 +139,11 @@ const SalesSaved = () => {
     } else {
       setOrderDetails(null);
     }
+  }
+
+  function printOrder(id: string) {
+    const printUrl = `${apiUrl}/orders/print/${id}`;
+    window.open(printUrl, "_blank", "noreferrer");
   }
 
   useEffect(() => {
@@ -269,6 +275,13 @@ const SalesSaved = () => {
                     <Table size="small">
                       <TableHead>
                         <TableRow>
+                          <TableCell
+                            sx={{
+                              maxWidth: "10px",
+                              width: "10px",
+                              textAlign: "center",
+                            }}
+                          ></TableCell>
                           <TableCell sx={{ maxWidth: "60px" }}>
                             Código
                           </TableCell>
@@ -299,6 +312,20 @@ const SalesSaved = () => {
                               hover
                               sx={{ "& > *": { borderBottom: 0 } }}
                             >
+                              <TableCell sx={{ borderBottom: 0 }}>
+                                <IconButton
+                                  size="small"
+                                  color="primary"
+                                  onClick={() => getOrderDetails(ord.id)}
+                                >
+                                  {openCollapse.movId === ord.id &&
+                                  openCollapse.open ? (
+                                    <AiOutlineMinus />
+                                  ) : (
+                                    <AiOutlinePlus />
+                                  )}
+                                </IconButton>
+                              </TableCell>
                               <TableCell
                                 sx={{ maxWidth: "100px", borderBottom: 0 }}
                               >
@@ -364,24 +391,19 @@ const SalesSaved = () => {
                                 >
                                   <IconButton
                                     size="small"
+                                    color="primary"
+                                    onClick={() => printOrder(ord.id)}
+                                  >
+                                    <AiOutlinePrinter />
+                                  </IconButton>
+                                  <IconButton
+                                    size="small"
                                     color="success"
                                     onClick={() =>
                                       navigate(`/dashboard/vendas/${ord.id}`)
                                     }
                                   >
                                     <AiOutlineCheck />
-                                  </IconButton>
-                                  <IconButton
-                                    size="small"
-                                    color="primary"
-                                    onClick={() => getOrderDetails(ord.id)}
-                                  >
-                                    {openCollapse.movId === ord.id &&
-                                    openCollapse.open ? (
-                                      <AiOutlineMinus />
-                                    ) : (
-                                      <AiOutlinePlus />
-                                    )}
                                   </IconButton>
                                 </Stack>
                               </TableCell>
@@ -478,8 +500,8 @@ const SalesSaved = () => {
                                                             >
                                                               Categoria:{" "}
                                                               {items.product
-                                                                .category
-                                                                .name || ""}
+                                                                ?.category
+                                                                ?.name || "-"}
                                                             </Typography>
                                                             <Typography
                                                               variant="caption"
@@ -487,8 +509,8 @@ const SalesSaved = () => {
                                                             >
                                                               Sub-categoria:{" "}
                                                               {items.product
-                                                                .collection
-                                                                .name || ""}
+                                                                ?.collection
+                                                                ?.name || "-"}
                                                             </Typography>
                                                             <Typography variant="caption">
                                                               Quantidade:{" "}

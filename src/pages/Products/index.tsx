@@ -100,6 +100,7 @@ export default function ProductsPage() {
         .then((response) => {
           setIsLoading(false);
           setProducts(response.data.products);
+          console.log(response.data.products);
           setTotalItems(response.data.total);
         })
         .catch((error) => {
@@ -469,7 +470,7 @@ export default function ProductsPage() {
                                               Categoria
                                             </Typography>
                                             <Typography fontWeight={"500"}>
-                                              {product.category.name}
+                                              {product?.category?.name || "-"}
                                             </Typography>
                                           </Stack>
                                         </Grid>
@@ -483,7 +484,21 @@ export default function ProductsPage() {
                                               Sub-Categoria
                                             </Typography>
                                             <Typography fontWeight={"500"}>
-                                              {product.collection.name}
+                                              {product?.collection?.name || "-"}
+                                            </Typography>
+                                          </Stack>
+                                        </Grid>
+
+                                        <Grid item xs={4}>
+                                          <Stack spacing={1}>
+                                            <Typography
+                                              color={grey["600"]}
+                                              variant="body1"
+                                            >
+                                              Marca
+                                            </Typography>
+                                            <Typography fontWeight={"500"}>
+                                              {product?.supplier?.name || "-"}
                                             </Typography>
                                           </Stack>
                                         </Grid>

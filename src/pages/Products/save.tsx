@@ -12,7 +12,7 @@ import {
   MenuItem,
   Select,
 } from "@mui/material";
-import { Fragment, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { FiChevronLeft } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
 import AppBar from "../../components/layout/AppBar";
@@ -37,6 +37,7 @@ import currencyMask from "../../helpers/currencyMask";
 import { ProductOptionsEntity } from "../../services/entities/productOptions";
 import Swal from "sweetalert2";
 import { blue, red } from "@mui/material/colors";
+import { SupplierEntity } from "../../services/entities/supplier";
 
 interface FormTypeProps {
   type: "add" | "edit";
@@ -45,7 +46,7 @@ interface FormTypeProps {
 export default function SaveProduct() {
   const editor = useEditor({
     extensions: [StarterKit],
-    content: "Insira seu texto aqui",
+    content: "",
   });
   const { product } = useParams();
   const navigate = useNavigate();
@@ -56,17 +57,21 @@ export default function SaveProduct() {
   const [filteredCollections, setFilteredCollections] = useState<
     CollectionsEntity[]
   >([]);
+  const [suppliers, setSuppliers] = useState<SupplierEntity[]>([]);
   const [selectedCategory, setSelectedCategory] =
     useState<CategoriesEntity | null>(null);
   const [selectedCollection, setSelectedCollection] =
     useState<CollectionsEntity | null>(null);
+  const [selectedSupplier, setSelectedSupplier] =
+    useState<SupplierEntity | null>(null);
 
   const [productForm, setProductForm] = useState<ProductsDto>({
     active: true,
     freight_priority: "NORMAL",
     code: "",
-    category_id: "",
-    collection_id: "",
+    category_id: null,
+    collection_id: null,
+    supplier_id: null,
     name: "",
     price: "0.00",
     shipping_info: {
@@ -97,20 +102,13 @@ export default function SaveProduct() {
     ProductOptionsEntity[]
   >([]);
 
-  function getActiviesCategories() {
+  function getFormData() {
     api
-      .get("/categories/all-actives")
+      .get("/products/form-data")
       .then((response) => {
-        setCategories(response.data);
-      })
-      .catch((error) => getErrorMessage({ error }));
-  }
-
-  function getActiviesCollections() {
-    api
-      .get("/collections/all-actives")
-      .then((response) => {
-        setCollections(response.data);
+        setCategories(response.data.categories);
+        setCollections(response.data.collections);
+        setSuppliers(response.data.suppliers);
       })
       .catch((error) => getErrorMessage({ error }));
   }
@@ -125,6 +123,11 @@ export default function SaveProduct() {
   function handleChangeCollection(collection: CollectionsEntity) {
     setSelectedCollection(collection);
     setProductForm({ ...productForm, collection_id: collection.id });
+  }
+
+  function handleChangeSupplier(supplier: SupplierEntity) {
+    setSelectedSupplier(supplier);
+    setProductForm({ ...productForm, supplier_id: supplier.id });
   }
 
   function addProductOptions(mode: "add" | "edit") {
@@ -195,37 +198,10 @@ export default function SaveProduct() {
   }
 
   function saveProduct() {
-    if (!productForm.category_id.length) {
-      Swal.fire({
-        title: "Atenção",
-        text: "Selecione uma categoria",
-        icon: "warning",
-        confirmButtonColor: blue["500"],
-      });
-      return;
-    }
-    if (!productForm.collection_id.length) {
-      Swal.fire({
-        title: "Atenção",
-        text: "Selecione uma sub-categoria",
-        icon: "warning",
-        confirmButtonColor: blue["500"],
-      });
-      return;
-    }
     if (!productForm.name.length) {
       Swal.fire({
         title: "Atenção",
         text: "Insira um nome para o produto",
-        icon: "warning",
-        confirmButtonColor: blue["500"],
-      });
-      return;
-    }
-    if (editor?.getHTML() === "<p>Insira seu texto aqui</p>") {
-      Swal.fire({
-        title: "Atenção",
-        text: "Insira uma descrição detalhada para o produto",
         icon: "warning",
         confirmButtonColor: blue["500"],
       });
@@ -287,6 +263,7 @@ export default function SaveProduct() {
             category_id: productForm.category_id,
             collection_id: productForm.collection_id,
             stock_type: productForm.stock_type,
+            supplier_id: productForm.supplier_id,
             stock: productForm.stock,
           },
           productOptions: productsOptions.map((prodOpt) => {
@@ -350,6 +327,7 @@ export default function SaveProduct() {
             freight_priority: productForm.freight_priority,
             category_id: productForm.category_id,
             collection_id: productForm.collection_id,
+            supplier_id: productForm.supplier_id,
             stock_type: productForm.stock_type,
             stock: productForm.stock,
           },
@@ -390,8 +368,9 @@ export default function SaveProduct() {
         setProductsOptions(response.data.ProductOptions);
         setProductForm({
           active: response.data.active || "",
-          category_id: response.data.category.id || "",
-          collection_id: response.data.collection.id || "",
+          category_id: response.data.category.id,
+          collection_id: response.data.collection.id,
+          supplier_id: response.data.supplier_id,
           freight_priority: response.data.freight_priority,
           code: response.data.code || "",
           name: response.data.name || "",
@@ -420,12 +399,11 @@ export default function SaveProduct() {
   }, [product, editor]);
 
   useEffect(() => {
-    getActiviesCategories();
-    getActiviesCollections();
+    getFormData();
   }, []);
 
   return (
-    <Fragment>
+    <Box>
       <AppBar
         title={`${formType.type === "add" ? "Novo" : "Editar"} produto`}
       />
@@ -442,9 +420,8 @@ export default function SaveProduct() {
 
         <DefaultContainer>
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12} md={4}>
               <Autocomplete
-                disablePortal
                 id="categories"
                 getOptionLabel={(option: any) => option.name}
                 isOptionEqualToValue={(option, value) => option.id === value.id}
@@ -459,9 +436,8 @@ export default function SaveProduct() {
                 }
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12} md={4}>
               <Autocomplete
-                disablePortal
                 id="collections"
                 getOptionLabel={(option: any) => option.name}
                 isOptionEqualToValue={(option, value) => option.id === value.id}
@@ -473,6 +449,22 @@ export default function SaveProduct() {
                 value={selectedCollection}
                 onChange={(_, newValue) =>
                   handleChangeCollection(newValue as CollectionsEntity)
+                }
+              />
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <Autocomplete
+                id="supplier"
+                getOptionLabel={(option: SupplierEntity) => option.name}
+                isOptionEqualToValue={(option, value) => option.id === value.id}
+                options={suppliers}
+                disabled={formType.type === "edit"}
+                renderInput={(params) => (
+                  <InputText {...params} label="Marca" fullWidth />
+                )}
+                value={selectedSupplier}
+                onChange={(_, newValue) =>
+                  handleChangeSupplier(newValue as SupplierEntity)
                 }
               />
             </Grid>
@@ -789,6 +781,6 @@ export default function SaveProduct() {
           </Grid>
         </DefaultContainer>
       </Container>
-    </Fragment>
+    </Box>
   );
 }

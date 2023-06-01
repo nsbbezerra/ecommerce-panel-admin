@@ -13,8 +13,9 @@ export interface ProductsDto {
     weight: number;
   };
   freight_priority: string;
-  category_id: string;
-  collection_id: string;
+  category_id: string | null;
+  collection_id: string | null;
+  supplier_id: string | null;
   stock_type: string;
   stock?: number | null;
 }

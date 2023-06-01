@@ -254,7 +254,15 @@ export default function Cashier() {
                                   </Tooltip>
                                 ) : (
                                   <Tooltip title="Movimentação" arrow>
-                                    <IconButton size="small" color="primary">
+                                    <IconButton
+                                      size="small"
+                                      color="primary"
+                                      onClick={() =>
+                                        navigate(
+                                          `/dashboard/caixa/resumo/${cashier.id}`
+                                        )
+                                      }
+                                    >
                                       <AiOutlineLineChart />
                                     </IconButton>
                                   </Tooltip>

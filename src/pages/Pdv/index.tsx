@@ -1,13 +1,11 @@
 import { Fragment, useEffect, useState } from "react";
 import AppBar from "../../components/layout/AppBar";
 import Container from "../../components/layout/Container";
-import DefaultContainer from "../../components/layout/DefaultContainer";
 import {
   Autocomplete,
   Box,
   ButtonGroup,
   Chip,
-  CssBaseline,
   Dialog,
   DialogContent,
   DialogTitle,
@@ -20,22 +18,13 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  ToggleButton,
-  ToggleButtonGroup,
   Typography,
 } from "@mui/material";
-import {
-  AiOutlineMinus,
-  AiOutlinePlus,
-  AiOutlineSave,
-  AiOutlineShopping,
-  AiOutlineShoppingCart,
-} from "react-icons/ai";
+import { AiOutlineMinus, AiOutlinePlus, AiOutlineSave } from "react-icons/ai";
 import InputText from "../../components/layout/InputText";
 import IconButton from "../../components/layout/IconButton";
 import { LoadingButton } from "@mui/lab";
 import {
-  FaBoxOpen,
   FaDollarSign,
   FaSave,
   FaShoppingBag,
@@ -46,7 +35,7 @@ import { ProductsWithRelationshipEntity } from "../../services/entities/products
 import { api } from "../../configs/api";
 import getErrorMessage from "../../helpers/getMessageError";
 import formatCurrency from "../../helpers/formatCurrency";
-import { blue, grey, red } from "@mui/material/colors";
+import { blue, red } from "@mui/material/colors";
 import Button from "../../components/layout/Button";
 import { OrderItemsDto } from "../../services/dto/products";
 import { ProductOptionsEntity } from "../../services/entities/productOptions";
@@ -503,22 +492,88 @@ export default function PdvPage() {
 
           <ProductsContainer flex={1}>
             <ProductsList>
-              {orderItems.length !== 0 ? (
-                <TableContainer>
-                  <Table size="small">
-                    <TableHead>
-                      <TableRow>
-                        <TableCell
-                          sx={{
-                            fontSize: "13px",
-                            width: "1%",
-                            textAlign: "center",
-                          }}
-                        >
-                          Qtd.
+              <TableContainer>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell
+                        sx={{
+                          fontSize: "13px",
+                          width: "1%",
+                          textAlign: "center",
+                        }}
+                      >
+                        Qtd.
+                      </TableCell>
+                      <TableCell sx={{ fontSize: "13px", minWidth: "230px" }}>
+                        Produto
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          fontSize: "13px",
+                          width: "40px",
+                          textAlign: "center",
+                        }}
+                      >
+                        Opções
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          fontSize: "13px",
+                          width: "40px",
+                          textAlign: "right",
+                        }}
+                      >
+                        Preço
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          fontSize: "13px",
+                          width: "40px",
+                          textAlign: "right",
+                        }}
+                      >
+                        Total
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          fontSize: "13px",
+                          width: "40px",
+                          textAlign: "center",
+                        }}
+                      >
+                        Ações
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {orderItems.map((orderItem) => (
+                      <TableRow hover key={orderItem.id}>
+                        <TableCell sx={{ fontSize: "13px", width: "1%" }}>
+                          <ButtonGroup size="small">
+                            <Button
+                              variant="outlined"
+                              onClick={() =>
+                                handleQuantity(orderItem.id, "minus")
+                              }
+                            >
+                              <AiOutlineMinus />
+                            </Button>
+                            <Button variant="outlined">
+                              {orderItem.quantity}
+                            </Button>
+                            <Button
+                              variant="outlined"
+                              onClick={() =>
+                                handleQuantity(orderItem.id, "add")
+                              }
+                            >
+                              <AiOutlinePlus />
+                            </Button>
+                          </ButtonGroup>
                         </TableCell>
-                        <TableCell sx={{ fontSize: "13px", minWidth: "230px" }}>
-                          Produto
+                        <TableCell sx={{ fontSize: "13px", width: "140px" }}>
+                          {orderItem.product_name}
                         </TableCell>
                         <TableCell
                           sx={{
@@ -527,7 +582,11 @@ export default function PdvPage() {
                             textAlign: "center",
                           }}
                         >
-                          Opções
+                          {orderItem.product_options_id ? (
+                            <Chip label={orderItem.product_options_label} />
+                          ) : (
+                            "-"
+                          )}
                         </TableCell>
                         <TableCell
                           sx={{
@@ -536,7 +595,25 @@ export default function PdvPage() {
                             textAlign: "right",
                           }}
                         >
-                          Preço
+                          {orderItem.promo_rate !== null ? (
+                            <Stack
+                              direction={"row"}
+                              alignItems={"center"}
+                              spacing={1}
+                              justifyContent={"flex-end"}
+                            >
+                              <Chip
+                                label={`-${orderItem.promo_rate}%`}
+                                size="small"
+                                color="error"
+                              />
+                              <Typography variant="body2" fontSize={"13px"}>
+                                {formatCurrency(orderItem.price)}
+                              </Typography>
+                            </Stack>
+                          ) : (
+                            formatCurrency(orderItem.price)
+                          )}
                         </TableCell>
                         <TableCell
                           sx={{
@@ -545,7 +622,9 @@ export default function PdvPage() {
                             textAlign: "right",
                           }}
                         >
-                          Total
+                          {formatCurrency(
+                            Number(orderItem.price) * Number(orderItem.quantity)
+                          )}
                         </TableCell>
                         <TableCell
                           sx={{
@@ -554,128 +633,19 @@ export default function PdvPage() {
                             textAlign: "center",
                           }}
                         >
-                          Ações
+                          <IconButton
+                            size="small"
+                            color="error"
+                            onClick={() => removeProduct(orderItem.id)}
+                          >
+                            <HiOutlineTrash />
+                          </IconButton>
                         </TableCell>
                       </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {orderItems.map((orderItem) => (
-                        <TableRow hover key={orderItem.id}>
-                          <TableCell sx={{ fontSize: "13px", width: "1%" }}>
-                            <ButtonGroup size="small">
-                              <Button
-                                variant="outlined"
-                                onClick={() =>
-                                  handleQuantity(orderItem.id, "minus")
-                                }
-                              >
-                                <AiOutlineMinus />
-                              </Button>
-                              <Button variant="outlined">
-                                {orderItem.quantity}
-                              </Button>
-                              <Button
-                                variant="outlined"
-                                onClick={() =>
-                                  handleQuantity(orderItem.id, "add")
-                                }
-                              >
-                                <AiOutlinePlus />
-                              </Button>
-                            </ButtonGroup>
-                          </TableCell>
-                          <TableCell sx={{ fontSize: "13px", width: "140px" }}>
-                            {orderItem.product_name}
-                          </TableCell>
-                          <TableCell
-                            sx={{
-                              fontSize: "13px",
-                              width: "40px",
-                              textAlign: "center",
-                            }}
-                          >
-                            {orderItem.product_options_id ? (
-                              <Chip label={orderItem.product_options_label} />
-                            ) : (
-                              "-"
-                            )}
-                          </TableCell>
-                          <TableCell
-                            sx={{
-                              fontSize: "13px",
-                              width: "40px",
-                              textAlign: "right",
-                            }}
-                          >
-                            {orderItem.promo_rate !== null ? (
-                              <Stack
-                                direction={"row"}
-                                alignItems={"center"}
-                                spacing={1}
-                                justifyContent={"flex-end"}
-                              >
-                                <Chip
-                                  label={`-${orderItem.promo_rate}%`}
-                                  size="small"
-                                  color="error"
-                                />
-                                <Typography variant="body2" fontSize={"13px"}>
-                                  {formatCurrency(orderItem.price)}
-                                </Typography>
-                              </Stack>
-                            ) : (
-                              formatCurrency(orderItem.price)
-                            )}
-                          </TableCell>
-                          <TableCell
-                            sx={{
-                              fontSize: "13px",
-                              width: "40px",
-                              textAlign: "right",
-                            }}
-                          >
-                            {formatCurrency(
-                              Number(orderItem.price) *
-                                Number(orderItem.quantity)
-                            )}
-                          </TableCell>
-                          <TableCell
-                            sx={{
-                              fontSize: "13px",
-                              width: "40px",
-                              textAlign: "center",
-                            }}
-                          >
-                            <IconButton
-                              size="small"
-                              color="error"
-                              onClick={() => removeProduct(orderItem.id)}
-                            >
-                              <HiOutlineTrash />
-                            </IconButton>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              ) : (
-                <Box
-                  color={grey["700"]}
-                  display={"flex"}
-                  justifyContent={"center"}
-                  alignItems={"center"}
-                  flexDirection={"column"}
-                  padding={"20px"}
-                  gap={"5px"}
-                  height={"100%"}
-                >
-                  <FaBoxOpen fontSize={40} />
-                  <Typography variant="body2" sx={{ userSelect: "none" }}>
-                    Nenhum item selecionado
-                  </Typography>
-                </Box>
-              )}
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
             </ProductsList>
           </ProductsContainer>
 

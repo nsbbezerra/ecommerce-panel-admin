@@ -48,8 +48,9 @@ export interface ProductsWithRelationshipEntity {
   };
   freight_priority: "FAST" | "NORMAL";
   created_at: Date;
-  category: { id: string; name: string };
-  collection: { id: string; name: string };
+  category: { id: string; name: string } | null;
+  collection: { id: string; name: string } | null;
+  supplier: { id: string; name: string } | null;
   stock_type?: string | null;
   stock?: number | null;
   ProductOptions: ProductOptionsEntity[];
