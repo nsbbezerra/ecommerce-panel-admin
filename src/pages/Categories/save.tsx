@@ -14,7 +14,7 @@ import { Box, Grid } from "@mui/material";
 import { AiOutlineSave } from "react-icons/ai";
 import Upload from "../../components/layout/Upload";
 import { blue, red } from "@mui/material/colors";
-import getSuccessMessage from "../../helpers/getMessageSuccess";
+import generateSlug from "../../helpers/generateSlug";
 
 interface LoadingType {
   from: "thumbnail" | "form";
@@ -60,11 +60,7 @@ export default function SaveCategoryPage() {
           category: {
             active: categoryForm.active,
             name: categoryForm.name,
-            slug: categoryForm.name
-              .normalize("NFD")
-              .replaceAll(/[^\w\s]/gi, "")
-              .replaceAll(" ", "-")
-              .toLowerCase(),
+            slug: generateSlug(categoryForm.name),
           },
         })
         .then((response) => {
@@ -97,11 +93,7 @@ export default function SaveCategoryPage() {
           category: {
             id: category,
             name: categoryForm.name,
-            slug: categoryForm.name
-              .normalize("NFD")
-              .replaceAll(/[^\w\s]/gi, "")
-              .replaceAll(" ", "-")
-              .toLowerCase(),
+            slug: generateSlug(categoryForm.name),
           },
         })
         .then((response) => {

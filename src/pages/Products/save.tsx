@@ -2,6 +2,11 @@ import {
   Autocomplete,
   Box,
   Card,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   FormControl,
   Grid,
   InputLabel,
@@ -11,6 +16,9 @@ import {
   ListItemText,
   MenuItem,
   Select,
+  Stack,
+  Switch,
+  Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { FiChevronLeft } from "react-icons/fi";
@@ -23,7 +31,12 @@ import InputText from "../../components/layout/InputText";
 import RichEditor from "../../components/layout/RichEditor";
 import { useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import { AiOutlinePlus, AiOutlineSave } from "react-icons/ai";
+import {
+  AiOutlineClose,
+  AiOutlineEdit,
+  AiOutlinePlus,
+  AiOutlineSave,
+} from "react-icons/ai";
 import IconButton from "../../components/layout/IconButton";
 import Avatar from "../../components/layout/Avatar";
 import { FaTrash } from "react-icons/fa";
@@ -38,6 +51,7 @@ import { ProductOptionsEntity } from "../../services/entities/productOptions";
 import Swal from "sweetalert2";
 import { blue, red } from "@mui/material/colors";
 import { SupplierEntity } from "../../services/entities/supplier";
+import generateSlug from "../../helpers/generateSlug";
 
 interface FormTypeProps {
   type: "add" | "edit";
@@ -50,6 +64,8 @@ export default function SaveProduct() {
   });
   const { product } = useParams();
   const navigate = useNavigate();
+
+  const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
 
   const [formType, setFormType] = useState<FormTypeProps>({ type: "add" });
   const [categories, setCategories] = useState<CategoriesEntity[]>([]);
@@ -73,7 +89,7 @@ export default function SaveProduct() {
     collection_id: null,
     supplier_id: null,
     name: "",
-    price: "0.00",
+    price: "",
     shipping_info: {
       height: 0,
       lenght: 0,
@@ -91,6 +107,7 @@ export default function SaveProduct() {
       content: "",
       headline: "",
       stock: 0,
+      active: true,
     }
   );
 
@@ -101,6 +118,9 @@ export default function SaveProduct() {
   const [productsOptions, setProductsOptions] = useState<
     ProductOptionsEntity[]
   >([]);
+
+  const [productOptStock, setProductOptStock] = useState<number>(0);
+  const [productOptId, setProductOptId] = useState<string>("");
 
   function getFormData() {
     api
@@ -179,6 +199,7 @@ export default function SaveProduct() {
           headline: productOptionForm.headline,
           stock: productOptionForm.stock,
           id: Math.random().toString(),
+          active: true,
         },
       ]);
 
@@ -186,6 +207,7 @@ export default function SaveProduct() {
         content: "",
         headline: "",
         stock: 0,
+        active: true,
       });
     }
   }
@@ -241,11 +263,7 @@ export default function SaveProduct() {
         .post("/products/save", {
           product: {
             name: productForm.name,
-            slug: productForm.name
-              .normalize("NFD")
-              .replaceAll(/[^\w\s]/gi, "")
-              .replaceAll(" ", "-")
-              .toLowerCase(),
+            slug: generateSlug(productForm.name),
             active: productForm.active,
             short_description: productForm.short_description,
             description: editor?.getHTML(),
@@ -265,12 +283,14 @@ export default function SaveProduct() {
             stock_type: productForm.stock_type,
             supplier_id: productForm.supplier_id,
             stock: productForm.stock,
+            code: productForm.code,
           },
           productOptions: productsOptions.map((prodOpt) => {
             return {
               headline: prodOpt.headline,
               content: prodOpt.content,
               stock: prodOpt.stock,
+              active: prodOpt.active,
             };
           }),
         })
@@ -306,11 +326,7 @@ export default function SaveProduct() {
             id: product,
             name: productForm.name,
             code: productForm.code,
-            slug: productForm.name
-              .normalize("NFD")
-              .replaceAll(/[^\w\s]/gi, "")
-              .replaceAll(" ", "-")
-              .toLowerCase(),
+            slug: generateSlug(productForm.name),
             active: productForm.active,
             short_description: productForm.short_description,
             description: editor?.getHTML(),
@@ -333,9 +349,11 @@ export default function SaveProduct() {
           },
           productOptions: productsOptions.map((prodOpt) => {
             return {
+              id: prodOpt.id,
               headline: prodOpt.headline,
               content: prodOpt.content,
               stock: prodOpt.stock,
+              active: prodOpt.active,
             };
           }),
         })
@@ -387,6 +405,41 @@ export default function SaveProduct() {
         editor?.commands.setContent(response.data.description);
       })
       .catch((error) => getErrorMessage({ error }));
+  }
+
+  function handleActiveProductOptions(id: string, active: boolean) {
+    const updated = productsOptions.map((prodOpt) => {
+      if (prodOpt.id === id) {
+        return { ...prodOpt, active };
+      }
+
+      return prodOpt;
+    });
+
+    setProductsOptions(updated);
+  }
+
+  function handleupdateProductOptStock(id: string, stock: number) {
+    setProductOptId(id);
+    setProductOptStock(stock);
+
+    setDrawerOpen(true);
+  }
+
+  function updateProductOptionsStock() {
+    const updated = productsOptions.map((prodOpt) => {
+      if (prodOpt.id === productOptId) {
+        return { ...prodOpt, stock: productOptStock };
+      }
+
+      return prodOpt;
+    });
+
+    setProductsOptions(updated);
+
+    setDrawerOpen(false);
+    setProductOptId("");
+    setProductOptStock(0);
   }
 
   useEffect(() => {
@@ -627,15 +680,43 @@ export default function SaveProduct() {
                     {productsOptions.map((prodOpt) => (
                       <ListItem
                         secondaryAction={
-                          <IconButton
-                            onClick={() =>
-                              removeProductOptions(prodOpt.id, "add")
-                            }
-                            size="small"
-                            color="error"
-                          >
-                            <FaTrash />
-                          </IconButton>
+                          <>
+                            {formType.type === "add" ? (
+                              <IconButton
+                                onClick={() =>
+                                  removeProductOptions(prodOpt.id, "add")
+                                }
+                                size="small"
+                                color="error"
+                              >
+                                <FaTrash />
+                              </IconButton>
+                            ) : (
+                              <Stack direction={"row"} spacing={1}>
+                                <IconButton
+                                  onClick={() =>
+                                    handleupdateProductOptStock(
+                                      prodOpt.id,
+                                      prodOpt.stock as number
+                                    )
+                                  }
+                                  size="small"
+                                  color="primary"
+                                >
+                                  <AiOutlineEdit />
+                                </IconButton>
+                                <Switch
+                                  checked={prodOpt.active}
+                                  onChange={(e) =>
+                                    handleActiveProductOptions(
+                                      prodOpt.id,
+                                      e.target.checked
+                                    )
+                                  }
+                                />
+                              </Stack>
+                            )}
+                          </>
                         }
                         key={prodOpt.id}
                       >
@@ -781,6 +862,49 @@ export default function SaveProduct() {
           </Grid>
         </DefaultContainer>
       </Container>
+
+      <Dialog
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>
+          <Box
+            display={"flex"}
+            width={"100%"}
+            justifyContent={"space-between"}
+            alignItems={"center"}
+          >
+            <Typography variant="h6">Alterar Estoque</Typography>
+            <IconButton size="small" onClick={() => setDrawerOpen(false)}>
+              <AiOutlineClose />
+            </IconButton>
+          </Box>
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Insira um novo valor para o estoque.
+          </DialogContentText>
+
+          <InputText
+            label="Estoque"
+            type="number"
+            fullWidth
+            value={productOptStock}
+            onChange={(e) => setProductOptStock(Number(e.target.value))}
+          />
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button
+            variant="contained"
+            startIcon={<AiOutlineSave />}
+            onClick={updateProductOptionsStock}
+          >
+            Salvar
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

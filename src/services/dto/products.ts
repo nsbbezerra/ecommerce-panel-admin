@@ -22,6 +22,7 @@ export interface ProductsDto {
 
 export interface ProductOptionsDto {
   headline: string;
+  active: boolean;
   content: string;
   stock: number;
   product_id?: string;

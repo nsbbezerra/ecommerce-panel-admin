@@ -13,6 +13,7 @@ import InputText from "../../components/layout/InputText";
 import { api } from "../../configs/api";
 import getErrorMessage from "../../helpers/getMessageError";
 import { CategoriesEntity } from "../../services/entities/categories";
+import generateSlug from "../../helpers/generateSlug";
 
 interface TypeFormProps {
   type: "add" | "edit";
@@ -64,11 +65,7 @@ export default function SaveSubCategory() {
         .post("/collections/save", {
           collection: {
             name,
-            slug: name
-              .normalize("NFD")
-              .replaceAll(/[^\w\s]/gi, "")
-              .replaceAll(" ", "-")
-              .toLowerCase(),
+            slug: generateSlug(name),
             active: true,
             category_id: selectedCategory.id,
           },
@@ -97,11 +94,7 @@ export default function SaveSubCategory() {
           collection: {
             id: collection,
             name,
-            slug: name
-              .normalize("NFD")
-              .replaceAll(/[^\w\s]/gi, "")
-              .replaceAll(" ", "-")
-              .toLowerCase(),
+            slug: generateSlug(name),
             category_id: selectedCategory.id,
           },
         })
@@ -178,7 +171,6 @@ export default function SaveSubCategory() {
             >
               <Grid item xs={12} md={4} lg={4}>
                 <Autocomplete
-                  freeSolo
                   id="categories"
                   getOptionLabel={(option: any) => option.name}
                   isOptionEqualToValue={(option, value) =>

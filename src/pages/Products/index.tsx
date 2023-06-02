@@ -29,6 +29,7 @@ import { Fragment, useEffect, useState } from "react";
 import {
   AiOutlineClose,
   AiOutlineEdit,
+  AiOutlineLock,
   AiOutlineMinus,
   AiOutlinePicture,
   AiOutlinePlus,
@@ -100,7 +101,6 @@ export default function ProductsPage() {
         .then((response) => {
           setIsLoading(false);
           setProducts(response.data.products);
-          console.log(response.data.products);
           setTotalItems(response.data.total);
         })
         .catch((error) => {
@@ -569,7 +569,17 @@ export default function ProductsPage() {
                                             <List dense>
                                               {product.ProductOptions.map(
                                                 (prodOpt) => (
-                                                  <ListItem key={prodOpt.id}>
+                                                  <ListItem
+                                                    key={prodOpt.id}
+                                                    secondaryAction={
+                                                      !prodOpt.active && (
+                                                        <AiOutlineLock
+                                                          fontSize={25}
+                                                          color={red["700"]}
+                                                        />
+                                                      )
+                                                    }
+                                                  >
                                                     <ListItemAvatar>
                                                       <Avatar>
                                                         {prodOpt.headline}
@@ -618,58 +628,68 @@ export default function ProductsPage() {
                                       </Stack>
 
                                       <Box p={2}>
-                                        <List dense>
-                                          <ListItem>
-                                            <ListItemIcon>
-                                              <BsTruck />
-                                            </ListItemIcon>
-                                            <ListItemText
-                                              primary={
-                                                product.freight_priority ===
-                                                "NORMAL"
-                                                  ? "Entrega normal"
-                                                  : "Entrega rápida"
-                                              }
-                                              secondary={"Tipo de entrega"}
-                                            />
-                                          </ListItem>
-                                          <ListItem>
-                                            <ListItemIcon>
-                                              <FiPackage />
-                                            </ListItemIcon>
-                                            <ListItemText
-                                              primary={`${product.shipping_info.width} cm`}
-                                              secondary={"Largura"}
-                                            />
-                                          </ListItem>
-                                          <ListItem>
-                                            <ListItemIcon>
-                                              <FiPackage />
-                                            </ListItemIcon>
-                                            <ListItemText
-                                              primary={`${product.shipping_info.height} cm`}
-                                              secondary={"Altura"}
-                                            />
-                                          </ListItem>
-                                          <ListItem>
-                                            <ListItemIcon>
-                                              <FiPackage />
-                                            </ListItemIcon>
-                                            <ListItemText
-                                              primary={`${product.shipping_info.lenght} cm`}
-                                              secondary={"Comprimento"}
-                                            />
-                                          </ListItem>
-                                          <ListItem>
-                                            <ListItemIcon>
-                                              <FiPackage />
-                                            </ListItemIcon>
-                                            <ListItemText
-                                              primary={`${product.shipping_info.weight} kg`}
-                                              secondary={"Peso"}
-                                            />
-                                          </ListItem>
-                                        </List>
+                                        <Grid container spacing={2}>
+                                          <Grid item xs={3}>
+                                            <ListItem>
+                                              <ListItemIcon>
+                                                <BsTruck fontSize={25} />
+                                              </ListItemIcon>
+                                              <ListItemText
+                                                primary={
+                                                  product.freight_priority ===
+                                                  "NORMAL"
+                                                    ? "Entrega normal"
+                                                    : "Entrega rápida"
+                                                }
+                                                secondary={"Tipo de entrega"}
+                                              />
+                                            </ListItem>
+                                          </Grid>
+                                          <Grid item xs={3}>
+                                            <ListItem>
+                                              <ListItemIcon>
+                                                <FiPackage fontSize={25} />
+                                              </ListItemIcon>
+                                              <ListItemText
+                                                primary={`${product.shipping_info.width} cm`}
+                                                secondary={"Largura"}
+                                              />
+                                            </ListItem>
+                                          </Grid>
+                                          <Grid item xs={3}>
+                                            <ListItem>
+                                              <ListItemIcon>
+                                                <FiPackage fontSize={25} />
+                                              </ListItemIcon>
+                                              <ListItemText
+                                                primary={`${product.shipping_info.height} cm`}
+                                                secondary={"Altura"}
+                                              />
+                                            </ListItem>
+                                          </Grid>
+                                          <Grid item xs={3}>
+                                            <ListItem>
+                                              <ListItemIcon>
+                                                <FiPackage fontSize={25} />
+                                              </ListItemIcon>
+                                              <ListItemText
+                                                primary={`${product.shipping_info.lenght} cm`}
+                                                secondary={"Comprimento"}
+                                              />
+                                            </ListItem>
+                                          </Grid>
+                                          <Grid item xs={3}>
+                                            <ListItem>
+                                              <ListItemIcon>
+                                                <FiPackage fontSize={25} />
+                                              </ListItemIcon>
+                                              <ListItemText
+                                                primary={`${product.shipping_info.weight} kg`}
+                                                secondary={"Peso"}
+                                              />
+                                            </ListItem>
+                                          </Grid>
+                                        </Grid>
                                       </Box>
                                     </Box>
                                   </Card>
