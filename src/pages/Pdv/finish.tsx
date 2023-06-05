@@ -109,6 +109,11 @@ interface ShippingModal {
   isOpen: boolean;
 }
 
+interface PaymentProps {
+  method: string;
+  status: "WAITING" | "PAID_OUT" | "REFUSED";
+}
+
 const SalesFinished = () => {
   const navigate = useNavigate();
 
@@ -121,6 +126,7 @@ const SalesFinished = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [detailsLoading, setDetailsLoading] = useState<boolean>(false);
   const [updateLoading, setUpdateLoading] = useState<boolean>(false);
+  const [paymentLoading, setPaymentLoading] = useState<boolean>(false);
 
   const [paymentStatusDialog, setPaymentStatusDialog] =
     useState<boolean>(false);
@@ -143,6 +149,10 @@ const SalesFinished = () => {
     movId: "",
     open: false,
   });
+
+  const [paymentDetails, setPaymentDetails] = useState<PaymentProps[]>([]);
+
+  const [paymentDialog, setPaymentDialog] = useState<boolean>(false);
 
   function resetSearch() {
     setStartDate(subDays(new Date(), 30));
@@ -273,6 +283,28 @@ const SalesFinished = () => {
   function printOrder(id: string) {
     const printUrl = `${apiUrl}/orders/print/${id}`;
     window.open(printUrl, "_blank", "noreferrer");
+  }
+
+  function getPaymentDetails(id: string, orderId: string) {
+    setPaymentLoading(true);
+    api
+      .post("/payments/details", {
+        checkoutId: id,
+        orderId,
+      })
+      .then((response) => {
+        setPaymentLoading(false);
+        setPaymentDetails(response.data);
+        setPaymentDialog(true);
+      })
+      .catch((error) => {
+        setPaymentLoading(false);
+        getErrorMessage({ error });
+      });
+  }
+
+  function printPayment(id: string) {
+    window.open(`${apiUrl}/payments/print/${id}`, "_blank");
   }
 
   useEffect(() => {
@@ -973,6 +1005,15 @@ const SalesFinished = () => {
                                                             ord.payment_mode ===
                                                             "LOCAL"
                                                           }
+                                                          onClick={() =>
+                                                            getPaymentDetails(
+                                                              orderDetails.checkout_id as string,
+                                                              orderDetails.id
+                                                            )
+                                                          }
+                                                          loading={
+                                                            paymentLoading
+                                                          }
                                                         >
                                                           Detalhes do Pagamento
                                                         </Button>
@@ -983,7 +1024,9 @@ const SalesFinished = () => {
                                                           variant="outlined"
                                                           disabled={
                                                             ord.payment_mode ===
-                                                            "LOCAL"
+                                                              "LOCAL" ||
+                                                            orderDetails.payment_status ===
+                                                              "PAID_OUT"
                                                           }
                                                           onClick={() =>
                                                             navigate(
@@ -1124,6 +1167,11 @@ const SalesFinished = () => {
                                                         disabled={
                                                           orderDetails.pay_form !==
                                                           "trade_note"
+                                                        }
+                                                        onClick={() =>
+                                                          printPayment(
+                                                            orderDetails.id
+                                                          )
                                                         }
                                                       >
                                                         Imprimir Comprovantes
@@ -1574,6 +1622,49 @@ const SalesFinished = () => {
             Fechar
           </Button>
           <Button onClick={handleSetShippingInformation}>Salvar</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={paymentDialog}
+        onClose={() => setPaymentDialog(false)}
+        fullWidth
+        maxWidth="xs"
+      >
+        <DialogContent>
+          <Stack spacing={2}>
+            {paymentDetails.map((detail) => (
+              <Card
+                elevation={0}
+                sx={{
+                  bgcolor:
+                    (detail.status === "PAID_OUT" && green["700"]) ||
+                    (detail.status === "REFUSED" && red["700"]) ||
+                    (detail.status === "WAITING" && orange["800"]) ||
+                    blue["700"],
+                  color: "#FFF",
+                  px: 2,
+                  py: 1,
+                  position: "relative",
+                }}
+                key={detail.method}
+              >
+                <Stack spacing={0}>
+                  <Typography fontWeight={"600"} fontSize={"20px"}>
+                    {handlePayForm(detail.method)}
+                  </Typography>
+                  <Stack direction={"row"} justifyContent={"space-between"}>
+                    <Typography>
+                      {formatCurrency(orderDetails?.sub_total as string)}
+                    </Typography>
+                  </Stack>
+                </Stack>
+              </Card>
+            ))}
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setPaymentDialog(false)}>Fechar</Button>
         </DialogActions>
       </Dialog>
     </Fragment>
