@@ -351,7 +351,7 @@ export default function AppConfigs() {
 
             <Box>
               <Grid container spacing={2}>
-                <Grid item xs={4}>
+                <Grid item xs={12} sm={6} md={4}>
                   <FormControl>
                     <FormLabel id="demo-row-radio-buttons-group-label">
                       Frete grátis para todo o Brasil?
@@ -377,7 +377,7 @@ export default function AppConfigs() {
                   </FormControl>
                 </Grid>
 
-                <Grid item xs={4}>
+                <Grid item xs={12} sm={6} md={4}>
                   <FormControl disabled={countryFreeShipping === "yes"}>
                     <FormLabel id="demo-row-radio-buttons-group-label">
                       Modo de frete
