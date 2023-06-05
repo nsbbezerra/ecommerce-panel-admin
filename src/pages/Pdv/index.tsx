@@ -4,7 +4,6 @@ import Container from "../../components/layout/Container";
 import {
   Autocomplete,
   Box,
-  ButtonGroup,
   Chip,
   Dialog,
   DialogContent,
@@ -36,7 +35,6 @@ import { api } from "../../configs/api";
 import getErrorMessage from "../../helpers/getMessageError";
 import formatCurrency from "../../helpers/formatCurrency";
 import { blue, red } from "@mui/material/colors";
-import Button from "../../components/layout/Button";
 import { OrderItemsDto } from "../../services/dto/products";
 import { ProductOptionsEntity } from "../../services/entities/productOptions";
 import Swal from "sweetalert2";
@@ -550,27 +548,42 @@ export default function PdvPage() {
                     {orderItems.map((orderItem) => (
                       <TableRow hover key={orderItem.id}>
                         <TableCell sx={{ fontSize: "13px", width: "1%" }}>
-                          <ButtonGroup size="small">
-                            <Button
-                              variant="outlined"
+                          <Stack
+                            spacing={1}
+                            direction={"row"}
+                            alignItems={"center"}
+                          >
+                            <IconButton
+                              size="small"
+                              color="primary"
                               onClick={() =>
                                 handleQuantity(orderItem.id, "minus")
                               }
                             >
                               <AiOutlineMinus />
-                            </Button>
-                            <Button variant="outlined">
+                            </IconButton>
+                            <Box
+                              minWidth={30}
+                              height={25}
+                              bgcolor={blue["50"]}
+                              display={"flex"}
+                              justifyContent={"center"}
+                              alignItems={"center"}
+                              borderRadius={"4px"}
+                              fontSize={"11px"}
+                            >
                               {orderItem.quantity}
-                            </Button>
-                            <Button
-                              variant="outlined"
+                            </Box>
+                            <IconButton
+                              size="small"
+                              color="primary"
                               onClick={() =>
                                 handleQuantity(orderItem.id, "add")
                               }
                             >
                               <AiOutlinePlus />
-                            </Button>
-                          </ButtonGroup>
+                            </IconButton>
+                          </Stack>
                         </TableCell>
                         <TableCell sx={{ fontSize: "13px", width: "140px" }}>
                           {orderItem.product_name}

@@ -9,6 +9,7 @@ import {
   Link,
   MenuItem,
   Select,
+  Stack,
   Switch,
 } from "@mui/material";
 import { Fragment, useEffect, useState } from "react";
@@ -153,7 +154,7 @@ export default function PaymentsConfigsPage() {
   }, []);
 
   return (
-    <DefaultContainer>
+    <DefaultContainer disabledPadding>
       {isLoading ? (
         <Loading />
       ) : (
@@ -412,20 +413,18 @@ export default function PaymentsConfigsPage() {
               </FormGroup>
             </Grid>
           </Grid>
-          <Grid container spacing={2} justifyContent={"flex-end"} mt={2}>
-            <Grid item xs={12} sm={4}>
-              <Button
-                variant="contained"
-                size="large"
-                startIcon={<AiOutlineSave />}
-                fullWidth
-                loading={isSubmitLoading}
-                onClick={saveConfiguration}
-              >
-                Salvar
-              </Button>
-            </Grid>
-          </Grid>
+          <Divider sx={{ py: 2 }} />
+          <Stack alignItems={"end"} mt={2}>
+            <Button
+              variant="contained"
+              size="large"
+              startIcon={<AiOutlineSave />}
+              loading={isSubmitLoading}
+              onClick={saveConfiguration}
+            >
+              Salvar
+            </Button>
+          </Stack>
         </>
       )}
     </DefaultContainer>

@@ -24,3 +24,24 @@ export interface ConfigurationsEntity {
   payment_online?: PaymentOnlineProps;
   payment_local?: LocalPaymentProps;
 }
+
+export interface ConfigsAlertProps {
+  id: string;
+  page: string;
+  message: string;
+}
+
+export interface ConfigsRegionShipping {
+  id: string;
+  city: string;
+  state: string;
+}
+
+export interface ConfigsProps {
+  alerts: ConfigsAlertProps[];
+  regions: ConfigsRegionShipping[];
+  dark_mode: boolean;
+  shipping_mode: "yes" | "no";
+  selected_state: string[];
+  country_shipping: "yes" | "no";
+}

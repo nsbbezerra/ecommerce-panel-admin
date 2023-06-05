@@ -1,48 +1,49 @@
-import { Fragment, MouseEvent, useState } from "react";
+import { useState } from "react";
 import AppBar from "../../components/layout/AppBar";
 import Container from "../../components/layout/Container";
-import DefaultContainer from "../../components/layout/DefaultContainer";
-import { Box, ToggleButton, ToggleButtonGroup } from "@mui/material";
+import { Box } from "@mui/material";
 import PaymentsConfigsPage from "./payments";
-import EmptyBox from "../../components/layout/EmptyBox";
+import { MenuContainer, MenuItem } from "../Pdv/styles";
+import { IoIosDesktop } from "react-icons/io";
+import { MdPayments } from "react-icons/md";
+import AppConfigs from "./app";
 
 export default function Configurations() {
   const [alignment, setAlignment] = useState("app");
 
-  const handleChange = (
-    event: MouseEvent<HTMLElement>,
-    newAlignment: string
-  ) => {
-    setAlignment(newAlignment);
-  };
-
   return (
-    <Fragment>
+    <Box pb={2}>
       <AppBar title="Configurações" />
 
       <Container size="lg">
-        <Box mb={-2}>
-          <DefaultContainer>
-            <ToggleButtonGroup
-              color="primary"
-              value={alignment}
-              exclusive
-              onChange={handleChange}
-              aria-label="Platform"
+        <Box py={2}>
+          <MenuContainer>
+            <MenuItem
+              active={alignment === "app"}
+              onClick={() => setAlignment("app")}
             >
-              <ToggleButton value="app">Aplicativo</ToggleButton>
-              <ToggleButton value="payment">Pagamentos</ToggleButton>
-            </ToggleButtonGroup>
-          </DefaultContainer>
+              <IoIosDesktop className="menu-icon" />
+              <div className="menu-right">
+                <span className="menu-title">CONFIGURAÇÕES</span>
+                <span className="menu-desc">DO APLICATIVO</span>
+              </div>
+            </MenuItem>
+            <MenuItem
+              active={alignment === "payment"}
+              onClick={() => setAlignment("payment")}
+            >
+              <MdPayments className="menu-icon" />
+              <div className="menu-right">
+                <span className="menu-title">CONFIGURAÇÕES</span>
+                <span className="menu-desc">DE PAGAMENTOS</span>
+              </div>
+            </MenuItem>
+          </MenuContainer>
         </Box>
 
         {alignment === "payment" && <PaymentsConfigsPage />}
-        {alignment === "app" && (
-          <DefaultContainer>
-            <EmptyBox label="Nenhuma configuração disponível" />
-          </DefaultContainer>
-        )}
+        {alignment === "app" && <AppConfigs />}
       </Container>
-    </Fragment>
+    </Box>
   );
 }

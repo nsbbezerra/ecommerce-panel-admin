@@ -1,4 +1,13 @@
-import { Box, Chip, Divider, Grid } from "@mui/material";
+import {
+  Box,
+  Chip,
+  Divider,
+  FormControl,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Select,
+} from "@mui/material";
 import { blue } from "@mui/material/colors";
 import { ChangeEvent, FormEvent, Fragment, useState } from "react";
 import { AiOutlineSave } from "react-icons/ai";
@@ -102,33 +111,6 @@ export default function SaveClient() {
       Swal.fire({
         title: "Atenção",
         text: "O telefone é obrigatório",
-        icon: "warning",
-        confirmButtonColor: blue["500"],
-      });
-      return;
-    }
-    if (!clientsForm.email.length) {
-      Swal.fire({
-        title: "Atenção",
-        text: "O email é obrigatório",
-        icon: "warning",
-        confirmButtonColor: blue["500"],
-      });
-      return;
-    }
-    if (!clientsForm.email.includes("@")) {
-      Swal.fire({
-        title: "Atenção",
-        text: "Insira um email válido",
-        icon: "warning",
-        confirmButtonColor: blue["500"],
-      });
-      return;
-    }
-    if (!clientsForm.password.length) {
-      Swal.fire({
-        title: "Atenção",
-        text: "A senha é obrigatória",
         icon: "warning",
         confirmButtonColor: blue["500"],
       });
@@ -377,15 +359,52 @@ export default function SaveClient() {
                 />
               </Grid>
               <Grid item xs={12} sm={3}>
-                <InputText
-                  fullWidth
-                  label="Estado"
-                  name="state"
-                  value={addressForm.state}
-                  onChange={(e) =>
-                    handleChangeAddressForm(e as ChangeEvent<HTMLInputElement>)
-                  }
-                />
+                <FormControl fullWidth size="small" variant="filled">
+                  <InputLabel id="demo-simple-select-label">Estado</InputLabel>
+                  <Select
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    value={addressForm.state}
+                    label="Age"
+                    onChange={(e) =>
+                      handleChangeAddressForm(
+                        e as ChangeEvent<HTMLInputElement>
+                      )
+                    }
+                    name="state"
+                  >
+                    <MenuItem value="">
+                      <em>Selecione</em>
+                    </MenuItem>
+                    <MenuItem value="AC">AC</MenuItem>
+                    <MenuItem value="AL">AL</MenuItem>
+                    <MenuItem value="AP">AP</MenuItem>
+                    <MenuItem value="AM">AM</MenuItem>
+                    <MenuItem value="BA">BA</MenuItem>
+                    <MenuItem value="CE">CE</MenuItem>
+                    <MenuItem value="DF">DF</MenuItem>
+                    <MenuItem value="ES">ES</MenuItem>
+                    <MenuItem value="GO">GO</MenuItem>
+                    <MenuItem value="MA">MA</MenuItem>
+                    <MenuItem value="MT">MT</MenuItem>
+                    <MenuItem value="MS">MS</MenuItem>
+                    <MenuItem value="MG">MG</MenuItem>
+                    <MenuItem value="PA">PA</MenuItem>
+                    <MenuItem value="PB">PB</MenuItem>
+                    <MenuItem value="PR">PR</MenuItem>
+                    <MenuItem value="PE">PE</MenuItem>
+                    <MenuItem value="PI">PI</MenuItem>
+                    <MenuItem value="RJ">RJ</MenuItem>
+                    <MenuItem value="RN">RN</MenuItem>
+                    <MenuItem value="RS">RS</MenuItem>
+                    <MenuItem value="RO">RO</MenuItem>
+                    <MenuItem value="RR">RR</MenuItem>
+                    <MenuItem value="SC">SC</MenuItem>
+                    <MenuItem value="SP">SP</MenuItem>
+                    <MenuItem value="SE">SE</MenuItem>
+                    <MenuItem value="TO">TO</MenuItem>
+                  </Select>
+                </FormControl>
               </Grid>
             </Grid>
             <Grid container justifyContent={"flex-end"} mt={0.5} spacing={2}>
