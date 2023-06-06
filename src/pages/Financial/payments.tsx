@@ -3,10 +3,10 @@ import AppBar from "../../components/layout/AppBar";
 import Container from "../../components/layout/Container";
 import {
   Box,
+  Checkbox,
   Chip,
   FormControl,
   Grid,
-  Icon,
   InputLabel,
   MenuItem as MUIMenuItem,
   Select,
@@ -33,12 +33,11 @@ import ptBr from "date-fns/locale/pt-BR";
 import Button from "../../components/layout/Button";
 import {
   AiFillLock,
+  AiOutlineCheck,
   AiOutlineClear,
-  AiOutlineEdit,
   AiOutlineSearch,
 } from "react-icons/ai";
-import IconButton from "../../components/layout/IconButton";
-import { blue, green, grey, red } from "@mui/material/colors";
+import { blue, green, grey, orange, red } from "@mui/material/colors";
 import InputText from "../../components/layout/InputText";
 import { api } from "../../configs/api";
 import getErrorMessage from "../../helpers/getMessageError";
@@ -48,6 +47,8 @@ import EmptyBox from "../../components/layout/EmptyBox";
 import formatCurrency from "../../helpers/formatCurrency";
 import handlePaymentStatus from "../../helpers/hanldePaymentStatus";
 import Swal from "sweetalert2";
+import handlePayForm from "../../helpers/handlePayForm";
+import getSuccessMessage from "../../helpers/getMessageSuccess";
 
 export default function PaymentsManager() {
   const navigate = useNavigate();
@@ -63,6 +64,10 @@ export default function PaymentsManager() {
   const [typeSearch, setTypeSearch] = useState<string>("MONTH");
 
   const [payments, setPayments] = useState<PaymentsWithRelatioshipEntity[]>([]);
+
+  const [selectedRow, setSelectedRows] = useState<string[]>([]);
+
+  const [confirmLoading, setConfirmLoading] = useState<boolean>(false);
 
   function clear() {
     setEndDate(new Date());
@@ -114,8 +119,11 @@ export default function PaymentsManager() {
       });
   }
 
-  function sumValues(mode: "REFUSED" | "PAID_OUT" | "WAITING"): number {
-    if (mode === "WAITING") {
+  function sumValues(
+    mode: "REFUSED" | "PAID_OUT" | "WAITING",
+    overdue: boolean
+  ): number {
+    if (mode === "WAITING" && overdue) {
       return payments
         .filter(
           (obj) => obj.status === mode && new Date(obj.due_date) < new Date()
@@ -126,6 +134,33 @@ export default function PaymentsManager() {
         .filter((obj) => obj.status === mode)
         .reduce((partialSum, a) => partialSum + parseFloat(a.total), 0);
     }
+  }
+
+  function handleSelectRow(id: string, select: boolean) {
+    if (select) {
+      setSelectedRows([...selectedRow, id]);
+    } else {
+      const updated = selectedRow.filter((obj) => obj !== id);
+      setSelectedRows(updated);
+    }
+  }
+
+  function confirmPayments() {
+    setConfirmLoading(true);
+    api
+      .put("/payments/confirm", {
+        ids: selectedRow,
+      })
+      .then((response) => {
+        getSuccessMessage({ message: response.data.message });
+        setConfirmLoading(false);
+        getPayments();
+        setSelectedRows([]);
+      })
+      .catch((error) => {
+        getErrorMessage({ error });
+        setConfirmLoading(false);
+      });
   }
 
   useEffect(() => {
@@ -347,7 +382,7 @@ export default function PaymentsManager() {
                         fontWeight={600}
                         lineHeight={"40px"}
                       >
-                        {formatCurrency(sumValues("PAID_OUT"))}
+                        {formatCurrency(sumValues("PAID_OUT", false))}
                       </Typography>
                       <Typography variant="body2">Total Recebido</Typography>
                     </Box>
@@ -374,9 +409,9 @@ export default function PaymentsManager() {
                         fontWeight={600}
                         lineHeight={"40px"}
                       >
-                        {formatCurrency(sumValues("WAITING"))}
+                        {formatCurrency(sumValues("WAITING", true))}
                       </Typography>
-                      <Typography variant="body2">Total Devido</Typography>
+                      <Typography variant="body2">Total Vencido</Typography>
                     </Box>
                   </Stack>
                 </Box>
@@ -384,7 +419,7 @@ export default function PaymentsManager() {
 
               <Grid item xs={12} md={4}>
                 <Box
-                  bgcolor={grey["900"]}
+                  bgcolor={orange["700"]}
                   sx={{
                     boxShadow: "0px 0px 9px rgba(0, 0, 0, 0.05)",
                     borderRadius: "4px",
@@ -401,15 +436,71 @@ export default function PaymentsManager() {
                         fontWeight={600}
                         lineHeight={"40px"}
                       >
-                        {formatCurrency(sumValues("REFUSED"))}
+                        {formatCurrency(sumValues("WAITING", false))}
                       </Typography>
-                      <Typography variant="body2">Total Recusado</Typography>
+                      <Typography variant="body2">Total a Pagar</Typography>
                     </Box>
                   </Stack>
                 </Box>
               </Grid>
             </Grid>
           </Box>
+
+          <Stack
+            direction={"row"}
+            gap={2}
+            justifyContent={"space-between"}
+            mt={2}
+            alignItems={"center"}
+            flexWrap={"wrap"}
+          >
+            <Stack direction={"row"} gap={2} flexWrap={"wrap"}>
+              <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                <Box
+                  width={"20px"}
+                  height={"20px"}
+                  bgcolor={green["700"]}
+                  borderRadius={"4px"}
+                />
+                <Typography color={grey["800"]} variant="body2">
+                  Pagamento Confirmado
+                </Typography>
+              </Stack>
+              <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                <Box
+                  width={"20px"}
+                  height={"20px"}
+                  bgcolor={orange["700"]}
+                  borderRadius={"4px"}
+                />
+                <Typography color={grey["800"]} variant="body2">
+                  Aguardando Pagamento
+                </Typography>
+              </Stack>
+              <Stack direction={"row"} spacing={1} alignItems={"center"}>
+                <Box
+                  width={"20px"}
+                  height={"20px"}
+                  bgcolor={red["700"]}
+                  borderRadius={"4px"}
+                />
+                <Typography color={grey["800"]} variant="body2">
+                  Não Pago
+                </Typography>
+              </Stack>
+            </Stack>
+
+            <Button
+              startIcon={<AiOutlineCheck />}
+              variant="contained"
+              disabled={!selectedRow.length}
+              color="success"
+              loading={confirmLoading}
+              onClick={confirmPayments}
+            >
+              Confirmar {selectedRow.length > 1 ? "Pagamentos" : "Pagamento"}
+            </Button>
+          </Stack>
 
           <Box mt={2}>
             <DefaultContainer disabledPadding disablePaddingInside>
@@ -424,12 +515,13 @@ export default function PaymentsManager() {
                       <Table size="small">
                         <TableHead>
                           <TableRow>
+                            <TableCell></TableCell>
                             <TableCell>Compra Nº</TableCell>
                             <TableCell sx={{ minWidth: "240px" }}>
                               Cliente
                             </TableCell>
                             <TableCell sx={{ minWidth: "190px" }}>
-                              Status do Pagamento
+                              Pagamento
                             </TableCell>
                             <TableCell sx={{ minWidth: "180px" }}>
                               Data de Vencimento
@@ -438,11 +530,6 @@ export default function PaymentsManager() {
                               sx={{ minWidth: "150px", textAlign: "right" }}
                             >
                               Valor
-                            </TableCell>
-                            <TableCell
-                              sx={{ width: "5px", textAlign: "center" }}
-                            >
-                              Ações
                             </TableCell>
                           </TableRow>
                         </TableHead>
@@ -458,16 +545,35 @@ export default function PaymentsManager() {
                                     ? red["100"]
                                     : "",
                               }}
+                              selected={
+                                selectedRow.find((obj) => obj === payment.id)
+                                  ? true
+                                  : false
+                              }
                             >
+                              <TableCell>
+                                <Checkbox
+                                  color="primary"
+                                  inputProps={{
+                                    "aria-label": "select all desserts",
+                                  }}
+                                  size="small"
+                                  disabled={payment.status === "PAID_OUT"}
+                                  onChange={(e) =>
+                                    handleSelectRow(
+                                      payment.id,
+                                      e.target.checked
+                                    )
+                                  }
+                                />
+                              </TableCell>
                               <TableCell>{payment.order.code || ""}</TableCell>
                               <TableCell>
                                 {payment.order.client.name || ""}
                               </TableCell>
                               <TableCell>
                                 <Chip
-                                  label={
-                                    handlePaymentStatus(payment.status).label
-                                  }
+                                  label={handlePayForm(payment.pay_form)}
                                   size="small"
                                   color={
                                     handlePaymentStatus(payment.status).color
@@ -479,17 +585,6 @@ export default function PaymentsManager() {
                               </TableCell>
                               <TableCell sx={{ textAlign: "right" }}>
                                 {formatCurrency(payment.total)}
-                              </TableCell>
-                              <TableCell>
-                                <Stack
-                                  direction={"row"}
-                                  spacing={1}
-                                  justifyContent={"center"}
-                                >
-                                  <IconButton size="small" color="primary">
-                                    <AiOutlineEdit />
-                                  </IconButton>
-                                </Stack>
                               </TableCell>
                             </TableRow>
                           ))}

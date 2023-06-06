@@ -3,8 +3,10 @@ import AppBar from "../../components/layout/AppBar";
 import Container from "../../components/layout/Container";
 import {
   Autocomplete,
+  Backdrop,
   Box,
   Chip,
+  CircularProgress,
   Dialog,
   DialogContent,
   DialogTitle,
@@ -74,15 +76,20 @@ export default function PdvPage() {
   );
   const [quantity, setQuantity] = useState<string | number>(1);
 
+  const [backdrop, setBackdrop] = useState<boolean>(false);
+
   function getProducts() {
+    setBackdrop(true);
     api
       .get("/pdv/initial-data")
       .then((response) => {
         setClients(response.data.clients);
         setProducts(response.data.products);
+        setBackdrop(false);
       })
       .catch((error) => {
         getErrorMessage({ error });
+        setBackdrop(false);
       });
   }
 
@@ -797,6 +804,13 @@ export default function PdvPage() {
           </Box>
         </DialogContent>
       </Dialog>
+
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={backdrop}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </Fragment>
   );
 }

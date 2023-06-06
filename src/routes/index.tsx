@@ -27,6 +27,7 @@ import PaymentsManager from "../pages/Financial/payments";
 import Supplier from "../pages/Supplier";
 import SaveSupplier from "../pages/Supplier/save";
 import CashierReport from "../pages/Cashier/report";
+import AppReport from "../pages/Financial/report";
 
 export default function AppRoutes() {
   return (
@@ -86,6 +87,7 @@ export default function AppRoutes() {
               <Route path="editar/:moviment" element={<SaveFinancial />} />
             </Route>
             <Route path="pagamentos" element={<PaymentsManager />} />
+            <Route path="relatorio" element={<AppReport />} />
           </Route>
         </Route>
       </Route>
