@@ -230,7 +230,9 @@ export default function Checkout() {
         ) : (
           <Box p={"20px"}>
             {isLoading ? (
-              <Loading />
+              <DefaultContainer disabledPadding>
+                <Loading />
+              </DefaultContainer>
             ) : (
               <>
                 {!myOrder ? (
