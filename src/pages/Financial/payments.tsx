@@ -49,6 +49,7 @@ import handlePaymentStatus from "../../helpers/hanldePaymentStatus";
 import Swal from "sweetalert2";
 import handlePayForm from "../../helpers/handlePayForm";
 import getSuccessMessage from "../../helpers/getMessageSuccess";
+import differenceInDays from "date-fns/differenceInDays";
 
 export default function PaymentsManager() {
   const navigate = useNavigate();
@@ -161,6 +162,12 @@ export default function PaymentsManager() {
         getErrorMessage({ error });
         setConfirmLoading(false);
       });
+  }
+
+  function handleOverdue(date: Date): string {
+    const difference = differenceInDays(new Date(), new Date(date));
+    const label = difference > 1 ? "dias" : "dia";
+    return `Vencido à ${difference} ${label}`;
   }
 
   useEffect(() => {
@@ -581,7 +588,22 @@ export default function PaymentsManager() {
                                 />
                               </TableCell>
                               <TableCell>
-                                {formatDate(payment.due_date)}
+                                <Stack
+                                  direction={"row"}
+                                  spacing={1}
+                                  alignItems={"center"}
+                                >
+                                  <Typography variant="body2">
+                                    {formatDate(payment.due_date)}
+                                  </Typography>
+                                  {new Date(payment.due_date) < new Date() && (
+                                    <Chip
+                                      label={handleOverdue(payment.due_date)}
+                                      size="small"
+                                      color="error"
+                                    />
+                                  )}
+                                </Stack>
                               </TableCell>
                               <TableCell sx={{ textAlign: "right" }}>
                                 {formatCurrency(payment.total)}

@@ -132,7 +132,7 @@ export default function AppReport() {
     <Fragment>
       <AppBar title="Relatório Financeiro" />
 
-      <Container>
+      <Container size="lg">
         <Box p={2}>
           <MenuContainer>
             <MenuItem

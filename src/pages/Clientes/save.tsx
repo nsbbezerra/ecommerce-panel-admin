@@ -178,7 +178,9 @@ export default function SaveClient() {
           document: clientsForm.document,
           phone: clientsForm.phone,
           email: clientsForm.email,
-          password: sha256(clientsForm.password),
+          password: !clientsForm.password.length
+            ? null
+            : sha256(clientsForm.password),
         },
       })
       .then((response) => {

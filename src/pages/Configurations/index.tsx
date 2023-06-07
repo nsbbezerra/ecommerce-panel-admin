@@ -7,6 +7,8 @@ import { MenuContainer, MenuItem } from "../Pdv/styles";
 import { IoIosDesktop } from "react-icons/io";
 import { MdPayments } from "react-icons/md";
 import AppConfigs from "./app";
+import { FaUserShield } from "react-icons/fa";
+import ConfigsUsers from "./users";
 
 export default function Configurations() {
   const [alignment, setAlignment] = useState("app");
@@ -39,11 +41,22 @@ export default function Configurations() {
                   <span className="menu-desc">DE PAGAMENTOS</span>
                 </div>
               </MenuItem>
+              <MenuItem
+                active={alignment === "users"}
+                onClick={() => setAlignment("users")}
+              >
+                <FaUserShield className="menu-icon" />
+                <div className="menu-right">
+                  <span className="menu-title">CONFIGURAÇÕES</span>
+                  <span className="menu-desc">DE USUÁRIOS</span>
+                </div>
+              </MenuItem>
             </MenuContainer>
           </Box>
 
           {alignment === "payment" && <PaymentsConfigsPage />}
           {alignment === "app" && <AppConfigs />}
+          {alignment === "users" && <ConfigsUsers />}
         </Container>
       </Box>
     </Box>

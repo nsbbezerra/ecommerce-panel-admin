@@ -9,8 +9,8 @@ import {
   AiOutlineFacebook,
   AiOutlineInstagram,
   AiOutlineLinkedin,
-  AiOutlineWhatsApp,
 } from "react-icons/ai";
+import { TbBrandTelegram } from "react-icons/tb";
 
 export default function HomePage() {
   return (
@@ -24,7 +24,7 @@ export default function HomePage() {
 
         <Stack direction={"row"} spacing={2}>
           <IconButton color="primary">
-            <AiOutlineWhatsApp />
+            <TbBrandTelegram />
           </IconButton>
           <IconButton color="primary">
             <AiOutlineFacebook />

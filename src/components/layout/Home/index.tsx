@@ -1,7 +1,6 @@
 import {
   AppContent,
   AvatarContainer,
-  CompanyName,
   HomeContainer,
   Menu,
   MenuItem,
@@ -24,7 +23,7 @@ import {
   AiOutlineTool,
   AiOutlineUser,
 } from "react-icons/ai";
-import { TbFileInvoice, TbNotebook } from "react-icons/tb";
+import { TbNotebook } from "react-icons/tb";
 import { HiOutlineCollection } from "react-icons/hi";
 import { Scrollbars } from "react-custom-scrollbars-2";
 import { BsPostage } from "react-icons/bs";
