@@ -9,6 +9,7 @@ import Tooltip from "../Tooltip";
 import { Header } from "./styles";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import AuthenticateContext from "../../../context/authenticate/index";
 
 interface Props {
   title: string;
@@ -17,6 +18,7 @@ interface Props {
 export default function AppBar({ title }: Props) {
   const navigate = useNavigate();
   const { is, setIs } = useContext(BooleanEventsContext);
+  const { setAuthenticate } = useContext(AuthenticateContext);
 
   function logout() {
     Swal.fire({
@@ -30,6 +32,8 @@ export default function AppBar({ title }: Props) {
       showDenyButton: true,
     }).then((results) => {
       if (results.isConfirmed) {
+        localStorage.removeItem("token");
+        setAuthenticate({ token: "" });
         navigate("/");
       }
     });
